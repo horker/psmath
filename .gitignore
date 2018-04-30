@@ -1,0 +1,11 @@
+HorkerDataAnalysis/
+debug/
+
+.vs/
+bin/
+obj/
+packages/
+*.user
+
+private/
+vendor/

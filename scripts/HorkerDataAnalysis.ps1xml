@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<Configuration>
+    <ViewDefinitions>
+        <View>
+            <Name>Accord.Statistics.Analysis.LogisticRegressionAnalysis</Name>
+            <ViewSelectedBy>
+                <TypeName>Accord.Statistics.Analysis.LogisticRegressionAnalysis</TypeName>
+            </ViewSelectedBy>
+            <ListControl>
+                <ListEntries>
+                    <ListEntry>
+                        <ListItems>
+                            <ListItem>
+                                <Label>Coefficients</Label>
+                                <ScriptBlock>
+                                    (" " * 14) + "     Value  OddsRatio StandardError       Wald LikelihoodRatio`r`n" +
+                                    (($_.Coefficients | foreach { "{0,-13} {1,10:0.###} {2,10:0.###} {3,13:0.###} {4,10:0.###} {5,15:0.###}" -f $_.Name, $_.Value, $_.OddsRatio, $_.StandardError, $_.Wald, $_.LikelihoodRatio }) -join "`r`n") + "`r`n"
+                                </ScriptBlock>
+                            </ListItem>
+                            <ListItem>
+                                <PropertyName>NumberOfSamples</PropertyName>
+                            </ListItem>
+                            <ListItem>
+                                <PropertyName>LogLikelihood</PropertyName>
+                            </ListItem>
+                            <ListItem>
+                                <PropertyName>Deviance</PropertyName>
+                            </ListItem>
+                            <ListItem>
+                                <Label>AIC</Label>
+                                <ScriptBlock>
+                                    $_.Deviance + 2 * ($_.Inputs.Count + 1)
+                                </ScriptBlock>
+                            </ListItem>
+                        </ListItems>
+                    </ListEntry>
+                </ListEntries>
+            </ListControl>
+        </View>
+    </ViewDefinitions>
+</Configuration>
