@@ -73,10 +73,10 @@ function Remove-Item2 {
 
 ############################################################
 
-#task Compile {
-#  msbuild $SOLUTION_FILE /p:Configuration=Debug /nologo /v:quiet
-#  msbuild $SOLUTION_FILE /p:Configuration=Release /nologo /v:quiet
-#}
+task Compile {
+  msbuild $SOLUTION_FILE /p:Configuration=Debug /nologo /v:minimal
+  msbuild $SOLUTION_FILE /p:Configuration=Release /nologo /v:minimal
+}
 
 task Build {
   . {
