@@ -7,36 +7,20 @@
             <ViewSelectedBy>
                 <TypeName>Accord.Statistics.Analysis.LogisticRegressionAnalysis</TypeName>
             </ViewSelectedBy>
-            <ListControl>
-                <ListEntries>
-                    <ListEntry>
-                        <ListItems>
-                            <ListItem>
-                                <Label>Coefficients</Label>
+            <CustomControl>
+                <CustomEntries>
+                    <CustomEntry>
+                        <CustomItem>
+                            <ExpressionBinding>
                                 <ScriptBlock>
-                                    (" " * 14) + "     Value  OddsRatio StandardError       Wald LikelihoodRatio`r`n" +
-                                    (($_.Coefficients | foreach { "{0,-13} {1,10:0.###} {2,10:0.###} {3,13:0.###} {4,10:0.###} {5,15:0.###}" -f $_.Name, $_.Value, $_.OddsRatio, $_.StandardError, $_.Wald, $_.LikelihoodRatio }) -join "`r`n") + "`r`n"
+(($_.Coefficients | Format-Table Name, Value, OddsRatio, StandardError, Wald, LikelihoodRatio | Out-String) -Replace "(\r?\n)+", "`n" ) +
+(($_ | Format-List NumberOfSamples, LogLikelihood, Deviance, @{ l = "AIC"; e = { $_.Deviance + 2 * ($_.Inputs.Count + 1) } } | Out-String) -Replace "(\r?\n)+", "`n" -Replace "(\r?\n)$", "")
                                 </ScriptBlock>
-                            </ListItem>
-                            <ListItem>
-                                <PropertyName>NumberOfSamples</PropertyName>
-                            </ListItem>
-                            <ListItem>
-                                <PropertyName>LogLikelihood</PropertyName>
-                            </ListItem>
-                            <ListItem>
-                                <PropertyName>Deviance</PropertyName>
-                            </ListItem>
-                            <ListItem>
-                                <Label>AIC</Label>
-                                <ScriptBlock>
-                                    $_.Deviance + 2 * ($_.Inputs.Count + 1)
-                                </ScriptBlock>
-                            </ListItem>
-                        </ListItems>
-                    </ListEntry>
-                </ListEntries>
-            </ListControl>
+                            </ExpressionBinding>
+                        </CustomItem>
+                    </CustomEntry>
+                </CustomEntries>
+            </CustomControl>
         </View>
     </ViewDefinitions>
 </Configuration>

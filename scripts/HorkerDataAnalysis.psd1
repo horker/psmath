@@ -69,7 +69,7 @@ RequiredAssemblies = @(
 
 # Format files (.ps1xml) to be loaded when importing this module
 FormatsToProcess = @(
-  "HorkerDataAnalysis.ps1xml"
+  "HorkerDataAnalysis.Format.ps1xml"
 )
 
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
