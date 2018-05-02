@@ -37,18 +37,14 @@ namespace Horker.DataAnalysis
         [Parameter(Position = 0, Mandatory = true, ParameterSetName = "FromJagged")]
         public object[][] FromJagged;
 
-        [Parameter(Mandatory = true, ParameterSetName = "Diagonal")]
-        public SwitchParameter Diagonal;
-
-        [Parameter(Position = 0, Mandatory = false, ParameterSetName = "Diagonal")]
-        [Parameter(Position = 0, Mandatory = true, ParameterSetName = "WithValue")]
-        public object Value = 1.0;
+        [Parameter(Position = 0, Mandatory = true, ParameterSetName = "Diagonal")]
+        public object Diagonal;
 
         [Parameter(Position = 0, Mandatory = true, ParameterSetName = "Identity")]
         public SwitchParameter Identity;
 
         [Parameter(Position = 0, Mandatory = true, ParameterSetName = "WithValue")]
-        public SwitchParameter WithValue;
+        public object WithValue;
 
         [Parameter(Position = 0, Mandatory = true, ParameterSetName = "Zero")]
         public SwitchParameter Zero;
@@ -76,10 +72,10 @@ namespace Horker.DataAnalysis
                 _data = new DataFrame(FromArray, RowSize, ColumnSize, Transpose);
             }
             else if (ParameterSetName == "Diagonal") {
-                _data = DataFrame.Diagonal(Value, RowSize, ColumnSize);
+                _data = DataFrame.Diagonal(Diagonal, RowSize, ColumnSize);
             }
             else if (ParameterSetName == "WithValue") {
-                _data = DataFrame.WithValue(Value, RowSize, ColumnSize);
+                _data = DataFrame.WithValue(WithValue, RowSize, ColumnSize);
             }
             else if (ParameterSetName == "Identity") {
                 _data = DataFrame.Identity(RowSize, ColumnSize);
