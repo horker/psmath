@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Management.Automation;
 using Accord.Math;
+using Accord.Math.Decompositions;
 using System.Text;
 
 namespace Horker.DataAnalysis
@@ -241,7 +242,7 @@ namespace Horker.DataAnalysis
 
         }
 
-        public IEnumerable<String> ColumnNames => _names;
+        public List<String> ColumnNames => _names;
 
         public List<object> Values
         {
@@ -413,6 +414,10 @@ namespace Horker.DataAnalysis
 
         public void RemoveColumn(string name)
         {
+            if (!_names.Contains(name)) {
+                throw new RuntimeException("No such a column");
+            }
+
             InvalidateCache();
             _columns.Remove(name);
             _names.Remove(name);
@@ -549,16 +554,9 @@ namespace Horker.DataAnalysis
             return data;
         }
 
-        // Accord.NET methods
+        // Inplace conversions
 
-        public Vector Solve(Vector rightSide, bool leastSquares = false)
-        {
-            return new Vector(this.ToDoubleJaggedArray().Solve(rightSide.ToDoubleArray(), leastSquares));
-        }
-
-        // Data manupilation
-
-        public void Codify(string columnName, CodificationType codificationType = CodificationType.OneHotDropFirst)
+        public void ColumnToDummyValues(string columnName, CodificationType codificationType = CodificationType.OneHotDropFirst)
         {
             var baseName = columnName;
             if (codificationType != CodificationType.Multilevel) {
@@ -566,9 +564,19 @@ namespace Horker.DataAnalysis
             }
 
             var column = this[columnName];
-            this.RemoveColumn(columnName);
+            RemoveColumn(columnName);
 
             column.ToDummyValues(this, baseName, codificationType);
+        }
+
+        // Data manupilation
+
+        public void Aggregate(DataFrame df)
+        {
+            for (var i = 0; i < df.ColumnCount; ++i) {
+                var column = df.GetColumn(i);
+                DefineNewColumn(df.ColumnNames[i], new Vector(column));
+            }
         }
 
         public DataFrameGroup GroupBy(string columnName)

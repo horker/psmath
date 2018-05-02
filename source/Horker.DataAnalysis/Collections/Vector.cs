@@ -47,6 +47,11 @@ namespace Horker.DataAnalysis
             }
         }
 
+        public Vector(Vector v)
+            : base(v)
+        {
+        }
+
         // Factory methods
 
         public static Vector GetDoubleRange(double a, double b, double step = 1.0, bool inclusive = true)
