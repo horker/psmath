@@ -595,6 +595,69 @@ namespace Horker.DataAnalysis
             return Measures.Entropy(ToDoubleArray());
         }
 
+        public DataFrame DiscreteHistogram()
+        {
+            var hist = new Dictionary<object, int>();
+
+            foreach (var value in this) {
+                if (hist.ContainsKey(value)) {
+                    ++hist[value];
+                }
+                else {
+                    hist[value] = 1;
+                }
+            }
+
+            var labels = new Vector(hist.Keys.ToArray());
+            labels.Sort();
+
+            var counts = new Vector(labels.Count);
+            foreach (var label in labels) {
+                counts.Add(hist[label]);
+            }
+
+            var df = new DataFrame();
+            df.DefineNewColumn("Label", labels);
+            df.DefineNewColumn("Count", counts);
+
+            return df;
+        }
+
+        public DataFrame Histogram(double binWidth = double.NaN, double offset = 0.0)
+        {
+            if (double.IsNaN(binWidth)) {
+                var binCount = Math.Min(100, Math.Ceiling(Math.Sqrt(Count)));
+                binWidth = (Max() - Min()) / binCount;
+            }
+
+            var hist = new Dictionary<double, int>();
+
+            foreach (var value in this) {
+                var bin = Math.Floor((Converter.ToDouble(value) - offset) / binWidth);
+
+                if (hist.ContainsKey(bin)) {
+                    ++hist[bin];
+                }
+                else {
+                    hist[bin] = 1;
+                }
+            }
+
+            var labels = hist.Keys.ToArray();
+            labels.Sort();
+
+            var counts = new Vector(labels.Length);
+            foreach (var label in labels) {
+                counts.Add(hist[label]);
+            }
+
+            var df = new DataFrame();
+            df.DefineNewColumn("Label", new Vector(labels.Apply(x => x * binWidth)));
+            df.DefineNewColumn("Count", counts);
+
+            return df;
+        }
+
         public double GeometricMean()
         {
             return Measures.GeometricMean(ToDoubleArray());
