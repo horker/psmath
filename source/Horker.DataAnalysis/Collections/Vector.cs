@@ -400,15 +400,6 @@ namespace Horker.DataAnalysis
             }
         }
 
-        public void Replace(ScriptBlock f)
-        {
-            for (var i = 0; i < Count; ++i) {
-                var va = new List<PSVariable>() { new PSVariable("_") };
-                va[0].Value = this[i];
-                this[i] = f.InvokeWithContext(null, va, null).Last();
-            }
-        }
-
         public void Shuffle()
         {
             // ref. https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
@@ -437,6 +428,139 @@ namespace Horker.DataAnalysis
                 this[i] = Converter.ExtractNumber(this[i].ToString());
             }
         }
+
+        #endregion
+
+        #region Elementwise operations
+
+        public Vector Apply(Func<object, object> f)
+        {
+            var result = new Vector(Count);
+
+            for (var i = 0; i < Count; ++i) {
+                result.Add(f.Invoke(this[i]));
+            }
+
+            return result;
+        }
+
+        public Vector Apply(Func<object, object, object> f, object arg1)
+        {
+            var result = new Vector(Count);
+
+            for (var i = 0; i < Count; ++i) {
+                result.Add(f.Invoke(this[i], arg1));
+            }
+
+            return result;
+        }
+
+        public Vector Apply(ScriptBlock f)
+        {
+            var result = new Vector(Count);
+
+            for (var i = 0; i < Count; ++i) {
+                var va = new List<PSVariable>() { new PSVariable("_") };
+                va[0].Value = this[i];
+                result.Add(f.InvokeWithContext(null, va, null).Last());
+            }
+
+            return result;
+        }
+
+        public void ApplyInPlace(Func<object, object> f)
+        {
+            for (var i = 0; i < Count; ++i) {
+                this[i] = f.Invoke(this[i]);
+            }
+        }
+
+        public void ApplyInPlace(Func<object, object, object> f, object arg1)
+        {
+            for (var i = 0; i < Count; ++i) {
+                this[i] = f.Invoke(this[i], arg1);
+            }
+        }
+
+        public void ApplyInPlace(ScriptBlock f)
+        {
+            for (var i = 0; i < Count; ++i) {
+                var va = new List<PSVariable>() { new PSVariable("_") };
+                va[0].Value = this[i];
+                this[i] = f.InvokeWithContext(null, va, null).Last();
+            }
+        }
+
+        public Vector Apply(Vector b, Func<object, object, object> f)
+        {
+            if (Count > b.Count) {
+                throw new RuntimeException("Vector lengths are not the same");
+            }
+
+            var result = new Vector(Count);
+
+            for (var i = 0; i < Count; ++i) {
+                result.Add(f.Invoke(this[i], b[i]));
+            }
+
+            return result;
+        }
+
+        public void ApplyInPlace(Vector b, Func<object, object, object> f)
+        {
+            if (Count > b.Count) {
+                throw new RuntimeException("Vector lengths are not the same");
+            }
+
+            for (var i = 0; i < Count; ++i) {
+                this[i] = f.Invoke(this[i], b[i]);
+            }
+        }
+
+        // Scalar arithmetics
+
+        public Vector Plus(double arg1) { return Apply(x => Converter.ToDouble(x) + arg1); }
+        public Vector Subtract(double arg1) { return Apply(x => Converter.ToDouble(x) - arg1); }
+        public Vector Multiply(double arg1) { return Apply(x => Converter.ToDouble(x) * arg1); }
+        public Vector Divide(double arg1) { return Apply(x => Converter.ToDouble(x) / arg1); }
+        public Vector Negate() { return Apply(x => -Converter.ToDouble(x)); }
+
+        // System.Math functions
+
+        public Vector Abs() { return Apply(x => Math.Abs(Converter.ToDouble(x))); }
+        public Vector Acos() { return Apply(x => Math.Acos(Converter.ToDouble(x))); }
+        public Vector Asin() { return Apply(x => Math.Asin(Converter.ToDouble(x))); }
+        public Vector Atan() { return Apply(x => Math.Atan(Converter.ToDouble(x))); }
+        public Vector Atan2(double arg) { return Apply(x => Math.Atan2(Converter.ToDouble(x), arg)); }
+        public Vector Ceiling() { return Apply(x => Math.Ceiling(Converter.ToDouble(x))); }
+        public Vector Cos() { return Apply(x => Math.Cos(Converter.ToDouble(x))); }
+        public Vector Cosh() { return Apply(x => Math.Cosh(Converter.ToDouble(x))); }
+        public Vector Exp() { return Apply(x => Math.Exp(Converter.ToDouble(x))); }
+        public Vector Floor() { return Apply(x => Math.Floor(Converter.ToDouble(x))); }
+        public Vector IEEERemainder(double arg) { return Apply(x => Math.IEEERemainder(Converter.ToDouble(x), arg)); }
+        public Vector Log() { return Apply(x => Math.Log(Converter.ToDouble(x))); }
+        public Vector Log(double arg) { return Apply(x => Math.Log(Converter.ToDouble(x), arg)); }
+        public Vector Log10() { return Apply(x => Math.Log10(Converter.ToDouble(x))); }
+        public Vector Max(double arg) { return Apply(x => Math.Max(Converter.ToDouble(x), arg)); }
+        public Vector Min(double arg) { return Apply(x => Math.Min(Converter.ToDouble(x), arg)); }
+        public Vector Pow(double arg) { return Apply(x => Math.Pow(Converter.ToDouble(x), arg)); }
+        public Vector Round() { return Apply(x => Math.Round(Converter.ToDouble(x))); }
+        public Vector Round(int arg) { return Apply(x => Math.Round(Converter.ToDouble(x), arg)); }
+        public Vector Round(int arg, MidpointRounding arg2) { return Apply(x => Math.Round(Converter.ToDouble(x), arg, arg2)); }
+        public Vector Sign() { return Apply(x => Math.Sign(Converter.ToDouble(x))); }
+        public Vector Sin() { return Apply(x => Math.Sin(Converter.ToDouble(x))); }
+        public Vector Sinh() { return Apply(x => Math.Sinh(Converter.ToDouble(x))); }
+        public Vector Sqrt() { return Apply(x => Math.Sqrt(Converter.ToDouble(x))); }
+        public Vector Tan() { return Apply(x => Math.Tan(Converter.ToDouble(x))); }
+        public Vector Tanh() { return Apply(x => Math.Tanh(Converter.ToDouble(x))); }
+        public Vector Truncate() { return Apply(x => Math.Truncate(Converter.ToDouble(x))); }
+
+        // Vector arithmetics
+
+        public Vector Plus(Vector b) { return Apply(b, (x, y) => Converter.ToDouble(x) + Converter.ToDouble(y)); }
+        public Vector Subtract(Vector b) { return Apply(b, (x, y) => Converter.ToDouble(x) - Converter.ToDouble(y)); }
+        public Vector Multiply(Vector b) { return Apply(b, (x, y) => Converter.ToDouble(x) * Converter.ToDouble(y)); }
+        public Vector Divide(Vector b) { return Apply(b, (x, y) => Converter.ToDouble(x) / Converter.ToDouble(y)); }
 
         #endregion
 
@@ -718,19 +842,6 @@ namespace Horker.DataAnalysis
             return Vector.Create(ToDoubleArray().Cross(b.ToDoubleArray()));
         }
 
-        public Vector Apply(ScriptBlock f)
-        {
-            var result = new Vector(Count);
-
-            for (var i = 0; i < Count; ++i) {
-                var va = new List<PSVariable>() { new PSVariable("_") };
-                va[0].Value = this[i];
-                result.Add(f.InvokeWithContext(null, va, null).Last());
-            }
-
-            return result;
-        }
-
         public Vector Sample(int size, bool replacement = false)
         {
             // ref. https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
@@ -787,50 +898,6 @@ namespace Horker.DataAnalysis
         #endregion
 
         #region Linear algebra / numerical operations (destructive)
-
-        public void VectorAdd(Vector b)
-        {
-            if (this.Count != b.Count) {
-                throw new RuntimeException("Vector lengths are not the same");
-            }
-
-            for (var i = 0; i < this.Count; ++i) {
-                this[i] = Converter.ToDouble(this[i]) + Converter.ToDouble(b[i]);
-            }
-        }
-
-        public void VectorSubtract(Vector b)
-        {
-            if (this.Count != b.Count) {
-                throw new RuntimeException("Vector lengths are not the same");
-            }
-
-            for (var i = 0; i < this.Count; ++i) {
-                this[i] = Converter.ToDouble(this[i]) - Converter.ToDouble(b[i]);
-            }
-        }
-
-        public void VectorMultiply(Vector b)
-        {
-            if (this.Count != b.Count) {
-                throw new RuntimeException("Vector lengths are not the same");
-            }
-
-            for (var i = 0; i < this.Count; ++i) {
-                this[i] = Converter.ToDouble(this[i]) * Converter.ToDouble(b[i]);
-            }
-        }
-
-        public void VectorDivide(Vector b)
-        {
-            if (this.Count != b.Count) {
-                throw new RuntimeException("Vector lengths are not the same");
-            }
-
-            for (var i = 0; i < this.Count; ++i) {
-                this[i] = Converter.ToDouble(this[i]) / Converter.ToDouble(b[i]);
-            }
-        }
 
         #endregion
 

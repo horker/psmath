@@ -210,6 +210,17 @@ namespace Horker.DataAnalysis
             return WithValue(0.0, rowCount, columnCount);
         }
 
+        public DataFrame Clone()
+        {
+            var df = new DataFrame();
+
+            for (var i = 0; i < ColumnCount; ++i) {
+                df.DefineNewColumn(ColumnNames[i], new Vector(GetColumn(i)));
+            }
+
+            return df;
+        }
+
         #endregion
 
         #region Properties
@@ -242,19 +253,6 @@ namespace Horker.DataAnalysis
         }
 
         public List<String> ColumnNames => _names;
-
-        public List<object> Values
-        {
-            get
-            {
-                var values = new List<object>();
-                var count = this.Count;
-                for (var i = 0; i < count; ++i) {
-                    values.Add(GetRow(i));
-                }
-                return values;
-            }
-        }
 
         public Vector this[string name] {
             get => GetColumn(name);
@@ -688,6 +686,184 @@ namespace Horker.DataAnalysis
             InvalidateCache();
             _columns.Clear();
         }
+
+        #endregion
+
+        #region Elementwise operations
+
+        public DataFrame Apply(Func<object, object> f)
+        {
+            var df = new DataFrame();
+
+            for (var column = 0; column < ColumnCount; ++column) {
+                var v = GetColumn(column);
+                var newVec = new Vector(v.Count);
+                for (var row = 0; row < RowCount; ++row) {
+                    newVec.Add(f.Invoke(v[row]));
+                }
+                df.DefineNewColumn(ColumnNames[column], newVec);
+            }
+
+            return df;
+        }
+
+        public DataFrame Apply(Func<object, object, object> f, object arg1)
+        {
+            var df = new DataFrame();
+
+            for (var column = 0; column < ColumnCount; ++column) {
+                var v = GetColumn(column);
+                var newVec = new Vector(v.Count);
+                for (var row = 0; row < RowCount; ++row) {
+                    newVec.Add(f.Invoke(v[row], arg1));
+                }
+                df.DefineNewColumn(ColumnNames[column], newVec);
+            }
+
+            return df;
+        }
+
+        public DataFrame Apply(ScriptBlock f)
+        {
+            var df = new DataFrame();
+
+            for (var column = 0; column < ColumnCount; ++column) {
+                var v = GetColumn(column);
+                var newVec = new Vector(v.Count);
+                for (var row = 0; row < RowCount; ++row) {
+                    var va = new List<PSVariable>() { new PSVariable("_") };
+                    va[0].Value = v[row];
+                    newVec.Add(f.InvokeWithContext(null, va, null).Last());
+                }
+                df.DefineNewColumn(ColumnNames[column], newVec);
+            }
+
+            return df;
+        }
+
+        public void ApplyInPlace(Func<object, object> f)
+        {
+            for (var column = 0; column < ColumnCount; ++column) {
+                var v = GetColumn(column);
+                for (var row = 0; row < RowCount; ++row) {
+                    v[row] = f.Invoke(v[row]);
+                }
+            }
+        }
+
+        public void ApplyInPlace(Func<object, object, object> f, object arg1)
+        {
+            for (var column = 0; column < ColumnCount; ++column) {
+                var v = GetColumn(column);
+                for (var row = 0; row < RowCount; ++row) {
+                    v[row] = f.Invoke(v[row], arg1);
+                }
+            }
+        }
+
+        public void ApplyInPlace(ScriptBlock f)
+        {
+            for (var column = 0; column < ColumnCount; ++column) {
+                var v = GetColumn(column);
+                for (var row = 0; row < RowCount; ++row) {
+                    var va = new List<PSVariable>() { new PSVariable("_") };
+                    va[0].Value = v[row];
+                    v[row] = f.InvokeWithContext(null, va, null).Last();
+                }
+            }
+        }
+
+        public DataFrame Apply(DataFrame b, Func<object, object, object> f)
+        {
+            if (ColumnCount > b.ColumnCount || RowCount > b.RowCount) {
+                throw new RuntimeException("Data sizes are not the same");
+            }
+
+            var df = new DataFrame();
+
+            for (var column = 0; column < ColumnCount; ++column) {
+                var v = GetColumn(column);
+                var v2 = b.GetColumn(column);
+                var newVec = new Vector(v.Count);
+                for (var row = 0; row < RowCount; ++row) {
+                    newVec.Add(f.Invoke(v[row], v2[row]));
+                }
+                df.DefineNewColumn(ColumnNames[column], newVec);
+            }
+
+            return df;
+        }
+
+        public DataFrame Apply(DataFrame b, ScriptBlock f)
+        {
+            if (ColumnCount > b.ColumnCount || RowCount > b.RowCount) {
+                throw new RuntimeException("Data sizes are not the same");
+            }
+
+            var df = new DataFrame();
+
+            for (var column = 0; column < ColumnCount; ++column) {
+                var v = GetColumn(column);
+                var v2 = b.GetColumn(column);
+                var newVec = new Vector(v.Count);
+                for (var row = 0; row < RowCount; ++row) {
+                    var va = new List<PSVariable>() { new PSVariable("a"), new PSVariable("b") };
+                    va[0].Value = v[row];
+                    va[1].Value = v2[row];
+                    newVec.Add(f.InvokeWithContext(null, va, null).Last());
+                }
+                df.DefineNewColumn(ColumnNames[column], newVec);
+            }
+
+            return df;
+        }
+
+        // Scalar arithmetics
+
+        public DataFrame Add(double arg1) { return Apply(x => Converter.ToDouble(x) + arg1); }
+        public DataFrame Plus(double arg1) { return Add(arg1); }
+        public DataFrame Subtract(double arg1) { return Apply(x => Converter.ToDouble(x) - arg1); }
+        public DataFrame Multiply(double arg1) { return Apply(x => Converter.ToDouble(x) * arg1); }
+        public DataFrame Divide(double arg1) { return Apply(x => Converter.ToDouble(x) / arg1); }
+        public DataFrame Negate() { return Apply(x => -Converter.ToDouble(x)); }
+
+        // System.Math functions
+
+        public DataFrame Abs() { return Apply(x => Math.Abs(Converter.ToDouble(x))); }
+        public DataFrame Acos() { return Apply(x => Math.Acos(Converter.ToDouble(x))); }
+        public DataFrame Asin() { return Apply(x => Math.Asin(Converter.ToDouble(x))); }
+        public DataFrame Atan() { return Apply(x => Math.Atan(Converter.ToDouble(x))); }
+        public DataFrame Atan2(double arg) { return Apply(x => Math.Atan2(Converter.ToDouble(x), arg)); }
+        public DataFrame Ceiling() { return Apply(x => Math.Ceiling(Converter.ToDouble(x))); }
+        public DataFrame Cos() { return Apply(x => Math.Cos(Converter.ToDouble(x))); }
+        public DataFrame Cosh() { return Apply(x => Math.Cosh(Converter.ToDouble(x))); }
+        public DataFrame Exp() { return Apply(x => Math.Exp(Converter.ToDouble(x))); }
+        public DataFrame Floor() { return Apply(x => Math.Floor(Converter.ToDouble(x))); }
+        public DataFrame IEEERemainder(double arg) { return Apply(x => Math.IEEERemainder(Converter.ToDouble(x), arg)); }
+        public DataFrame Log() { return Apply(x => Math.Log(Converter.ToDouble(x))); }
+        public DataFrame Log(double arg) { return Apply(x => Math.Log(Converter.ToDouble(x), arg)); }
+        public DataFrame Log10() { return Apply(x => Math.Log10(Converter.ToDouble(x))); }
+        public DataFrame Max(double arg) { return Apply(x => Math.Max(Converter.ToDouble(x), arg)); }
+        public DataFrame Min(double arg) { return Apply(x => Math.Min(Converter.ToDouble(x), arg)); }
+        public DataFrame Pow(double arg) { return Apply(x => Math.Pow(Converter.ToDouble(x), arg)); }
+        public DataFrame Round() { return Apply(x => Math.Round(Converter.ToDouble(x))); }
+        public DataFrame Round(int arg) { return Apply(x => Math.Round(Converter.ToDouble(x), arg)); }
+        public DataFrame Round(int arg, MidpointRounding arg2) { return Apply(x => Math.Round(Converter.ToDouble(x), arg, arg2)); }
+        public DataFrame Sign() { return Apply(x => Math.Sign(Converter.ToDouble(x))); }
+        public DataFrame Sin() { return Apply(x => Math.Sin(Converter.ToDouble(x))); }
+        public DataFrame Sinh() { return Apply(x => Math.Sinh(Converter.ToDouble(x))); }
+        public DataFrame Sqrt() { return Apply(x => Math.Sqrt(Converter.ToDouble(x))); }
+        public DataFrame Tan() { return Apply(x => Math.Tan(Converter.ToDouble(x))); }
+        public DataFrame Tanh() { return Apply(x => Math.Tanh(Converter.ToDouble(x))); }
+        public DataFrame Truncate() { return Apply(x => Math.Truncate(Converter.ToDouble(x))); }
+
+        // Matrix arithmetics
+
+        public DataFrame Add(DataFrame b) { return Apply(b, (x, y) => Converter.ToDouble(x) + Converter.ToDouble(y)); }
+        public DataFrame Plus(DataFrame b) { return Apply(b, (x, y) => Converter.ToDouble(x) + Converter.ToDouble(y)); }
+        public DataFrame Subtract(DataFrame b) { return Apply(b, (x, y) => Converter.ToDouble(x) - Converter.ToDouble(y)); }
+        public DataFrame Multiply(DataFrame b) { return Apply(b, (x, y) => Converter.ToDouble(x) * Converter.ToDouble(y)); }
+        public DataFrame Divide(DataFrame b) { return Apply(b, (x, y) => Converter.ToDouble(x) / Converter.ToDouble(y)); }
 
         #endregion
 
