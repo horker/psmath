@@ -558,7 +558,7 @@ namespace Horker.DataAnalysis
         // Vector arithmetics
 
         public Vector Plus(Vector b) { return Apply(b, (x, y) => Converter.ToDouble(x) + Converter.ToDouble(y)); }
-        public Vector Subtract(Vector b) { return Apply(b, (x, y) => Converter.ToDouble(x) - Converter.ToDouble(y)); }
+        public Vector Minus(Vector b) { return Apply(b, (x, y) => Converter.ToDouble(x) - Converter.ToDouble(y)); }
         public Vector Multiply(Vector b) { return Apply(b, (x, y) => Converter.ToDouble(x) * Converter.ToDouble(y)); }
         public Vector Divide(Vector b) { return Apply(b, (x, y) => Converter.ToDouble(x) / Converter.ToDouble(y)); }
 

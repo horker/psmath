@@ -859,9 +859,8 @@ namespace Horker.DataAnalysis
 
         // Matrix arithmetics
 
-        public DataFrame Add(DataFrame b) { return Apply(b, (x, y) => Converter.ToDouble(x) + Converter.ToDouble(y)); }
         public DataFrame Plus(DataFrame b) { return Apply(b, (x, y) => Converter.ToDouble(x) + Converter.ToDouble(y)); }
-        public DataFrame Subtract(DataFrame b) { return Apply(b, (x, y) => Converter.ToDouble(x) - Converter.ToDouble(y)); }
+        public DataFrame Minus(DataFrame b) { return Apply(b, (x, y) => Converter.ToDouble(x) - Converter.ToDouble(y)); }
         public DataFrame Multiply(DataFrame b) { return Apply(b, (x, y) => Converter.ToDouble(x) * Converter.ToDouble(y)); }
         public DataFrame Divide(DataFrame b) { return Apply(b, (x, y) => Converter.ToDouble(x) / Converter.ToDouble(y)); }
 
