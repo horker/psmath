@@ -684,6 +684,7 @@ namespace Horker.DataAnalysis
         public void Clear()
         {
             InvalidateCache();
+            _names.Clear();
             _columns.Clear();
         }
 
