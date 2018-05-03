@@ -624,9 +624,30 @@ namespace Horker.DataAnalysis
             return DataFrame.Create(ToDoubleArray().Cartesian(b.ToDoubleArray()));
         }
 
-        public DataFrame Cartesian(Vector b, Func<double, double, double> f)
+        public DataFrame Cartesian(Vector b, ScriptBlock f)
         {
-            throw new NotImplementedException();
+            var x = new Vector(Count * b.Count);
+            var y = new Vector(Count * b.Count);
+            var z = new Vector(Count * b.Count);
+
+            var va = new List<PSVariable>() { new PSVariable("a"), new PSVariable("b") };
+            for (var i = 0; i < Count; ++i) {
+                for (var j = 0; j < b.Count; ++j) {
+                    x.Add(this[i]);
+                    y.Add(b[j]);
+
+                    va[0].Value = this[i];
+                    va[1].Value = b[j];
+                    z.Add(f.InvokeWithContext(null, va, null)[0]);
+                }
+            }
+
+            var df = new DataFrame();
+            df.DefineNewColumn("a", x);
+            df.DefineNewColumn("b", y);
+            df.DefineNewColumn("c", z);
+
+            return df;
         }
 
         public double Dot(Vector b)
@@ -647,6 +668,39 @@ namespace Horker.DataAnalysis
         public DataFrame Outer(Vector b)
         {
             return DataFrame.Create(ToDoubleArray().Outer(b.ToDoubleArray()));
+        }
+
+        public DataFrame Outer(Vector b, Func<object, object, object> f)
+        {
+            var df = new DataFrame();
+
+            for (var column = 0; column < b.Count; ++column) {
+                var v = new Vector(Count);
+                for (var row = 0; row < Count; ++row) {
+                    v.Add(f.Invoke(this[row], b[column]));
+                }
+                df.DefineNewColumn("c" + column, v);
+            }
+
+            return df;
+        }
+
+        public DataFrame Outer(Vector b, ScriptBlock f)
+        {
+            var df = new DataFrame();
+
+            var va = new List<PSVariable>() { new PSVariable("a"), new PSVariable("b") };
+            for (var column = 0; column < b.Count; ++column) {
+                var v = new Vector(Count);
+                for (var row = 0; row < Count; ++row) {
+                    va[0].Value = this[row];
+                    va[1].Value = b[column];
+                    v.Add(f.InvokeWithContext(null, va, null)[0]);
+                }
+                df.DefineNewColumn("c" + column, v);
+            }
+
+            return df;
         }
 
         public Vector Cross(Vector b)
