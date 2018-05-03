@@ -1027,6 +1027,30 @@ namespace Horker.DataAnalysis
             return new CholeskyWrapper(new CholeskyDecomposition(ToDoubleArray(), robust, false, valueType));
         }
 
+        public class GramSchmidtOrthogonalizationWrapper
+        {
+            private GramSchmidtOrthogonalization _gs;
+
+            public GramSchmidtOrthogonalizationWrapper(GramSchmidtOrthogonalization gs)
+            {
+                _gs = gs;
+            }
+
+            public DataFrame OrthogonalFactor => Create(_gs.OrthogonalFactor);
+
+            public DataFrame Q => OrthogonalFactor;
+
+            public DataFrame UpperTriangularFactor => Create(_gs.UpperTriangularFactor);
+
+            public DataFrame R => UpperTriangularFactor;
+        }
+
+        public GramSchmidtOrthogonalizationWrapper GramSchmidtOrthogonalization(bool modified = true)
+        {
+            return new GramSchmidtOrthogonalizationWrapper(
+                new GramSchmidtOrthogonalization(ToDoubleArray(), modified));
+        }
+
         public class EigenvalueWrapper
         {
             private EigenvalueDecomposition _eigen;
