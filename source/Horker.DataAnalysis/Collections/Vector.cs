@@ -679,6 +679,29 @@ namespace Horker.DataAnalysis
             return result;
         }
 
+        public Vector Scale(double fromMin, double fromMax, double toMin, double toMax)
+        {
+            return new Vector(ToDoubleArray().Scale(fromMin, fromMax, toMin, toMax));
+        }
+
+        public Vector Scale(double toMin, double toMax)
+        {
+            return new Vector(ToDoubleArray().Scale(toMin, toMax));
+        }
+
+        public Vector ZScore(bool unbiased = true)
+        {
+            var values = ToDoubleArray();
+            var mean = values.Mean();
+            var sd = values.StandardDeviation(unbiased);
+
+            for (var i = 0; i < values.Length; ++i) {
+                values[i] = (values[i] - mean) / sd;
+            }
+
+            return new Vector(values);
+        }
+
         #endregion
 
         #region Linear algebra / numerical operations (destructive)
