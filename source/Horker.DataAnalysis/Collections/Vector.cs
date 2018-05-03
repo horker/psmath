@@ -561,6 +561,11 @@ namespace Horker.DataAnalysis
             return ToDoubleArray().StandardDeviation(unbiased);
         }
 
+        public double StdDev(bool unbiased = true)
+        {
+            return StandardDeviation(unbiased);
+        }
+
         public double StandardError()
         {
             return Measures.StandardError(ToDoubleArray());
