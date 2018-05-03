@@ -821,12 +821,11 @@ namespace Horker.DataAnalysis
 
         // Scalar arithmetics
 
-        public DataFrame Add(double arg1) { return Apply(x => Converter.ToDouble(x) + arg1); }
-        public DataFrame Plus(double arg1) { return Add(arg1); }
-        public DataFrame Subtract(double arg1) { return Apply(x => Converter.ToDouble(x) - arg1); }
+        public DataFrame Plus(double arg1) { return Apply(x => Converter.ToDouble(x) + arg1); }
+        public DataFrame Minus(double arg1) { return Apply(x => Converter.ToDouble(x) - arg1); }
         public DataFrame Multiply(double arg1) { return Apply(x => Converter.ToDouble(x) * arg1); }
         public DataFrame Divide(double arg1) { return Apply(x => Converter.ToDouble(x) / arg1); }
-        public DataFrame Negate() { return Apply(x => -Converter.ToDouble(x)); }
+        public DataFrame Minus() { return Apply(x => -Converter.ToDouble(x)); }
 
         // System.Math functions
 

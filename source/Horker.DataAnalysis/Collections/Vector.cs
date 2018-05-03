@@ -520,10 +520,10 @@ namespace Horker.DataAnalysis
         // Scalar arithmetics
 
         public Vector Plus(double arg1) { return Apply(x => Converter.ToDouble(x) + arg1); }
-        public Vector Subtract(double arg1) { return Apply(x => Converter.ToDouble(x) - arg1); }
+        public Vector Minus(double arg1) { return Apply(x => Converter.ToDouble(x) - arg1); }
         public Vector Multiply(double arg1) { return Apply(x => Converter.ToDouble(x) * arg1); }
         public Vector Divide(double arg1) { return Apply(x => Converter.ToDouble(x) / arg1); }
-        public Vector Negate() { return Apply(x => -Converter.ToDouble(x)); }
+        public Vector Minus() { return Apply(x => -Converter.ToDouble(x)); }
 
         // System.Math functions
 
