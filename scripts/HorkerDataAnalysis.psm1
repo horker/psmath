@@ -1,3 +1,3 @@
-Set-Alias vec New-Vector
-Set-Alias seq New-Sequence
-Set-Alias df New-DataFrame
+Set-Alias nvec New-Vector
+Set-Alias nseq New-Sequence
+Set-Alias ndf New-DataFrame

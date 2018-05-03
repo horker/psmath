@@ -109,10 +109,10 @@ namespace Horker.DataAnalysis
                 for (int row = 0; row < rowCount; ++row) {
                     int index;
                     if (transpose) {
-                        index = (column * rowCount + row) % array.Length;
+                        index = (row * columnCount + column) % array.Length;
                     }
                     else {
-                        index = (row * columnCount + column) % array.Length;
+                        index = (column * rowCount + row) % array.Length;
                     }
                     v.Add(array[index]);
                 }
@@ -267,14 +267,45 @@ namespace Horker.DataAnalysis
             set => SetRow(value);
         }
 
-        public object this[int row, int column]
+        public object this[int? row, int? column]
         {
-            get => GetColumn(column)[row];
+            get
+            {
+                if (row == null) {
+                    return GetColumn(column.Value);
+                }
+                if (column == null) {
+                    return GetRow(row.Value);
+                }
+                return GetColumn(column.Value)[row.Value];
+            }
+
+            set
+            {
+                if (row == null || column == null) {
+                    throw new ArgumentException("row and column should not be null");
+                }
+                GetColumn(column.Value)[row.Value] = value;
+            }
         }
 
-        public object this[int row, string column]
+        public object this[int? row, string column]
         {
-            get => GetColumn(column)[row];
+            get
+            {
+                if (row == null) {
+                    return GetColumn(column);
+                }
+                return GetColumn(column)[row.Value];
+            }
+
+            set
+            {
+                if (row == null) {
+                    throw new ArgumentException("row should not be null");
+                }
+                GetColumn(column)[row.Value] = value;
+            }
         }
 
         #endregion
@@ -374,10 +405,10 @@ namespace Horker.DataAnalysis
                 _arrayCache = new WeakReference(null);
             }
 
-            var data = new double[this.Count, _names.Count];
-            for (var column = 0; column < _names.Count; ++column) {
-                var v = GetColumn(0);
-                for (var row = 0; row < this.Count; ++row) {
+            var data = new double[RowCount, ColumnCount];
+            for (var column = 0; column < ColumnCount; ++column) {
+                var v = GetColumn(column);
+                for (var row = 0; row < RowCount; ++row) {
                     data[row, column] = Converter.ToDouble(v[row]);
                 }
             }
@@ -681,19 +712,283 @@ namespace Horker.DataAnalysis
 
         #region Linear Algebra / numerical operations (non-destructive)
 
-        public Vector Solve(Vector rightSide, bool leastSquares)
+        public DataFrame Dot(DataFrame b)
+        {
+            return Create(ToDoubleArray().Dot(b.ToDoubleArray()));
+        }
+
+        public Vector Dot(Vector b)
+        {
+            return new Vector(ToDoubleArray().Dot(b.ToDoubleArray()));
+        }
+
+        public DataFrame Kronecker(DataFrame b)
+        {
+            return Create(ToDoubleArray().Kronecker(b.ToDoubleArray()));
+        }
+
+        public Vector Solve(Vector rightSide, bool leastSquares = false)
         {
             return Vector.Create(ToDoubleArray().Solve(rightSide.ToDoubleArray(), leastSquares));
         }
 
-        public DataFrame Solve(DataFrame rightSide, bool leastSquares)
+        public DataFrame Solve(DataFrame rightSide, bool leastSquares = false)
         {
             return DataFrame.Create(ToDoubleArray().Solve(rightSide.ToDoubleArray(), leastSquares));
+        }
+
+        public double Trace()
+        {
+            return ToDoubleArray().Trace();
         }
 
         public DataFrame Transpose()
         {
             return DataFrame.Create(ToDoubleArray().Transpose());
+        }
+
+        public DataFrame T()
+        {
+            return Transpose();
+        }
+
+        public DataFrame Diagonal()
+        {
+            var df = DataFrame.Zero(RowCount, ColumnCount);
+
+            var count = Math.Max(RowCount, ColumnCount);
+            for (var i = 0; i < count; ++i) {
+                df[i, i] = this[i, i];
+            }
+
+            return df;
+        }
+
+        public DataFrame UpperTriangular(bool diagonal = true)
+        {
+            var df = new DataFrame(this);
+
+            if (diagonal) {
+                for (var row = 0; row < RowCount; ++row) {
+                    for (var column = 0; column < row; ++column) {
+                        df[row, column] = 0.0;
+                    }
+                }
+            }
+            else {
+                for (var row = 0; row < RowCount; ++row) {
+                    for (var column = 0; column <= row; ++column) {
+                        df[row, column] = 0.0;
+                    }
+                }
+            }
+
+            return df;
+        }
+
+        public DataFrame LowerTriangular(bool diagonal = true)
+        {
+            var df = new DataFrame(this);
+
+            if (diagonal) {
+                for (var row = 0; row < RowCount; ++row) {
+                    for (var column = row + 1; column < ColumnCount; ++column) {
+                        df[row, column] = 0.0;
+                    }
+                }
+            }
+            else {
+                for (var row = 0; row < RowCount; ++row) {
+                    for (var column = row; column < ColumnCount; ++column) {
+                        df[row, column] = 0.0;
+                    }
+                }
+            }
+
+            return df;
+        }
+
+        #endregion
+
+        #region Decompositions
+
+        public class CholeskyWrapper
+        {
+            private CholeskyDecomposition _ch;
+
+            public CholeskyWrapper(CholeskyDecomposition ch)
+            {
+                _ch = ch;
+            }
+
+            public CholeskyDecomposition Source => _ch;
+
+            public double Determinant => _ch.Determinant;
+
+            public Vector Diagonal => new Vector(_ch.Diagonal);
+
+            public DataFrame DiagonalMatrix => Create(_ch.DiagonalMatrix);
+
+            public bool IsPositiveDefinite => _ch.IsPositiveDefinite;
+
+            public bool IsUndefined => _ch.IsUndefined;
+
+            public DataFrame LeftTriangularFactor => Create(_ch.LeftTriangularFactor);
+
+            public DataFrame A => LeftTriangularFactor;
+
+            public double LogDeterminant => _ch.LogDeterminant;
+
+            public bool Nonsingular => _ch.Nonsingular;
+        }
+
+        public CholeskyWrapper Cholesky(bool robust = false, MatrixType valueType = MatrixType.UpperTriangular)
+        {
+            return new CholeskyWrapper(new CholeskyDecomposition(ToDoubleArray(), robust, false, valueType));
+        }
+
+        public class EigenvalueWrapper
+        {
+            private EigenvalueDecomposition _eigen;
+
+            public EigenvalueWrapper(EigenvalueDecomposition eigen)
+            {
+                _eigen = eigen;
+            }
+
+            public EigenvalueDecomposition Source => _eigen;
+
+            public DataFrame DiagonalMatrix => Create(_eigen.DiagonalMatrix);
+
+            public DataFrame Eigenvectors => Create(_eigen.Eigenvectors);
+
+            public DataFrame Vectors => Eigenvectors;
+
+            public Vector ImaginaryEigenvalues => new Vector(_eigen.ImaginaryEigenvalues);
+
+            public double Rank => _eigen.Rank;
+
+            public Vector RealEigenvalues => new Vector(_eigen.RealEigenvalues);
+
+            public Vector Values => RealEigenvalues;
+        }
+
+        public EigenvalueWrapper Eigenvalue(bool assumeSymmetric = false, bool sort = false)
+        {
+            return new EigenvalueWrapper(new EigenvalueDecomposition(ToDoubleArray(), assumeSymmetric, false, sort));
+        }
+
+        public class LuWrapper
+        {
+            private LuDecomposition _lu;
+
+            public LuWrapper(LuDecomposition lu)
+            {
+                _lu = lu;
+            }
+
+            public LuDecomposition Source => _lu;
+
+            public double Determinant => _lu.Determinant;
+
+            public double LogDeterminant => _lu.LogDeterminant;
+
+            public bool Nonsingular => _lu.Nonsingular;
+
+            public DataFrame LowerTriangularFactor => Create(_lu.LowerTriangularFactor);
+
+            public DataFrame L => LowerTriangularFactor;
+
+            public DataFrame UpperTriangularFactor => Create(_lu.UpperTriangularFactor);
+
+            public DataFrame U => UpperTriangularFactor;
+
+            public Vector PivotPermutationVector => new Vector(_lu.PivotPermutationVector);
+        }
+
+        public LuWrapper Lu(bool transpose = false)
+        {
+            return new LuWrapper(new LuDecomposition(ToDoubleArray(), transpose));
+        }
+
+        public class QrWrapper
+        {
+            private QrDecomposition _qr;
+
+            public QrWrapper(QrDecomposition qr)
+            {
+                _qr = qr;
+            }
+
+            public QrDecomposition Source => _qr;
+
+            public Vector Diagonal => new Vector(_qr.Diagonal);
+
+            public bool FullRank => _qr.FullRank;
+
+            public DataFrame OrthogonalFactor => Create(_qr.OrthogonalFactor);
+
+            public DataFrame Q => OrthogonalFactor;
+
+            public DataFrame UpperTriangularFactor => Create(_qr.UpperTriangularFactor);
+
+            public DataFrame R => UpperTriangularFactor;
+        }
+
+        public QrWrapper Qr(bool transpose = false, bool economy = true)
+        {
+            return new QrWrapper(new QrDecomposition(ToDoubleArray(), transpose, economy, false));
+        }
+
+        public class SvdWrapper
+        {
+            private SingularValueDecomposition _svd;
+
+            public SvdWrapper(SingularValueDecomposition svd)
+            {
+                _svd = svd;
+            }
+
+            public SingularValueDecomposition Source => _svd;
+
+            public double AbsoluteDeterminant => _svd.AbsoluteDeterminant;
+
+            public double Condition => _svd.Condition;
+
+            public Vector Diagonal => new Vector(_svd.Diagonal);
+
+            public DataFrame DiagonalMatrix => Create(_svd.DiagonalMatrix);
+
+            public DataFrame D => DiagonalMatrix;
+
+            public bool IsSingular => _svd.IsSingular;
+
+            public DataFrame LeftSingularVectors => Create(_svd.LeftSingularVectors);
+
+            public DataFrame U => LeftSingularVectors;
+
+            public double LogDeterminant => _svd.LogDeterminant;
+
+            public double LogPseudoDeterminant => _svd.LogPseudoDeterminant;
+
+            public Vector Ordering => new Vector(_svd.Ordering);
+
+            public double PseudoDeteminant => _svd.PseudoDeterminant;
+
+            public double Rank => _svd.Rank;
+
+            public DataFrame RightSingularVector => Create(_svd.RightSingularVectors);
+
+            public DataFrame V => RightSingularVector;
+
+            public double Threshold => _svd.Threshold;
+
+            public double TwoNorm => _svd.TwoNorm;
+        }
+
+        public SvdWrapper Svd(bool computeLeftSingularVectors = true, bool computeRightSingularVectors = true, bool autoTranspose = false)
+        {
+            return new SvdWrapper(new SingularValueDecomposition(ToDoubleArray(), computeLeftSingularVectors, computeRightSingularVectors, autoTranspose, false));
         }
 
         #endregion

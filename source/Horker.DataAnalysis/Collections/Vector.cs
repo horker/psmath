@@ -614,14 +614,19 @@ namespace Horker.DataAnalysis
 
         #region Linear algebra / numerical operations (non-destructive)
 
+        public DataFrame Cartesian(Vector b)
+        {
+            return DataFrame.Create(ToDoubleArray().Cartesian(b.ToDoubleArray()));
+        }
+
+        public DataFrame Cartesian(Vector b, Func<double, double, double> f)
+        {
+            throw new NotImplementedException();
+        }
+
         public double Dot(Vector b)
         {
             return ToDoubleArray().Dot(b.ToDoubleArray());
-        }
-
-        public double Inner(Vector b)
-        {
-            return Dot(b);
         }
 
         public Vector Dot(DataFrame b)
@@ -629,9 +634,9 @@ namespace Horker.DataAnalysis
             return Vector.Create(ToDoubleArray().Dot(b.ToDoubleJaggedArray()));
         }
 
-        public Vector Inner(DataFrame b)
+        public Vector Kronecker(Vector b)
         {
-            return Dot(b);
+            return new Vector(ToDoubleArray().Kronecker(b.ToDoubleArray()));
         }
 
         public DataFrame Outer(Vector b)
