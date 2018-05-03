@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
@@ -26,15 +27,25 @@ namespace Horker.DataAnalysis
 
         public Vector()
             : base()
-        { }
+        {
+        }
 
         public Vector(int capacity)
             : base(capacity)
-        { }
+        {
+        }
 
         public Vector(Vector v)
             : base(v)
         {
+        }
+
+        public Vector(IEnumerable data)
+            : base()
+        {
+            foreach (var d in data) {
+                Add(d);
+            }
         }
 
         #endregion

@@ -272,6 +272,11 @@ namespace Horker.DataAnalysis
             get => GetColumn(column)[row];
         }
 
+        public object this[int row, string column]
+        {
+            get => GetColumn(column)[row];
+        }
+
         #endregion
 
         #region  Enumerator<PSObject>
@@ -428,6 +433,13 @@ namespace Horker.DataAnalysis
             }
         }
 
+        public bool HasColumn(string name)
+        {
+            // Use this method to find if a column name exists in the object
+            // because column names are case-incensitive.
+            return _columns.ContainsKey(name);
+        }
+
         public void Add(string name, object value)
         {
             InvalidateCache();
@@ -439,7 +451,11 @@ namespace Horker.DataAnalysis
             var obj = new PSObject();
             foreach (var name in _names) {
                 var column = _columns[name];
-                var prop = new PSNoteProperty(name, column[index]);
+                object value = null;
+                if (index < column.Count) {
+                    value = column[index];
+                }
+                var prop = new PSNoteProperty(name, value);
                 obj.Properties.Add(prop);
             }
 
@@ -473,7 +489,7 @@ namespace Horker.DataAnalysis
         {
             InvalidateCache();
 
-            var names = new HashSet<string>();
+            var names = new HashSet<string>(new StringKeyComparer());
 
             var count = this.Count;
             foreach (var p in obj.Properties) {
@@ -503,7 +519,7 @@ namespace Horker.DataAnalysis
 
         public void SetColumn<T>(string name, IEnumerable<T> values)
         {
-            if (!_names.Contains(name)) {
+            if (!_columns.ContainsKey(name)) {
                 AddColumn(name, values);
             }
             else {
@@ -514,7 +530,7 @@ namespace Horker.DataAnalysis
 
         public void SetColumn<T>(string name, T[] values)
         {
-            if (!_names.Contains(name)) {
+            if (!_columns.ContainsKey(name)) {
                 AddColumn(name, values);
             }
             else {
@@ -546,6 +562,18 @@ namespace Horker.DataAnalysis
             DefineNewColumn(name, Vector.Create(values));
         }
 
+        public void InsertColumn<T>(int index, string name, IEnumerable<T> values)
+        {
+            DefineNewColumn(name, Vector.Create(values));
+            MoveColumn(name, index);
+        }
+
+        public void InsertColumn<T>(string before, string name, T[] values)
+        {
+            DefineNewColumn(name, Vector.Create(values));
+            MoveColumn(name, before);
+        }
+
         public void Aggregate(DataFrame df)
         {
             for (var i = 0; i < df.ColumnCount; ++i) {
@@ -563,6 +591,54 @@ namespace Horker.DataAnalysis
             _columns.Remove(name);
             _names.Remove(name);
             _link.Properties.Remove(name);
+        }
+
+        public void RenameColumn(string name, string newName)
+        {
+            var index = _names.FindIndex((x) => StringKeyComparer.Compare(x, name));
+            if (index == -1) {
+                throw new RuntimeException("No such a column");
+            }
+
+            _names[index] = newName;
+            _columns[newName] = _columns[name];
+            _columns.Remove(name);
+
+            UpdateLinkedObject();
+        }
+
+        public void MoveColumn(string name, int index)
+        {
+            _names.Remove(name);
+            _names.Insert(index, name);
+
+            UpdateLinkedObject();
+        }
+
+        public void MoveColumn(string name, string location)
+        {
+            var index = _names.FindIndex((x) => StringKeyComparer.Compare(x, location));
+            if (index == -1) {
+                throw new RuntimeException("No such a column");
+            }
+
+            MoveColumn(name, index);
+        }
+
+        private void UpdateLinkedObject()
+        {
+            var names = new List<string>();
+            foreach (var p in _link.Properties) {
+                names.Add(p.Name);
+            }
+
+            foreach (var n in names) {
+                _link.Properties.Remove(n);
+            }
+
+            foreach (var n in _names) {
+                _link.Properties.Add(new PSNoteProperty(n, _columns[n]));
+            }
         }
 
         public void FillShortColumns()
