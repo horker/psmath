@@ -19,6 +19,8 @@ namespace Horker.DataAnalysis
         private WeakReference _arrayCache;
         private WeakReference _jaggedArrayCache;
 
+        #region Constructors
+
         public DataFrame()
         {
             _names = new List<string>();
@@ -34,9 +36,14 @@ namespace Horker.DataAnalysis
             }
         }
 
-        public DataFrame(object[][] jagged)
-            : this()
+        #endregion
+
+        #region Factory methods
+
+        public static DataFrame Create<T>(T[][] jagged)
         {
+            var df = new DataFrame();
+
             int rowCount = jagged.Length;
 
             int columnCount = 0;
@@ -61,13 +68,16 @@ namespace Horker.DataAnalysis
             }
 
             for (var column = 0; column < columnCount; ++column) {
-                DefineNewColumn("c" + column, data[column]);
+                df.DefineNewColumn("c" + column, data[column]);
             }
+
+            return df;
         }
 
-        public DataFrame(object[] array, int rowCount = int.MaxValue, int columnCount = int.MaxValue, bool transpose = false)
-            : this()
+        public static DataFrame Create<T>(T[] array, int rowCount = int.MaxValue, int columnCount = int.MaxValue, bool transpose = false)
         {
+            var df = new DataFrame();
+
             if (columnCount == int.MaxValue) {
                 if (rowCount == int.MaxValue) {
                     columnCount = 1;
@@ -109,13 +119,16 @@ namespace Horker.DataAnalysis
             }
 
             for (var column = 0; column < columnCount; ++column) {
-                DefineNewColumn("c" + column, data[column]);
+                df.DefineNewColumn("c" + column, data[column]);
             }
+
+            return df;
         }
 
-        public DataFrame(double[,] matrix)
-            : this()
+        public static DataFrame Create<T>(T[,] matrix)
         {
+            var df = new DataFrame();
+
             int rowCount = matrix.GetLength(0);
             int columnCount = matrix.GetLength(1);
 
@@ -124,8 +137,10 @@ namespace Horker.DataAnalysis
                 for (var row = 0; row < rowCount; ++row) {
                     v.Add(matrix[row, column]);
                 }
-                DefineNewColumn("c" + column, v);
+                df.DefineNewColumn("c" + column, v);
             }
+
+            return df;
         }
 
         public static DataFrame Diagonal(object value, int rowCount, int columnCount = int.MaxValue)
@@ -195,29 +210,13 @@ namespace Horker.DataAnalysis
             return WithValue(0.0, rowCount, columnCount);
         }
 
+        #endregion
+
+        #region Properties
+
         public PSObject LinkedPSObject
         {
             get => _link;
-        }
-
-        private void InvalidateCache()
-        {
-            if (_jaggedArrayCache != null) {
-                _jaggedArrayCache.Target = null;
-            }
-        }
-
-        private void DefineNewColumn(string name, Vector data)
-        {
-            if (_columns.ContainsKey(name)) {
-                throw new RuntimeException("Column already exists");
-            }
-
-            InvalidateCache();
-
-            _names.Add(name);
-            _columns[name] = data;
-            _link.Properties.Add(new PSNoteProperty(name, data));
         }
 
         public int Count
@@ -273,169 +272,9 @@ namespace Horker.DataAnalysis
             get => GetColumn(column)[row];
         }
 
-        public void Add(string name, object value)
-        {
-            InvalidateCache();
-            ((Vector)_columns[name]).Add(value);
-        }
+        #endregion
 
-        public PSObject GetRow(int index)
-        {
-            var obj = new PSObject();
-            foreach (var name in _names) {
-                var column = _columns[name];
-                var prop = new PSNoteProperty(name, column[index]);
-                obj.Properties.Add(prop);
-            }
-
-            return obj;
-        }
-
-        public Vector GetColumn(string name)
-        {
-            if (name.ToLower() == "__line__") {
-                var count = this.Count;
-                var column = new Vector(Count);
-                for (var i = 0; i < count; ++i) {
-                    column.Add(i);
-                }
-                return column;
-            }
-            return _columns[name];
-        }
-
-        public Vector GetColumn(int index)
-        {
-            return _columns[_names[index]];
-        }
-
-        public void SetRow(PSObject obj)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void AddRow(PSObject obj)
-        {
-            var names = new HashSet<string>();
-
-            var count = this.Count;
-            foreach (var p in obj.Properties) {
-                names.Add(p.Name);
-                if (_columns.ContainsKey(p.Name)) {
-                    _columns[p.Name].Add(p.Value);
-                }
-                else {
-                    var l = new Vector();
-
-                    for (var i = 0; i < count; ++i) {
-                        l.Add(null);
-                    }
-
-                    l.Add(p.Value);
-
-                    DefineNewColumn(p.Name, l);
-                }
-            }
-
-            foreach (var entry in _columns) {
-                if (!names.Contains(entry.Key)) {
-                    _columns[entry.Key].Add(null);
-                }
-            }
-
-            InvalidateCache();
-        }
-
-        public void SetColumn(string name, IEnumerable<object> values, bool fill = true)
-        {
-            var count = this.Count;
-
-            InvalidateCache();
-
-            if (!_names.Contains(name)) {
-                AddColumn(name, values, fill);
-                return;
-            }
-
-            var l = _columns[name];
-            l.Clear();
-            l.AddRange(values);
-
-            if (fill) {
-                if (l.Count < count) {
-                    for (var i = 0; i < count - l.Count; ++i) {
-                        l.Add(null);
-                    }
-                }
-                else if (l.Count > count) {
-                    foreach (var entry in _columns) {
-                        l = entry.Value;
-                        while (l.Count < count) {
-                            l.Add(null);
-                        }
-                    }
-                }
-            }
-        }
-
-        public void AddColumn(string name, IEnumerable<object> values, bool fill = true)
-        {
-            if (_columns.ContainsKey(name)) {
-                throw new RuntimeException("Column already exists");
-            }
-
-            InvalidateCache();
-
-            var count = this.Count;
-
-            Vector l;
-            if (_columns.ContainsKey(name)) {
-                l = (Vector)_columns[name];
-                l.AddRange(values);
-            }
-            else {
-                l = new Vector(count);
-                l.AddRange(values);
-            }
-
-            count = System.Math.Max(l.Count, count);
-
-            if (fill) {
-                foreach (var entry in _columns) {
-                    var l2 = (Vector)entry.Value;
-                    while (l2.Count < count) {
-                        l2.Add(null);
-                    }
-                }
-            }
-
-            DefineNewColumn(name, l);
-        }
-
-        public void RemoveColumn(string name)
-        {
-            if (!_names.Contains(name)) {
-                throw new RuntimeException("No such a column");
-            }
-
-            InvalidateCache();
-            _columns.Remove(name);
-            _names.Remove(name);
-            _link.Properties.Remove(name);
-        }
-
-        public bool ContainsKey(string key)
-        {
-            return _columns.ContainsKey(key);
-        }
-
-        public void Clear()
-        {
-            InvalidateCache();
-            _columns.Clear();
-        }
-
-        // Enumerator<PSObject>
+        #region  Enumerator<PSObject>
 
         private class Enumerator : IEnumerator<PSObject>
         {
@@ -485,7 +324,9 @@ namespace Horker.DataAnalysis
             return new Enumerator(this);
         }
 
-        // Conversion
+        #endregion
+
+        #region Conversions
 
         public double[][] ToDoubleJaggedArray()
         {
@@ -554,10 +395,14 @@ namespace Horker.DataAnalysis
             return data;
         }
 
-        // Inplace conversions
+        #endregion
+
+        #region Inplace conversions
 
         public void ColumnToDummyValues(string columnName, CodificationType codificationType = CodificationType.OneHotDropFirst)
         {
+            InvalidateCache();
+
             var baseName = columnName;
             if (codificationType != CodificationType.Multilevel) {
                 baseName += "_";
@@ -569,15 +414,219 @@ namespace Horker.DataAnalysis
             column.ToDummyValues(this, baseName, codificationType);
         }
 
-        // Data manupilation
+        #endregion
+
+        #region Data manipulations
+
+        public void InvalidateCache()
+        {
+            if (_jaggedArrayCache != null) {
+                _jaggedArrayCache.Target = null;
+            }
+            if (_arrayCache != null) {
+                _arrayCache.Target = null;
+            }
+        }
+
+        public void Add(string name, object value)
+        {
+            InvalidateCache();
+            _columns[name].Add(value);
+        }
+
+        public PSObject GetRow(int index)
+        {
+            var obj = new PSObject();
+            foreach (var name in _names) {
+                var column = _columns[name];
+                var prop = new PSNoteProperty(name, column[index]);
+                obj.Properties.Add(prop);
+            }
+
+            return obj;
+        }
+
+        public Vector GetColumn(string name)
+        {
+            if (name.ToLower() == "__line__") {
+                var count = this.Count;
+                var column = new Vector(Count);
+                for (var i = 0; i < count; ++i) {
+                    column.Add(i);
+                }
+                return column;
+            }
+            return _columns[name];
+        }
+
+        public Vector GetColumn(int index)
+        {
+            return _columns[_names[index]];
+        }
+
+        public void SetRow(PSObject obj)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void AddRow(PSObject obj)
+        {
+            InvalidateCache();
+
+            var names = new HashSet<string>();
+
+            var count = this.Count;
+            foreach (var p in obj.Properties) {
+                names.Add(p.Name);
+                if (_columns.ContainsKey(p.Name)) {
+                    _columns[p.Name].Add(p.Value);
+                }
+                else {
+                    var l = new Vector();
+
+                    for (var i = 0; i < count; ++i) {
+                        l.Add(null);
+                    }
+
+                    l.Add(p.Value);
+
+                    DefineNewColumn(p.Name, l);
+                }
+            }
+
+            foreach (var entry in _columns) {
+                if (!names.Contains(entry.Key)) {
+                    _columns[entry.Key].Add(null);
+                }
+            }
+        }
+
+        public void SetColumn<T>(string name, IEnumerable<T> values)
+        {
+            if (!_names.Contains(name)) {
+                AddColumn(name, values);
+            }
+            else {
+                InvalidateCache();
+                _columns[name].AddRange(values);
+            }
+        }
+
+        public void SetColumn<T>(string name, T[] values)
+        {
+            if (!_names.Contains(name)) {
+                AddColumn(name, values);
+            }
+            else {
+                InvalidateCache();
+                _columns[name].AddRange(values);
+            }
+        }
+
+        public void DefineNewColumn(string name, Vector data)
+        {
+            if (_columns.ContainsKey(name)) {
+                throw new RuntimeException("Column already exists");
+            }
+
+            InvalidateCache();
+
+            _names.Add(name);
+            _columns[name] = data;
+            _link.Properties.Add(new PSNoteProperty(name, data));
+        }
+
+        public void AddColumn<T>(string name, IEnumerable<T> values)
+        {
+            DefineNewColumn(name, Vector.Create(values));
+        }
+
+        public void AddColumn<T>(string name, T[] values)
+        {
+            DefineNewColumn(name, Vector.Create(values));
+        }
 
         public void Aggregate(DataFrame df)
         {
             for (var i = 0; i < df.ColumnCount; ++i) {
-                var column = df.GetColumn(i);
-                DefineNewColumn(df.ColumnNames[i], new Vector(column));
+                DefineNewColumn(df.ColumnNames[i], new Vector(df.GetColumn(i)));
             }
         }
+
+        public void RemoveColumn(string name)
+        {
+            if (!_names.Contains(name)) {
+                throw new RuntimeException("No such a column");
+            }
+
+            InvalidateCache();
+            _columns.Remove(name);
+            _names.Remove(name);
+            _link.Properties.Remove(name);
+        }
+
+        public void FillShortColumns()
+        {
+            var maxCount = _columns.Values.Max(x => x.Count);
+
+            foreach (var column in _columns.Values) {
+                while (column.Count < maxCount) {
+                    column.Add(null);
+                }
+            }
+        }
+
+        public void Clear()
+        {
+            InvalidateCache();
+            _columns.Clear();
+        }
+
+        #endregion
+
+        #region Statistical values
+
+        public double Determinant()
+        {
+            return ToDoubleArray().Determinant();
+        }
+
+        public DataFrame Inverse()
+        {
+            return DataFrame.Create(ToDoubleArray().Inverse());
+        }
+
+        public DataFrame PseudoInverse()
+        {
+            return DataFrame.Create(ToDoubleArray().PseudoInverse());
+        }
+
+        #endregion
+
+        #region Linear Algebra / numerical operations (non-destructive)
+
+        public Vector Solve(Vector rightSide, bool leastSquares)
+        {
+            return Vector.Create(ToDoubleArray().Solve(rightSide.ToDoubleArray(), leastSquares));
+        }
+
+        public DataFrame Solve(DataFrame rightSide, bool leastSquares)
+        {
+            return DataFrame.Create(ToDoubleArray().Solve(rightSide.ToDoubleArray(), leastSquares));
+        }
+
+        public DataFrame Transpose()
+        {
+            return DataFrame.Create(ToDoubleArray().Transpose());
+        }
+
+        #endregion
+
+        #region Linear Algebra / numerical operations (destructive)
+
+        #endregion
+
+        #region Aggregation methods
 
         public DataFrameGroup GroupBy(string columnName)
         {
@@ -614,5 +663,7 @@ namespace Horker.DataAnalysis
 
             return result;
         }
+
+        #endregion
     }
 }

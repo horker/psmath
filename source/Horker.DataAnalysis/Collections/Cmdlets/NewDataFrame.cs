@@ -66,10 +66,10 @@ namespace Horker.DataAnalysis
         protected override void EndProcessing()
         {
             if (ParameterSetName == "FromJagged") {
-                _data = new DataFrame(FromJagged);
+                _data = DataFrame.Create(FromJagged);
             }
             else if (ParameterSetName == "FromArray") {
-                _data = new DataFrame(FromArray, RowSize, ColumnSize, Transpose);
+                _data = DataFrame.Create(FromArray, RowSize, ColumnSize, Transpose);
             }
             else if (ParameterSetName == "Diagonal") {
                 _data = DataFrame.Diagonal(Diagonal, RowSize, ColumnSize);

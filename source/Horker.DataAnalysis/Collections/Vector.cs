@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Management.Automation;
+using System.Text.RegularExpressions;
 using Accord.Math;
 using Accord.Statistics;
 using Accord.Math.Random;
-using System.Management.Automation;
-using System.Text.RegularExpressions;
+using Accord.Statistics.Moving;
 
 namespace Horker.DataAnalysis
 {
@@ -21,7 +22,7 @@ namespace Horker.DataAnalysis
     {
         private WeakReference _arrayCache;
 
-        // Constructors
+        #region Constructors
 
         public Vector()
             : base()
@@ -31,28 +32,32 @@ namespace Horker.DataAnalysis
             : base(capacity)
         { }
 
-        public Vector(object[] data)
-            : base(data.Length)
-        {
-            foreach (var d in data) {
-                Add(d);
-            }
-        }
-
-        public Vector(double[] data)
-            : base(data.Length)
-        {
-            foreach (var d in data) {
-                Add(d);
-            }
-        }
-
         public Vector(Vector v)
             : base(v)
         {
         }
 
-        // Factory methods
+        #endregion
+
+        #region Factory methods
+
+        public static Vector Create<T>(IEnumerable<T> data)
+        {
+            var result = new Vector(data.Count());
+            foreach (var d in data) {
+                result.Add(d);
+            }
+            return result;
+        }
+
+        public static Vector Create<T>(T[] data)
+        {
+            var result = new Vector(data.Count());
+            foreach (var d in data) {
+                result.Add(d);
+            }
+            return result;
+        }
 
         public static Vector GetDoubleRange(double a, double b, double step = 1.0, bool inclusive = true)
         {
@@ -145,7 +150,9 @@ namespace Horker.DataAnalysis
             _arrayCache.Target = null;
         }
 
-        // Conversions
+        #endregion
+
+        #region Conversions
 
         public double[] ToDoubleArray()
         {
@@ -248,7 +255,9 @@ namespace Horker.DataAnalysis
             return ToDummyValues(dataFrame, baseName, codificationType);
         }
 
-        // Inplace convertions
+        #endregion
+
+        #region Inplace convertions
 
         public void AsDouble()
         {
@@ -329,7 +338,88 @@ namespace Horker.DataAnalysis
             }
         }
 
-        // Calculating statistical values
+        #endregion
+
+        #region Data manupilations
+
+        public void AddRange<T>(IEnumerable<T> data)
+        {
+            foreach (var d in data) {
+                Add(d);
+            }
+        }
+
+        public void AddRange<T>(T[] data)
+        {
+            foreach (var d in data) {
+                Add(d);
+            }
+        }
+
+        public void Replace<T>(IEnumerable<T> data)
+        {
+            Clear();
+            foreach (var d in data) {
+                Add(d);
+            }
+        }
+
+        public void Replace<T>(T[] data)
+        {
+            Clear();
+            foreach (var d in data) {
+                Add(d);
+            }
+        }
+
+        public void Replace(string pattern, string replacement)
+        {
+            var re = new Regex(pattern);
+
+            for (var i = 0; i < this.Count; ++i) {
+                this[i] = re.Replace(this[i].ToString(), replacement);
+            }
+        }
+
+        public void Replace(Regex re, string replacement)
+        {
+            for (var i = 0; i < this.Count; ++i) {
+                this[i] = re.Replace(this[i].ToString(), replacement);
+            }
+        }
+
+        public void Shuffle()
+        {
+            // ref. https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
+
+            int count = this.Count;
+            for (var i = 0; i < count - 1; i++) {
+                var j = Generator.Random.Next(i, count);
+                var temp = base[i];
+                base[i] = base[j];
+                base[j] = temp;
+            }
+        }
+
+        public void Sort(bool Ascending = false)
+        {
+            base.Sort();
+
+            if (Ascending) {
+                base.Reverse();
+            }
+        }
+
+        public void ExtractNumber()
+        {
+            for (var i = 0; i < this.Count; ++i) {
+                this[i] = Converter.ExtractNumber(this[i].ToString());
+            }
+        }
+
+        #endregion
+
+        #region Statistical values
 
         public double ContraHarmonicMean()
         {
@@ -348,6 +438,11 @@ namespace Horker.DataAnalysis
             };
 
             return Measures.Correlation(array)[0][1];
+        }
+
+        public Vector CumulativeSum()
+        {
+            return Vector.Create(ToDoubleArray().CumulativeSum());
         }
 
         public double Entropy()
@@ -398,6 +493,42 @@ namespace Horker.DataAnalysis
         public double Mode()
         {
             return ToDoubleArray().Mode();
+        }
+
+        public DataFrame MovingStatistics(int windowSize)
+        {
+            var ms = new MovingNormalStatistics(windowSize);
+
+            var count = new Vector(Count);
+            var max = new Vector(Count);
+            var min = new Vector(Count);
+            var mean = new Vector(Count);
+            var variance = new Vector(Count);
+            var stdDev = new Vector(Count);
+            var sum = new Vector(Count);
+
+            for (var i = 0; i < Count; ++i) {
+                ms.Push(Converter.ToDouble(this[i]));
+                count.Add(ms.Count);
+                max.Add(ms.Max());
+                min.Add(ms.Min());
+                mean.Add(ms.Mean);
+                variance.Add(ms.Variance);
+                stdDev.Add(ms.StandardDeviation);
+                sum.Add(ms.Sum);
+            }
+
+            var df = new DataFrame();
+            df.DefineNewColumn("Value", new Vector(this));
+            df.DefineNewColumn("Count", count);
+            df.DefineNewColumn("Max", max);
+            df.DefineNewColumn("Min", min);
+            df.DefineNewColumn("Mean", mean);
+            df.DefineNewColumn("Variance", variance);
+            df.DefineNewColumn("StdDev", stdDev);
+            df.DefineNewColumn("Sum", sum);
+
+            return df;
         }
 
         public double Quantile(
@@ -468,6 +599,40 @@ namespace Horker.DataAnalysis
             return ToDoubleArray().Variance(unbiased);
         }
 
+        #endregion
+
+        #region Linear algebra / numerical operations (non-destructive)
+
+        public double Dot(Vector b)
+        {
+            return ToDoubleArray().Dot(b.ToDoubleArray());
+        }
+
+        public double Inner(Vector b)
+        {
+            return Dot(b);
+        }
+
+        public Vector Dot(DataFrame b)
+        {
+            return Vector.Create(ToDoubleArray().Dot(b.ToDoubleJaggedArray()));
+        }
+
+        public Vector Inner(DataFrame b)
+        {
+            return Dot(b);
+        }
+
+        public DataFrame Outer(Vector b)
+        {
+            return DataFrame.Create(ToDoubleArray().Outer(b.ToDoubleArray()));
+        }
+
+        public Vector Cross(Vector b)
+        {
+            return Vector.Create(ToDoubleArray().Cross(b.ToDoubleArray()));
+        }
+
         public Vector Sample(int size, bool replacement = false)
         {
             // ref. https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
@@ -498,41 +663,11 @@ namespace Horker.DataAnalysis
             return result;
         }
 
-        // Linear algebra / numeric operations (non-destructive)
+        #endregion
 
-        public double Dot(Vector b)
-        {
-            return ToDoubleArray().Dot(b.ToDoubleArray());
-        }
+        #region Linear algebra / numerical operations (destructive)
 
-        public double Inner(Vector b)
-        {
-            return Dot(b);
-        }
-
-        public Vector Dot(DataFrame b)
-        {
-            return new Vector(ToDoubleArray().Dot(b.ToDoubleJaggedArray()));
-        }
-
-        public Vector Inner(DataFrame b)
-        {
-            return Dot(b);
-        }
-
-        public DataFrame Outer(Vector b)
-        {
-            return new DataFrame(this.ToDoubleArray().Outer(b.ToDoubleArray()));
-        }
-
-        public Vector Cross(Vector b)
-        {
-            return new Vector(this.ToDoubleArray().Cross(b.ToDoubleArray()));
-        }
-
-        // Linear algebra / numeric operations (destructive)
-
-        public void ElementwiseAdd(Vector b)
+        public void VectorAdd(Vector b)
         {
             if (this.Count != b.Count) {
                 throw new RuntimeException("Vector lengths are not the same");
@@ -543,7 +678,7 @@ namespace Horker.DataAnalysis
             }
         }
 
-        public void ElementwiseSubtract(Vector b)
+        public void VectorSubtract(Vector b)
         {
             if (this.Count != b.Count) {
                 throw new RuntimeException("Vector lengths are not the same");
@@ -554,7 +689,7 @@ namespace Horker.DataAnalysis
             }
         }
 
-        public void ElementwiseMultiply(Vector b)
+        public void VectorMultiply(Vector b)
         {
             if (this.Count != b.Count) {
                 throw new RuntimeException("Vector lengths are not the same");
@@ -565,7 +700,7 @@ namespace Horker.DataAnalysis
             }
         }
 
-        public void ElementwiseDivide(Vector b)
+        public void VectorDivide(Vector b)
         {
             if (this.Count != b.Count) {
                 throw new RuntimeException("Vector lengths are not the same");
@@ -576,61 +711,7 @@ namespace Horker.DataAnalysis
             }
         }
 
-        public void CumulativeSum()
-        {
-            double sum = 0.0;
-            for (var i = 0; i < this.Count; ++i) {
-                sum += Converter.ToDouble(this[i]);
-                this[i] = sum;
-            }
-        }
-
-        // General data manupilation
-
-        public void Replace(string pattern, string replacement)
-        {
-            var re = new Regex(pattern);
-
-            for (var i = 0; i < this.Count; ++i) {
-                this[i] = re.Replace(this[i].ToString(), replacement);
-            }
-        }
-
-        public void Replace(Regex re, string replacement)
-        {
-            for (var i = 0; i < this.Count; ++i) {
-                this[i] = re.Replace(this[i].ToString(), replacement);
-            }
-        }
-
-        public void Shuffle()
-        {
-            // ref. https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
-
-            int count = this.Count;
-            for (var i = 0; i < count - 1; i++) {
-                var j = Generator.Random.Next(i, count);
-                var temp = base[i];
-                base[i] = base[j];
-                base[j] = temp;
-            }
-        }
-
-        public void Sort(bool Ascending = false)
-        {
-            base.Sort();
-
-            if (Ascending) {
-                base.Reverse();
-            }
-        }
-
-        public void ExtractNumber()
-        {
-            for (var i = 0; i < this.Count; ++i) {
-                this[i] = Converter.ExtractNumber(this[i].ToString());
-            }
-        }
+        #endregion
 
     }
 }
