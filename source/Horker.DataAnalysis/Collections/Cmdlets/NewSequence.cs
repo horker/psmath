@@ -90,7 +90,7 @@ namespace Horker.DataAnalysis
                 var yseq = new Vector(seq.Count);
                 foreach (var x in seq) {
                     va[0].Value = x;
-                    var y = F[i].InvokeWithContext(null, va, null)[0];
+                    var y = F[i].InvokeWithContext(null, va, null).Last();
                     yseq.Add(y);
                 }
 

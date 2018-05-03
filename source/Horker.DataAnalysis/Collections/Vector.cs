@@ -8,6 +8,7 @@ using Accord.Math;
 using Accord.Statistics;
 using Accord.Math.Random;
 using Accord.Statistics.Moving;
+using System.Diagnostics;
 
 namespace Horker.DataAnalysis
 {
@@ -399,6 +400,15 @@ namespace Horker.DataAnalysis
             }
         }
 
+        public void Replace(ScriptBlock f)
+        {
+            for (var i = 0; i < Count; ++i) {
+                var va = new List<PSVariable>() { new PSVariable("_") };
+                va[0].Value = this[i];
+                this[i] = f.InvokeWithContext(null, va, null).Last();
+            }
+        }
+
         public void Shuffle()
         {
             // ref. https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
@@ -638,7 +648,7 @@ namespace Horker.DataAnalysis
 
                     va[0].Value = this[i];
                     va[1].Value = b[j];
-                    z.Add(f.InvokeWithContext(null, va, null)[0]);
+                    z.Add(f.InvokeWithContext(null, va, null).Last());
                 }
             }
 
@@ -695,7 +705,7 @@ namespace Horker.DataAnalysis
                 for (var row = 0; row < Count; ++row) {
                     va[0].Value = this[row];
                     va[1].Value = b[column];
-                    v.Add(f.InvokeWithContext(null, va, null)[0]);
+                    v.Add(f.InvokeWithContext(null, va, null).Last());
                 }
                 df.DefineNewColumn("c" + column, v);
             }
@@ -708,15 +718,28 @@ namespace Horker.DataAnalysis
             return Vector.Create(ToDoubleArray().Cross(b.ToDoubleArray()));
         }
 
+        public Vector Apply(ScriptBlock f)
+        {
+            var result = new Vector(Count);
+
+            for (var i = 0; i < Count; ++i) {
+                var va = new List<PSVariable>() { new PSVariable("_") };
+                va[0].Value = this[i];
+                result.Add(f.InvokeWithContext(null, va, null).Last());
+            }
+
+            return result;
+        }
+
         public Vector Sample(int size, bool replacement = false)
         {
             // ref. https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
 
-            int count = this.Count;
+            int count = Count;
             var result = new Vector(size);
             if (replacement) {
                 for (var i = 0; i < size; ++i) {
-                    var j = Generator.Random.Next(this.Count);
+                    var j = Generator.Random.Next(Count);
                     result.Add(this[j]);
                 }
             }
