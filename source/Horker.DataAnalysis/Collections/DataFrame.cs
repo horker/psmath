@@ -888,6 +888,11 @@ namespace Horker.DataAnalysis
 
         #region Linear Algebra / numerical operations (non-destructive)
 
+        public DataFrame Cross(DataFrame b)
+        {
+            return Create(ToDoubleArray().Transpose().Dot(b.ToDoubleArray()));
+        }
+
         public DataFrame Dot(DataFrame b)
         {
             return Create(ToDoubleArray().Dot(b.ToDoubleArray()));
