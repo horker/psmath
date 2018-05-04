@@ -10,7 +10,7 @@ using Accord.Math;
 namespace Horker.DataAnalysis
 {
     [Cmdlet("Invoke", "DescriptiveAnalysis")]
-    public class InvokeDescriptive : PSCmdlet
+    public class InvokeDescriptiveAnalysis : PSCmdlet
     {
         [Parameter(ValueFromPipeline = true, Mandatory = true)]
         public PSObject InputObject;

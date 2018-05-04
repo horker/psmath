@@ -67,7 +67,7 @@
     <Compile Include="Collections\DataFrame.cs" />
     <Compile Include="Collections\DataFrameGroup.cs" />
     <Compile Include="Distributions\Distributions.cs" />
-    <Compile Include="Regressions\InvokeDescriptive.cs" />
+    <Compile Include="Analyses\InvokeDescriptiveAnalysis.cs" />
     <Compile Include="Regressions\InvokeGeneralizedLinearRegression.cs" />
     <Compile Include="Regressions\InvokeLinearRegression.cs" />
     <Compile Include="Collections\Cmdlets\NewDataFrame.cs" />

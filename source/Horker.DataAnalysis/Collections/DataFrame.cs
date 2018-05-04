@@ -1015,11 +1015,11 @@ namespace Horker.DataAnalysis
 
             public DataFrame LeftTriangularFactor => Create(_ch.LeftTriangularFactor);
 
-            public DataFrame A => LeftTriangularFactor;
-
             public double LogDeterminant => _ch.LogDeterminant;
 
             public bool Nonsingular => _ch.Nonsingular;
+
+            public DataFrame A => LeftTriangularFactor;
         }
 
         public CholeskyWrapper Cholesky(bool robust = false, MatrixType valueType = MatrixType.UpperTriangular)
@@ -1036,13 +1036,15 @@ namespace Horker.DataAnalysis
                 _gs = gs;
             }
 
-            public DataFrame OrthogonalFactor => Create(_gs.OrthogonalFactor);
+            public GramSchmidtOrthogonalization Source => _gs;
 
-            public DataFrame Q => OrthogonalFactor;
+            public DataFrame OrthogonalFactor => Create(_gs.OrthogonalFactor);
 
             public DataFrame UpperTriangularFactor => Create(_gs.UpperTriangularFactor);
 
             public DataFrame R => UpperTriangularFactor;
+
+            public DataFrame Q => OrthogonalFactor;
         }
 
         public GramSchmidtOrthogonalizationWrapper GramSchmidtOrthogonalization(bool modified = true)
@@ -1066,13 +1068,13 @@ namespace Horker.DataAnalysis
 
             public DataFrame Eigenvectors => Create(_eigen.Eigenvectors);
 
-            public DataFrame Vectors => Eigenvectors;
-
             public Vector ImaginaryEigenvalues => new Vector(_eigen.ImaginaryEigenvalues);
 
             public double Rank => _eigen.Rank;
 
             public Vector RealEigenvalues => new Vector(_eigen.RealEigenvalues);
+
+            public DataFrame Vectors => Eigenvectors;
 
             public Vector Values => RealEigenvalues;
         }
@@ -1101,18 +1103,42 @@ namespace Horker.DataAnalysis
 
             public DataFrame LowerTriangularFactor => Create(_lu.LowerTriangularFactor);
 
-            public DataFrame L => LowerTriangularFactor;
-
             public DataFrame UpperTriangularFactor => Create(_lu.UpperTriangularFactor);
 
-            public DataFrame U => UpperTriangularFactor;
-
             public Vector PivotPermutationVector => new Vector(_lu.PivotPermutationVector);
+
+            public DataFrame L => LowerTriangularFactor;
+
+            public DataFrame U => UpperTriangularFactor;
         }
 
         public LuWrapper Lu(bool transpose = false)
         {
             return new LuWrapper(new LuDecomposition(ToDoubleArray(), transpose));
+        }
+
+        public class NonnegativeMatrixFactorizationWrapper
+        {
+            private NonnegativeMatrixFactorization _nmf;
+
+            public NonnegativeMatrixFactorizationWrapper(NonnegativeMatrixFactorization nmf)
+            {
+                _nmf = nmf;
+            }
+
+            public DataFrame LeftNonnegativeFactors => Create(_nmf.LeftNonnegativeFactors);
+
+            public DataFrame RightNonnegativeFactors => Create(_nmf.RightNonnegativeFactors);
+
+            public DataFrame W => LeftNonnegativeFactors;
+
+            public DataFrame H => RightNonnegativeFactors;
+        }
+
+        public NonnegativeMatrixFactorizationWrapper Nmf(int reducedDimension, int maxIter = 10000)
+        {
+            return new NonnegativeMatrixFactorizationWrapper(
+                new NonnegativeMatrixFactorization(ToDoubleArray(), reducedDimension, maxIter));
         }
 
         public class QrWrapper
@@ -1132,9 +1158,9 @@ namespace Horker.DataAnalysis
 
             public DataFrame OrthogonalFactor => Create(_qr.OrthogonalFactor);
 
-            public DataFrame Q => OrthogonalFactor;
-
             public DataFrame UpperTriangularFactor => Create(_qr.UpperTriangularFactor);
+
+            public DataFrame Q => OrthogonalFactor;
 
             public DataFrame R => UpperTriangularFactor;
         }
@@ -1163,13 +1189,9 @@ namespace Horker.DataAnalysis
 
             public DataFrame DiagonalMatrix => Create(_svd.DiagonalMatrix);
 
-            public DataFrame D => DiagonalMatrix;
-
             public bool IsSingular => _svd.IsSingular;
 
             public DataFrame LeftSingularVectors => Create(_svd.LeftSingularVectors);
-
-            public DataFrame U => LeftSingularVectors;
 
             public double LogDeterminant => _svd.LogDeterminant;
 
@@ -1183,16 +1205,21 @@ namespace Horker.DataAnalysis
 
             public DataFrame RightSingularVector => Create(_svd.RightSingularVectors);
 
-            public DataFrame V => RightSingularVector;
-
             public double Threshold => _svd.Threshold;
 
             public double TwoNorm => _svd.TwoNorm;
+
+            public DataFrame U => LeftSingularVectors;
+
+            public DataFrame D => DiagonalMatrix;
+
+            public DataFrame V => RightSingularVector;
         }
 
         public SvdWrapper Svd(bool computeLeftSingularVectors = true, bool computeRightSingularVectors = true, bool autoTranspose = false)
         {
-            return new SvdWrapper(new SingularValueDecomposition(ToDoubleArray(), computeLeftSingularVectors, computeRightSingularVectors, autoTranspose, false));
+            return new SvdWrapper(new SingularValueDecomposition(
+                ToDoubleArray(), computeLeftSingularVectors, computeRightSingularVectors, autoTranspose, false));
         }
 
         #endregion
