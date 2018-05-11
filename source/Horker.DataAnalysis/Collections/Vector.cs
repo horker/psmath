@@ -945,6 +945,11 @@ namespace Horker.DataAnalysis
             return new Vector(ToDoubleArray().Scale(toMin, toMax));
         }
 
+        public Vector Softmax()
+        {
+            return new Vector(Special.Softmax(ToDoubleArray()));
+        }
+
         public Vector ZScore(bool unbiased = true)
         {
             var values = ToDoubleArray();
@@ -956,6 +961,53 @@ namespace Horker.DataAnalysis
             }
 
             return new Vector(values);
+        }
+
+        public DataFrame Combinations(int k = 0)
+        {
+            if (k == 0) {
+                k = Count;
+            }
+
+            var df = new DataFrame();
+
+            int column = 0;
+            foreach (object[] seq in Combinatorics.Combinations(this.ToArray(), k, true)) {
+                df.DefineNewColumn("c" + column, new Vector(seq));
+                ++column;
+            }
+
+            return df;
+        }
+
+        public DataFrame Permutations()
+        {
+            var df = new DataFrame();
+
+            int column = 0;
+            foreach (object[] seq in Combinatorics.Permutations(this.ToArray(), true)) {
+                df.DefineNewColumn("c" + column, new Vector(seq));
+                ++column;
+            }
+
+            return df;
+        }
+
+        public DataFrame Subsets(int k = 0)
+        {
+            if (k == 0) {
+                k = Count;
+            }
+
+            var df = new DataFrame();
+
+            int column = 0;
+            foreach (SortedSet<object> seq in Combinatorics.Subsets(new HashSet<object>(this), k, true)) {
+                df.DefineNewColumn("c" + column, new Vector(seq));
+                ++column;
+            }
+
+            return df;
         }
 
         #endregion

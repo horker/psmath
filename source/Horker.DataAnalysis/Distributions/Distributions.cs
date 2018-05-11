@@ -8,6 +8,9 @@ namespace Horker.DataAnalysis
     class DistributionHelper
     {
         private static string[][] Aliases = {
+            // Generate as Vector
+            new string[] { "Random", "$this.Generate($args[0]) | New-Vector" },
+
             // Cumultive distribution function
             new string[] {"Cdf",    "$this.DistributionFunction($args[0])" },
 
@@ -62,6 +65,7 @@ namespace Horker.DataAnalysis
     }
 
     [Cmdlet("New", "BernoulliDistribution")]
+    [Alias("st.bernoulli")]
     public class NewBernoulliDistribution : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = false)]
@@ -76,6 +80,7 @@ namespace Horker.DataAnalysis
     }
 
     [Cmdlet("New", "BetaDistribution")]
+    [Alias("st.beta")]
     [CmdletBinding(DefaultParameterSetName = "Alpha")]
     public class NewBetaDistribution : PSCmdlet
     {
@@ -107,6 +112,7 @@ namespace Horker.DataAnalysis
     }
 
     [Cmdlet("New", "BinomialDistribution")]
+    [Alias("st.binomial")]
     public class NewBinomialDistribution : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = true)]
@@ -124,6 +130,7 @@ namespace Horker.DataAnalysis
     }
 
     [Cmdlet("New", "CauchyDistribution")]
+    [Alias("st.cauchy")]
     public class NewCauchyDistribution : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = false)]
@@ -141,6 +148,7 @@ namespace Horker.DataAnalysis
     }
 
     [Cmdlet("New", "ChiSquareDistribution")]
+    [Alias("st.chisquire")]
     public class NewChiSquareDistribution : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = true)]
@@ -155,6 +163,7 @@ namespace Horker.DataAnalysis
     }
 
     [Cmdlet("New", "EmpiricalDistribution")]
+    [Alias("st.empirical")]
     public class NewEmpiricalDistribution : PSCmdlet
     {
         [Parameter(ValueFromPipeline = true, Mandatory = true)]
@@ -191,6 +200,7 @@ namespace Horker.DataAnalysis
     }
 
     [Cmdlet("New", "ExponentialDistribution")]
+    [Alias("st.exponential")]
     public class NewExponentialDistribution : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = false)]
@@ -205,6 +215,7 @@ namespace Horker.DataAnalysis
     }
 
     [Cmdlet("New", "FDistribution")]
+    [Alias("st.f")]
     public class NewFDistribution : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = true)]
@@ -222,6 +233,7 @@ namespace Horker.DataAnalysis
     }
 
     [Cmdlet("New", "GammaDistribution")]
+    [Alias("st.gamma")]
     public class NewGammaDistribution : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = true)]
@@ -239,6 +251,7 @@ namespace Horker.DataAnalysis
     }
 
     [Cmdlet("New", "GeometricDistribution")]
+    [Alias("st.geometric")]
     public class NewGeometricDistribution : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = true)]
@@ -253,6 +266,7 @@ namespace Horker.DataAnalysis
     }
 
     [Cmdlet("New", "HypergeometricDistribution")]
+    [Alias("st.hypergeo")]
     public class NewHypergeometricDistribution : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = true)]
@@ -273,6 +287,7 @@ namespace Horker.DataAnalysis
     }
 
     [Cmdlet("New", "LogisticDistribution")]
+    [Alias("st.logistic")]
     public class NewLogisticDistribution : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = false)]
@@ -290,6 +305,7 @@ namespace Horker.DataAnalysis
     }
 
     [Cmdlet("New", "LognormalDistribution")]
+    [Alias("st.lognormal")]
     public class NewLognormalDistribution : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = false)]
@@ -307,6 +323,7 @@ namespace Horker.DataAnalysis
     }
 
     [Cmdlet("New", "NegativeBinomialDistribution")]
+    [Alias("st.negbinomial")]
     public class NewNegativeBinomialDistribution : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = false)]
@@ -324,6 +341,7 @@ namespace Horker.DataAnalysis
     }
 
     [Cmdlet("New", "NormalDistribution")]
+    [Alias("st.normal")]
     public class NewNormalDistribution : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = false)]
@@ -342,6 +360,7 @@ namespace Horker.DataAnalysis
     }
 
     [Cmdlet("New", "PoisonDistribution")]
+    [Alias("st.poison")]
     public class NewPoisonDistribution : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = false)]
@@ -356,6 +375,7 @@ namespace Horker.DataAnalysis
     }
 
     [Cmdlet("New", "TDistribution")]
+    [Alias("st.t")]
     public class NewTDistribution : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = true)]
@@ -370,6 +390,7 @@ namespace Horker.DataAnalysis
     }
 
     [Cmdlet("New", "UniformContinuousDistribution")]
+    [Alias("st.uniform")]
     public class NewUniformContinuousDistribution : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = false)]
@@ -387,6 +408,7 @@ namespace Horker.DataAnalysis
     }
 
     [Cmdlet("New", "UniformDiscreteDistribution")]
+    [Alias("st.uniformd")]
     public class NewUniformDiscreteDistribution : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = false)]
@@ -404,6 +426,7 @@ namespace Horker.DataAnalysis
     }
 
     [Cmdlet("New", "WeibullDistribution")]
+    [Alias("st.weibull")]
     public class NewWeibullDistribution : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = true)]

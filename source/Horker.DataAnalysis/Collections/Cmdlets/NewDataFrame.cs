@@ -20,15 +20,11 @@ namespace Horker.DataAnalysis
         [Parameter(Position = 1, Mandatory = false, ParameterSetName = "FromArray")]
         [Parameter(Position = 1, Mandatory = true, ParameterSetName = "Diagonal")]
         [Parameter(Position = 0, Mandatory = true, ParameterSetName = "Identity")]
-        [Parameter(Position = 1, Mandatory = true, ParameterSetName = "WithValue")]
-        [Parameter(Position = 0, Mandatory = true, ParameterSetName = "Zero")]
         public int RowSize = int.MaxValue;
 
         [Parameter(Position = 2, Mandatory = false, ParameterSetName = "FromArray")]
         [Parameter(Position = 2, Mandatory = false, ParameterSetName = "Diagonal")]
         [Parameter(Position = 1, Mandatory = false, ParameterSetName = "Identity")]
-        [Parameter(Position = 2, Mandatory = false, ParameterSetName = "WithValue")]
-        [Parameter(Position = 1, Mandatory = false, ParameterSetName = "Zero")]
         public int ColumnSize = int.MaxValue;
 
         [Parameter(Position = 3, Mandatory = false, ParameterSetName = "FromArray")]
@@ -42,12 +38,6 @@ namespace Horker.DataAnalysis
 
         [Parameter(Position = 0, Mandatory = true, ParameterSetName = "Identity")]
         public SwitchParameter Identity;
-
-        [Parameter(Position = 0, Mandatory = true, ParameterSetName = "WithValue")]
-        public object WithValue;
-
-        [Parameter(Position = 0, Mandatory = true, ParameterSetName = "Zero")]
-        public SwitchParameter Zero;
 
         private DataFrame _data;
 
@@ -74,14 +64,8 @@ namespace Horker.DataAnalysis
             else if (ParameterSetName == "Diagonal") {
                 _data = DataFrame.Diagonal(Diagonal, RowSize, ColumnSize);
             }
-            else if (ParameterSetName == "WithValue") {
-                _data = DataFrame.WithValue(WithValue, RowSize, ColumnSize);
-            }
             else if (ParameterSetName == "Identity") {
                 _data = DataFrame.Identity(RowSize, ColumnSize);
-            }
-            else if (ParameterSetName == "Zero") {
-                _data = DataFrame.Zero(RowSize, ColumnSize);
             }
 
             WriteObject(_data.LinkedPSObject);
