@@ -524,7 +524,7 @@ namespace Horker.DataAnalysis
         public Vector Minus(double arg1) { return Apply(x => Converter.ToDouble(x) - arg1); }
         public Vector Multiply(double arg1) { return Apply(x => Converter.ToDouble(x) * arg1); }
         public Vector Divide(double arg1) { return Apply(x => Converter.ToDouble(x) / arg1); }
-        public Vector Minus() { return Apply(x => -Converter.ToDouble(x)); }
+        public Vector Negate() { return Apply(x => -Converter.ToDouble(x)); }
 
         // System.Math functions
 
