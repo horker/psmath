@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
 using System.Text.RegularExpressions;
+using Accord;
 using Accord.Math;
 using Accord.Statistics;
 using Accord.Math.Random;
@@ -656,6 +657,11 @@ namespace Horker.DataAnalysis
             df.DefineNewColumn("Count", counts);
 
             return df;
+        }
+
+        public ContinuousHistogram HistogramStatistics(double min, double max)
+        {
+            return new ContinuousHistogram(ToIntArray(), new Range((float)min, (float)max));
         }
 
         public double GeometricMean()
