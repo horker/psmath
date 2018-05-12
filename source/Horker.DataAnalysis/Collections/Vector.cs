@@ -619,7 +619,7 @@ namespace Horker.DataAnalysis
 
             var df = new DataFrame();
             df.DefineNewColumn("Label", labels);
-            df.DefineNewColumn("Count", counts);
+            df.DefineNewColumn("Frequency", counts);
 
             return df;
         }
@@ -654,7 +654,7 @@ namespace Horker.DataAnalysis
 
             var df = new DataFrame();
             df.DefineNewColumn("Label", new Vector(labels.Apply(x => x * binWidth)));
-            df.DefineNewColumn("Count", counts);
+            df.DefineNewColumn("Frequency", counts);
 
             return df;
         }
