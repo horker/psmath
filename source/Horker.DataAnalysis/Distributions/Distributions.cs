@@ -21,7 +21,7 @@ namespace Horker.DataAnalysis
             new string[] {"Icdf",   "$this.InverseDistributionFunction($args[0])" },
 
             // Quantile dentisy function
-            new string[] {"Qdf",    "$this.QuantileDentisyFunction($args[0])" },
+            new string[] {"Qdf",    "$this.QuantileDensityFunction($args[0])" },
 
             // Hazard functions
             new string[] {"Hf",     "$this.HazardFunction($args[0])" },

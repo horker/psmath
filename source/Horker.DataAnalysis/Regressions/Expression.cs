@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Horker.DataAnalysis
 {
-    namespace Expression
+    namespace Formula
     {
         public class Node
         {
@@ -66,24 +66,24 @@ namespace Horker.DataAnalysis
 
         }
 
-        public class Expression : Stem
+        public class Formula : Stem
         {
-            public Expression(Node lhs, Node rhs)
+            public Formula(Node lhs, Node rhs)
                 : base(lhs, rhs)
             {
             }
         }
-    }
 
-    public class ExpressionParser
-    {
-        public ExpressionParser()
+        public class FormulaParser
         {
-        }
+            public FormulaParser()
+            {
+            }
 
-        public Expression.Expression Parse(string expressionString)
-        {
-            return null;
+            public Formula Parse(string formulaString)
+            {
+                return null;
+            }
         }
     }
 }
