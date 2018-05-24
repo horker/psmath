@@ -821,11 +821,11 @@ namespace Horker.DataAnalysis
 
         // Scalar arithmetics
 
-        public DataFrame Plus(double arg1) { return Apply(x => Converter.ToDouble(x) + arg1); }
-        public DataFrame Minus(double arg1) { return Apply(x => Converter.ToDouble(x) - arg1); }
-        public DataFrame Multiply(double arg1) { return Apply(x => Converter.ToDouble(x) * arg1); }
-        public DataFrame Divide(double arg1) { return Apply(x => Converter.ToDouble(x) / arg1); }
-        public DataFrame Minus() { return Apply(x => -Converter.ToDouble(x)); }
+        public DataFrame ElemAdd(double arg1) { return Apply(x => Converter.ToDouble(x) + arg1); }
+        public DataFrame ElemSub(double arg1) { return Apply(x => Converter.ToDouble(x) - arg1); }
+        public DataFrame ElemMul(double arg1) { return Apply(x => Converter.ToDouble(x) * arg1); }
+        public DataFrame ElemDiv(double arg1) { return Apply(x => Converter.ToDouble(x) / arg1); }
+        public DataFrame ElemNeg() { return Apply(x => -Converter.ToDouble(x)); }
 
         // System.Math functions
 
@@ -859,10 +859,10 @@ namespace Horker.DataAnalysis
 
         // Matrix arithmetics
 
-        public DataFrame Plus(DataFrame b) { return Apply(b, (x, y) => Converter.ToDouble(x) + Converter.ToDouble(y)); }
-        public DataFrame Minus(DataFrame b) { return Apply(b, (x, y) => Converter.ToDouble(x) - Converter.ToDouble(y)); }
-        public DataFrame Multiply(DataFrame b) { return Apply(b, (x, y) => Converter.ToDouble(x) * Converter.ToDouble(y)); }
-        public DataFrame Divide(DataFrame b) { return Apply(b, (x, y) => Converter.ToDouble(x) / Converter.ToDouble(y)); }
+        public DataFrame ElemAdd(DataFrame b) { return Apply(b, (x, y) => Converter.ToDouble(x) + Converter.ToDouble(y)); }
+        public DataFrame ElemSub(DataFrame b) { return Apply(b, (x, y) => Converter.ToDouble(x) - Converter.ToDouble(y)); }
+        public DataFrame ElemMul(DataFrame b) { return Apply(b, (x, y) => Converter.ToDouble(x) * Converter.ToDouble(y)); }
+        public DataFrame ElemDiv(DataFrame b) { return Apply(b, (x, y) => Converter.ToDouble(x) / Converter.ToDouble(y)); }
 
         #endregion
 
