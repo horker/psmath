@@ -9,7 +9,7 @@ namespace Horker.DataAnalysis
     {
         private static string[][] Aliases = {
             // Generate as Vector
-            new string[] { "Random", "$this.Generate($args[0]) | New-Vector" },
+            new string[] { "Random", "if ($args.Length -eq 0) { $this.Generate(1) } else { $this.Generate($args[0]) | New-Vector }" },
 
             // Cumultive distribution function
             new string[] {"Cdf",    "$this.DistributionFunction($args[0])" },
