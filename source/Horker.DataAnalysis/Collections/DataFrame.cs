@@ -7,9 +7,16 @@ using System.Management.Automation;
 using Accord.Math;
 using Accord.Math.Decompositions;
 using System.Text;
+using Accord.Math.Random;
 
 namespace Horker.DataAnalysis
 {
+    public enum Direction
+    {
+        Horizontal,
+        Vertical
+    }
+
     public class DataFrame : IEnumerable<PSObject>
     {
         private List<string> _names;
@@ -392,7 +399,7 @@ namespace Horker.DataAnalysis
             return data;
         }
 
-        public double[,] ToDoubleArray()
+        public double[,] ToDoubleMatrix()
         {
             if (_arrayCache != null) {
                 if (_arrayCache.IsAlive && _arrayCache.Target != null) {
@@ -416,13 +423,40 @@ namespace Horker.DataAnalysis
             return data;
         }
 
-        public int[,] ToIntArray()
+        public int[,] ToIntMatrix()
         {
             var data = new int[this.Count, _names.Count];
             for (var column = 0; column < _names.Count; ++column) {
                 var v = GetColumn(column);
                 for (var row = 0; row < this.Count; ++row) {
                     data[row, column] = Convert.ToInt32(v[row]);
+                }
+            }
+
+            return data;
+        }
+
+        public double[] ToDoubleArray(Direction direction = Direction.Horizontal)
+        {
+            var data = new double[RowCount * ColumnCount];
+            if (direction == Direction.Horizontal) {
+                for (var column = 0; column < ColumnCount; ++column)
+                {
+                    var v = GetColumn(column);
+                    for (var row = 0; row < RowCount; ++row)
+                    {
+                        data[row * ColumnCount + column] = Converter.ToDouble(v[row]);
+                    }
+                }
+            }
+            else {
+                for (var column = 0; column < ColumnCount; ++column)
+                {
+                    var v = GetColumn(column);
+                    for (var row = 0; row < RowCount; ++row)
+                    {
+                        data[row  + column * RowCount] = Converter.ToDouble(v[row]);
+                    }
                 }
             }
 
@@ -688,6 +722,32 @@ namespace Horker.DataAnalysis
             _columns.Clear();
         }
 
+        public void Shuffle()
+        {
+            // ref. https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
+
+            int count = this.Count;
+            for (var i = 0; i < count - 1; i++) {
+                var j = Generator.Random.Next(i, count);
+                foreach (var column in _columns.Values) {
+                    var temp = column[i];
+                    column[i] = column[j];
+                    column[j] = temp;
+                }
+            }
+        }
+
+        public void Append(DataFrame other)
+        {
+            if (ColumnCount != other.ColumnCount) {
+                throw new ArgumentException("Column sizes mismatch");
+            }
+
+            for (var i = 0; i < ColumnCount; ++i) {
+                GetColumn(i).AddRange(other.GetColumn(i));
+            }
+        }
+
         #endregion
 
         #region Elementwise operations
@@ -870,17 +930,17 @@ namespace Horker.DataAnalysis
 
         public double Determinant()
         {
-            return ToDoubleArray().Determinant();
+            return ToDoubleMatrix().Determinant();
         }
 
         public DataFrame Inverse()
         {
-            return DataFrame.Create(ToDoubleArray().Inverse());
+            return DataFrame.Create(ToDoubleMatrix().Inverse());
         }
 
         public DataFrame PseudoInverse()
         {
-            return DataFrame.Create(ToDoubleArray().PseudoInverse());
+            return DataFrame.Create(ToDoubleMatrix().PseudoInverse());
         }
 
         #endregion
@@ -889,42 +949,42 @@ namespace Horker.DataAnalysis
 
         public DataFrame Cross(DataFrame b)
         {
-            return Create(ToDoubleArray().Transpose().Dot(b.ToDoubleArray()));
+            return Create(ToDoubleMatrix().Transpose().Dot(b.ToDoubleMatrix()));
         }
 
         public DataFrame Dot(DataFrame b)
         {
-            return Create(ToDoubleArray().Dot(b.ToDoubleArray()));
+            return Create(ToDoubleMatrix().Dot(b.ToDoubleMatrix()));
         }
 
         public Vector Dot(Vector b)
         {
-            return new Vector(ToDoubleArray().Dot(b.ToDoubleArray()));
+            return new Vector(ToDoubleMatrix().Dot(b.ToDoubleArray()));
         }
 
         public DataFrame Kronecker(DataFrame b)
         {
-            return Create(ToDoubleArray().Kronecker(b.ToDoubleArray()));
+            return Create(ToDoubleMatrix().Kronecker(b.ToDoubleMatrix()));
         }
 
         public Vector Solve(Vector rightSide, bool leastSquares = false)
         {
-            return Vector.Create(ToDoubleArray().Solve(rightSide.ToDoubleArray(), leastSquares));
+            return Vector.Create(ToDoubleMatrix().Solve(rightSide.ToDoubleArray(), leastSquares));
         }
 
         public DataFrame Solve(DataFrame rightSide, bool leastSquares = false)
         {
-            return DataFrame.Create(ToDoubleArray().Solve(rightSide.ToDoubleArray(), leastSquares));
+            return DataFrame.Create(ToDoubleMatrix().Solve(rightSide.ToDoubleMatrix(), leastSquares));
         }
 
         public double Trace()
         {
-            return ToDoubleArray().Trace();
+            return ToDoubleMatrix().Trace();
         }
 
         public DataFrame Transpose()
         {
-            return DataFrame.Create(ToDoubleArray().Transpose());
+            return DataFrame.Create(ToDoubleMatrix().Transpose());
         }
 
         public DataFrame T()
@@ -1024,7 +1084,7 @@ namespace Horker.DataAnalysis
 
         public CholeskyWrapper Cholesky(bool robust = false, MatrixType valueType = MatrixType.UpperTriangular)
         {
-            return new CholeskyWrapper(new CholeskyDecomposition(ToDoubleArray(), robust, false, valueType));
+            return new CholeskyWrapper(new CholeskyDecomposition(ToDoubleMatrix(), robust, false, valueType));
         }
 
         public class GramSchmidtOrthogonalizationWrapper
@@ -1050,7 +1110,7 @@ namespace Horker.DataAnalysis
         public GramSchmidtOrthogonalizationWrapper GramSchmidtOrthogonalization(bool modified = true)
         {
             return new GramSchmidtOrthogonalizationWrapper(
-                new GramSchmidtOrthogonalization(ToDoubleArray(), modified));
+                new GramSchmidtOrthogonalization(ToDoubleMatrix(), modified));
         }
 
         public class EigenvalueWrapper
@@ -1081,7 +1141,7 @@ namespace Horker.DataAnalysis
 
         public EigenvalueWrapper Eigenvalue(bool assumeSymmetric = false, bool sort = false)
         {
-            return new EigenvalueWrapper(new EigenvalueDecomposition(ToDoubleArray(), assumeSymmetric, false, sort));
+            return new EigenvalueWrapper(new EigenvalueDecomposition(ToDoubleMatrix(), assumeSymmetric, false, sort));
         }
 
         public class LuWrapper
@@ -1114,7 +1174,7 @@ namespace Horker.DataAnalysis
 
         public LuWrapper Lu(bool transpose = false)
         {
-            return new LuWrapper(new LuDecomposition(ToDoubleArray(), transpose));
+            return new LuWrapper(new LuDecomposition(ToDoubleMatrix(), transpose));
         }
 
         public class NonnegativeMatrixFactorizationWrapper
@@ -1138,7 +1198,7 @@ namespace Horker.DataAnalysis
         public NonnegativeMatrixFactorizationWrapper Nmf(int reducedDimension, int maxIter = 10000)
         {
             return new NonnegativeMatrixFactorizationWrapper(
-                new NonnegativeMatrixFactorization(ToDoubleArray(), reducedDimension, maxIter));
+                new NonnegativeMatrixFactorization(ToDoubleMatrix(), reducedDimension, maxIter));
         }
 
         public class QrWrapper
@@ -1167,7 +1227,7 @@ namespace Horker.DataAnalysis
 
         public QrWrapper Qr(bool transpose = false, bool economy = true)
         {
-            return new QrWrapper(new QrDecomposition(ToDoubleArray(), transpose, economy, false));
+            return new QrWrapper(new QrDecomposition(ToDoubleMatrix(), transpose, economy, false));
         }
 
         public class SvdWrapper
@@ -1219,7 +1279,7 @@ namespace Horker.DataAnalysis
         public SvdWrapper Svd(bool computeLeftSingularVectors = true, bool computeRightSingularVectors = true, bool autoTranspose = false)
         {
             return new SvdWrapper(new SingularValueDecomposition(
-                ToDoubleArray(), computeLeftSingularVectors, computeRightSingularVectors, autoTranspose, false));
+                ToDoubleMatrix(), computeLeftSingularVectors, computeRightSingularVectors, autoTranspose, false));
         }
 
         #endregion

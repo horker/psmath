@@ -49,7 +49,7 @@ namespace Horker.DataAnalysis
             ChiSquareTest test = null;
 
             if (ParameterSetName == "Independence") {
-                var mat = new GeneralConfusionMatrix(_data.ToIntArray());
+                var mat = new GeneralConfusionMatrix(_data.ToIntMatrix());
                 test = new ChiSquareTest(mat, false);
             }
             else {

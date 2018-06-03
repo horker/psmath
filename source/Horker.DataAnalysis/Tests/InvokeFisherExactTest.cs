@@ -40,7 +40,7 @@ namespace Horker.DataAnalysis
         {
             var hypo = TestingHelper.GetOneSampleHypothesis(Alternate);
 
-            var mat = new ConfusionMatrix(_data.ToIntArray());
+            var mat = new ConfusionMatrix(_data.ToIntMatrix());
             var test = new FisherExactTest(mat, hypo) { Size = Size };
 
             WriteObject(test);

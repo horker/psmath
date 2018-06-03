@@ -32,7 +32,7 @@ namespace Horker.DataAnalysis
         public SwitchParameter AsDataFrame = false;
 
         [Parameter(Position = 7, Mandatory = false)]
-        public double Value;
+        public double? Value = null;
 
         [Parameter(Position = 8, Mandatory = false)]
         public ScriptBlock[] F = null;
@@ -41,7 +41,7 @@ namespace Horker.DataAnalysis
         {
             Vector seq;
 
-            if (!MyInvocation.BoundParameters.ContainsKey("Value")) {
+            if (!Value.HasValue) {
                 if (Double.IsNaN(Stop)) {
                     Stop = Start;
                     Start = 0;
@@ -55,7 +55,10 @@ namespace Horker.DataAnalysis
                 }
             }
             else {
-                seq = Vector.WithValue(Value, Size);
+                if (Size == int.MaxValue) {
+                    Size = (int)Start;
+                }
+                seq = Vector.WithValue(Value.Value, Size);
             }
 
             DataFrame df;

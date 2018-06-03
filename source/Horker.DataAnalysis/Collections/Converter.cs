@@ -278,7 +278,7 @@ namespace Horker.DataAnalysis
                 return result;
             }
             else if (input is DataFrame) {
-                return (input as DataFrame).ToDoubleArray();
+                return (input as DataFrame).ToDoubleMatrix();
             }
 
             return (double[,])input;
