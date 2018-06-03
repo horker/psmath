@@ -8,44 +8,40 @@ using System.Threading.Tasks;
 namespace Horker.DataAnalysis
 {
     [Cmdlet("New", "Sequence")]
-    [CmdletBinding(DefaultParameterSetName = "Range")]
     public class NewSequence : PSCmdlet
     {
-        [Parameter(Position = 0, Mandatory = true, ParameterSetName = "Range")]
+        [Parameter(Position = 0, Mandatory = true)]
         public double Start = 0;
 
-        [Parameter(Position = 1, Mandatory = false, ParameterSetName = "Range")]
+        [Parameter(Position = 1, Mandatory = false)]
         public double Stop = double.NaN;
 
-        [Parameter(Position = 2, Mandatory = false, ParameterSetName = "Range")]
+        [Parameter(Position = 2, Mandatory = false)]
         public double Step = 1;
 
-        [Parameter(Mandatory = false, ParameterSetName = "Range")]
-        [Parameter(Position = 1, Mandatory = true, ParameterSetName = "Value")]
+        [Parameter(Position = 3, Mandatory = false)]
         public int Size = int.MaxValue;
 
-        [Parameter(Mandatory = false, ParameterSetName = "Range")]
+        [Parameter(Position = 4, Mandatory = false)]
         public SwitchParameter Inclusive = false;
 
-        [Parameter(Mandatory = false, ParameterSetName = "Range")]
-        [Parameter(Mandatory = false, ParameterSetName = "Value")]
+        [Parameter(Position = 5, Mandatory = false)]
         public SwitchParameter AsVector = false;
 
-        [Parameter(Mandatory = false, ParameterSetName = "Range")]
-        [Parameter(Mandatory = false, ParameterSetName = "Value")]
+        [Parameter(Position = 6, Mandatory = false)]
         public SwitchParameter AsDataFrame = false;
 
-        [Parameter(Mandatory = true, ParameterSetName = "Value")]
+        [Parameter(Position = 7, Mandatory = false)]
         public double Value;
 
-        [Parameter(Mandatory = false)]
+        [Parameter(Position = 8, Mandatory = false)]
         public ScriptBlock[] F = null;
 
         protected override void EndProcessing()
         {
             Vector seq;
 
-            if (ParameterSetName == "Range") {
+            if (!MyInvocation.BoundParameters.ContainsKey("Value")) {
                 if (Double.IsNaN(Stop)) {
                     Stop = Start;
                     Start = 0;
@@ -59,7 +55,6 @@ namespace Horker.DataAnalysis
                 }
             }
             else {
-                // ParameterSetName == "Value"
                 seq = Vector.WithValue(Value, Size);
             }
 
