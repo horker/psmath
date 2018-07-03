@@ -208,74 +208,6 @@ namespace Horker.DataAnalysis
         }
     }
 
-    [Cmdlet("Get", "Math.Max")]
-    [Alias("math.max")]
-    public class GetMathMax : PSCmdlet
-    {
-        [Parameter(ValueFromPipeline = true, Mandatory = false)]
-        public double? InputObject;
-
-        [Parameter(Position = 0, Mandatory = false)]
-        public double[] Values;
-
-        private List<double> _values;
-
-        protected override void BeginProcessing()
-        {
-            _values = new List<double>();
-        }
-
-        protected override void ProcessRecord()
-        {
-            if (InputObject != null) {
-                _values.Add(InputObject.Value);
-            }
-        }
-
-        protected override void EndProcessing()
-        {
-            if (Values != null) {
-                _values.AddRange(Values);
-            }
-
-            WriteObject(_values.Max());
-        }
-    }
-
-    [Cmdlet("Get", "Math.Min")]
-    [Alias("math.min")]
-    public class GetMathMin : PSCmdlet
-    {
-        [Parameter(ValueFromPipeline = true, Mandatory = false)]
-        public double? InputObject;
-
-        [Parameter(Position = 0, Mandatory = false)]
-        public double[] Values;
-
-        private List<double> _values;
-
-        protected override void BeginProcessing()
-        {
-            _values = new List<double>();
-        }
-
-        protected override void ProcessRecord()
-        {
-            if (InputObject != null) {
-                _values.Add(InputObject.Value);
-            }
-        }
-
-        protected override void EndProcessing()
-        {
-            if (Values != null) {
-                _values.AddRange(Values);
-            }
-
-            WriteObject(_values.Min());
-        }
-    }
-
     [Cmdlet("Get", "Math.Pow")]
     [Alias("math.pow")]
     public class GetMathPow : PSCmdlet
@@ -500,6 +432,137 @@ namespace Horker.DataAnalysis
         }
     }
 
+
+    #endregion
+
+    #region Aggregate functions
+
+    [Cmdlet("Get", "Math.Max")]
+    [Alias("math.max")]
+    public class GetMathMax : PSCmdlet
+    {
+        [Parameter(Position = 0, Mandatory = false)]
+        public double[] Values;
+
+        [Parameter(Mandatory = false)]
+        public double? InputObject;
+
+        private double _result = double.MinValue;
+
+        protected override void ProcessRecord()
+        {
+            if (InputObject != null && InputObject.Value > _result) {
+                _result = InputObject.Value;
+            }
+        }
+
+        protected override void EndProcessing()
+        {
+            if (Values != null) {
+                var max = Values.Max();
+
+                if (max > _result) {
+                    _result = max;
+                }
+            }
+
+            WriteObject(_result);
+        }
+    }
+
+    [Cmdlet("Get", "Math.Min")]
+    [Alias("math.min")]
+    public class GetMathMin : PSCmdlet
+    {
+        [Parameter(Position = 0, Mandatory = false)]
+        public double[] Values;
+
+        [Parameter(Mandatory = false)]
+        public double? InputObject;
+
+        private double _result = double.MinValue;
+
+        protected override void ProcessRecord()
+        {
+            if (InputObject != null && InputObject.Value < _result) {
+                _result = InputObject.Value;
+            }
+        }
+
+        protected override void EndProcessing()
+        {
+            if (Values != null) {
+                var min = Values.Min();
+
+                if (min > _result) {
+                    _result = min;
+                }
+            }
+
+            WriteObject(_result);
+        }
+    }
+
+    [Cmdlet("Get", "Math.Sum")]
+    [Alias("math.sum")]
+    public class GetMathSum : PSCmdlet
+    {
+        [Parameter(Position = 0, Mandatory = false)]
+        public double[] Values;
+
+        [Parameter(ValueFromPipeline = true, Mandatory = false)]
+        public double? InputObject;
+
+        private double _result = 0.0;
+
+        protected override void ProcessRecord()
+        {
+            if (InputObject != null) {
+                _result += InputObject.Value;
+            }
+        }
+
+        protected override void EndProcessing()
+        {
+            if (Values != null) {
+                _result += Values.Sum();
+            }
+
+            WriteObject(_result);
+        }
+    }
+
+    [Cmdlet("Get", "Math.Mean")]
+    [Alias("math.mean")]
+    public class GetMathMean : PSCmdlet
+    {
+        [Parameter(Position = 0, Mandatory = false)]
+        public double[] Values;
+
+        [Parameter(ValueFromPipeline = true, Mandatory = false)]
+        public double? InputObject;
+
+        private double _result = 0.0;
+        private int _count = 0;
+
+        protected override void ProcessRecord()
+        {
+            if (InputObject != null) {
+                _result += InputObject.Value;
+                ++_count;
+            }
+        }
+
+        protected override void EndProcessing()
+        {
+            if (Values != null) {
+                _result += Values.Sum();
+                _count += Values.Count();
+            }
+
+            WriteObject(_result / _count);
+        }
+    }
 
     #endregion
 }
