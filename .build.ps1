@@ -1,4 +1,4 @@
-task . Build, ImportDebug
+task . Compile, Build, ImportDebug
 
 Set-StrictMode -Version 4
 

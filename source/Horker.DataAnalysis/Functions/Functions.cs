@@ -444,7 +444,7 @@ namespace Horker.DataAnalysis
         [Parameter(Position = 0, Mandatory = false)]
         public double[] Values;
 
-        [Parameter(Mandatory = false)]
+        [Parameter(ValueFromPipeline = true, Mandatory = false)]
         public double? InputObject;
 
         private double _result = double.MinValue;
@@ -477,10 +477,10 @@ namespace Horker.DataAnalysis
         [Parameter(Position = 0, Mandatory = false)]
         public double[] Values;
 
-        [Parameter(Mandatory = false)]
+        [Parameter(ValueFromPipeline = true, Mandatory = false)]
         public double? InputObject;
 
-        private double _result = double.MinValue;
+        private double _result = double.MaxValue;
 
         protected override void ProcessRecord()
         {
@@ -494,7 +494,7 @@ namespace Horker.DataAnalysis
             if (Values != null) {
                 var min = Values.Min();
 
-                if (min > _result) {
+                if (min < _result) {
                     _result = min;
                 }
             }

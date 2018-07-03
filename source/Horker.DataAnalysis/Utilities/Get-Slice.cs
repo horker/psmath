@@ -5,7 +5,7 @@ using System.Management.Automation;
 
 namespace Horker.DataAnalysis
 {
-    public class Slice<T> : IEnumerable<T>
+    public class Slice<T> : IEnumerable<T>, IReadOnlyCollection<T>, IReadOnlyList<T>
     {
         private ArraySegment<T> _segment;
 
@@ -43,6 +43,18 @@ namespace Horker.DataAnalysis
         IEnumerator IEnumerable.GetEnumerator()
         {
             return ((IEnumerable<T>)_segment).GetEnumerator();
+        }
+
+        public T[] ToArray()
+        {
+            var result = new T[_segment.Count];
+            System.Array.Copy(_segment.Array, _segment.Offset, result, 0, _segment.Count);
+            return result;
+        }
+
+        public static implicit operator T[](Slice<T> s)
+        {
+            return s.ToArray();
         }
     }
 
