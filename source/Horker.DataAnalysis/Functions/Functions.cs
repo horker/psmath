@@ -8,57 +8,100 @@ using Accord.Math;
 
 namespace Horker.DataAnalysis
 {
+    public abstract class FunctionCmdletBase : PSCmdlet
+    {
+        [Parameter(Position = 0, Mandatory = false)]
+        public IEnumerable<object> Values;
+
+        [Parameter(ValueFromPipeline = true, Mandatory = false)]
+        public object InputObject;
+
+        protected virtual void Initialize() { }
+
+        protected virtual void ProcessInputObject(double value) { }
+
+        protected virtual void ProcessArguments(IEnumerable<double> values)
+        {
+            foreach (var value in values) {
+                ProcessInputObject(value);
+            }
+        }
+
+        protected virtual void Process() { }
+
+        protected override void BeginProcessing()
+        {
+            Initialize();
+        }
+
+        protected override void ProcessRecord()
+        {
+            if (InputObject != null) {
+                var obj = InputObject;
+                if (InputObject is PSObject) {
+                    obj = (obj as PSObject).BaseObject;
+                }
+                var v = Convert.ToDouble(obj);
+                ProcessInputObject(v);
+            }
+        }
+
+        protected override void EndProcessing()
+        {
+            if (Values != null) {
+                var values = Values.Select(x => {
+                    if (x is PSObject) {
+                        x = (x as PSObject).BaseObject;
+                    }
+                    return Convert.ToDouble(x);
+                });
+
+                ProcessArguments(values);
+            }
+
+            Process();
+        }
+    }
+
     #region System.Math
 
     [Cmdlet("Get", "Math.Abs")]
     [Alias("math.abs")]
-    public class GetMathAbs : PSCmdlet
+    public class GetMathAbs : FunctionCmdletBase
     {
-        [Parameter(Position = 0, Mandatory = true)]
-        public double A;
-
-        protected override void EndProcessing()
+        protected override void ProcessInputObject(double value)
         {
-            WriteObject(Math.Abs(A));
+            WriteObject(Math.Abs(value));
         }
     }
 
     [Cmdlet("Get", "Math.Acos")]
     [Alias("math.acos")]
-    public class GetMathAcos : PSCmdlet
+    public class GetMathAcos : FunctionCmdletBase
     {
-        [Parameter(Position = 0, Mandatory = true)]
-        public double A;
-
-        protected override void EndProcessing()
+        protected override void ProcessInputObject(double value)
         {
-            WriteObject(Math.Acos(A));
+            WriteObject(Math.Acos(value));
         }
     }
 
     [Cmdlet("Get", "Math.Asin")]
     [Alias("math.asin")]
-    public class GetMathAsin : PSCmdlet
+    public class GetMathAsin : FunctionCmdletBase
     {
-        [Parameter(Position = 0, Mandatory = true)]
-        public double A;
-
-        protected override void EndProcessing()
+        protected override void ProcessInputObject(double value)
         {
-            WriteObject(Math.Asin(A));
+            WriteObject(Math.Asin(value));
         }
     }
 
     [Cmdlet("Get", "Math.Atan")]
     [Alias("math.atan")]
-    public class GetMathAtan : PSCmdlet
+    public class GetMathAtan : FunctionCmdletBase
     {
-        [Parameter(Position = 0, Mandatory = true)]
-        public double A;
-
-        protected override void EndProcessing()
+        protected override void ProcessInputObject(double value)
         {
-            WriteObject(Math.Atan(A));
+            WriteObject(Math.Atan(value));
         }
     }
 
@@ -80,40 +123,31 @@ namespace Horker.DataAnalysis
 
     [Cmdlet("Get", "Math.Cos")]
     [Alias("math.cos")]
-    public class GetMathCos : PSCmdlet
+    public class GetMathCos : FunctionCmdletBase
     {
-        [Parameter(Position = 0, Mandatory = true)]
-        public double A;
-
-        protected override void EndProcessing()
+        protected override void ProcessInputObject(double value)
         {
-            WriteObject(Math.Cos(A));
+            WriteObject(Math.Cos(value));
         }
     }
 
     [Cmdlet("Get", "Math.Cosh")]
     [Alias("math.cosh")]
-    public class GetMathCosh : PSCmdlet
+    public class GetMathCosh : FunctionCmdletBase
     {
-        [Parameter(Position = 0, Mandatory = true)]
-        public double A;
-
-        protected override void EndProcessing()
+        protected override void ProcessInputObject(double value)
         {
-            WriteObject(Math.Cosh(A));
+            WriteObject(Math.Cosh(value));
         }
     }
 
     [Cmdlet("Get", "Math.Ceiling")]
     [Alias("math.ceiling")]
-    public class GetMathCeiling : PSCmdlet
+    public class GetMathCeiling : FunctionCmdletBase
     {
-        [Parameter(Position = 0, Mandatory = true)]
-        public double A;
-
-        protected override void EndProcessing()
+        protected override void ProcessInputObject(double value)
         {
-            WriteObject(Math.Ceiling(A));
+            WriteObject(Math.Ceiling(value));
         }
     }
 
@@ -142,27 +176,21 @@ namespace Horker.DataAnalysis
 
     [Cmdlet("Get", "Math.Exp")]
     [Alias("math.exp")]
-    public class GetMathExp : PSCmdlet
+    public class GetMathExp : FunctionCmdletBase
     {
-        [Parameter(Position = 0, Mandatory = true)]
-        public double A;
-
-        protected override void EndProcessing()
+        protected override void ProcessInputObject(double value)
         {
-            WriteObject(Math.Exp(A));
+            WriteObject(Math.Exp(value));
         }
     }
 
     [Cmdlet("Get", "Math.Floor")]
     [Alias("math.floor")]
-    public class GetMathFloor : PSCmdlet
+    public class GetMathFloor : FunctionCmdletBase
     {
-        [Parameter(Position = 0, Mandatory = true)]
-        public double A;
-
-        protected override void EndProcessing()
+        protected override void ProcessInputObject(double value)
         {
-            WriteObject(Math.Floor(A));
+            WriteObject(Math.Floor(value));
         }
     }
 
@@ -184,27 +212,21 @@ namespace Horker.DataAnalysis
 
     [Cmdlet("Get", "Math.Log")]
     [Alias("math.log")]
-    public class GetMathLog : PSCmdlet
+    public class GetMathLog : FunctionCmdletBase
     {
-        [Parameter(Position = 0, Mandatory = true)]
-        public double A;
-
-        protected override void EndProcessing()
+        protected override void ProcessInputObject(double value)
         {
-            WriteObject(Math.Log(A));
+            WriteObject(Math.Log(value));
         }
     }
 
     [Cmdlet("Get", "Math.Log10")]
     [Alias("math.log10")]
-    public class GetMathLog10 : PSCmdlet
+    public class GetMathLog10 : FunctionCmdletBase
     {
-        [Parameter(Position = 0, Mandatory = true)]
-        public double A;
-
-        protected override void EndProcessing()
+        protected override void ProcessInputObject(double value)
         {
-            WriteObject(Math.Log10(A));
+            WriteObject(Math.Log10(value));
         }
     }
 
@@ -245,92 +267,71 @@ namespace Horker.DataAnalysis
 
     [Cmdlet("Get", "Math.Sign")]
     [Alias("math.sign")]
-    public class GetMathSign : PSCmdlet
+    public class GetMathSign : FunctionCmdletBase
     {
-        [Parameter(Position = 0, Mandatory = true)]
-        public double A;
-
-        protected override void EndProcessing()
+        protected override void ProcessInputObject(double value)
         {
-            WriteObject(Math.Sign(A));
+            WriteObject(Math.Sign(value));
         }
     }
 
     [Cmdlet("Get", "Math.Sin")]
     [Alias("math.sin")]
-    public class GetMathSin : PSCmdlet
+    public class GetMathSin : FunctionCmdletBase
     {
-        [Parameter(Position = 0, Mandatory = true)]
-        public double A;
-
-        protected override void EndProcessing()
+        protected override void ProcessInputObject(double value)
         {
-            WriteObject(Math.Sin(A));
+            WriteObject(Math.Sin(value));
         }
     }
 
     [Cmdlet("Get", "Math.Sinh")]
     [Alias("math.sinh")]
-    public class GetMathSinh : PSCmdlet
+    public class GetMathSinh : FunctionCmdletBase
     {
-        [Parameter(Position = 0, Mandatory = true)]
-        public double A;
-
-        protected override void EndProcessing()
+        protected override void ProcessInputObject(double value)
         {
-            WriteObject(Math.Sinh(A));
+            WriteObject(Math.Sinh(value));
         }
     }
 
     [Cmdlet("Get", "Math.Sqrt")]
     [Alias("math.sqrt")]
-    public class GetMathSqrt : PSCmdlet
+    public class GetMathSqrt : FunctionCmdletBase
     {
-        [Parameter(Position = 0, Mandatory = true)]
-        public double A;
-
-        protected override void EndProcessing()
+        protected override void ProcessInputObject(double value)
         {
-            WriteObject(Math.Sqrt(A));
+            WriteObject(Math.Sqrt(value));
         }
     }
 
     [Cmdlet("Get", "Math.Tan")]
     [Alias("math.tan")]
-    public class GetMathTan : PSCmdlet
+    public class GetMathTan : FunctionCmdletBase
     {
-        [Parameter(Position = 0, Mandatory = true)]
-        public double A;
-
-        protected override void EndProcessing()
+        protected override void ProcessInputObject(double value)
         {
-            WriteObject(Math.Tan(A));
+            WriteObject(Math.Tan(value));
         }
     }
 
     [Cmdlet("Get", "Math.Tanh")]
     [Alias("math.tanh")]
-    public class GetMathTanh : PSCmdlet
+    public class GetMathTanh : FunctionCmdletBase
     {
-        [Parameter(Position = 0, Mandatory = true)]
-        public double A;
-
-        protected override void EndProcessing()
+        protected override void ProcessInputObject(double value)
         {
-            WriteObject(Math.Tanh(A));
+            WriteObject(Math.Tanh(value));
         }
     }
 
     [Cmdlet("Get", "Math.Truncate")]
     [Alias("math.truncate")]
-    public class GetMathTruncate : PSCmdlet
+    public class GetMathTruncate : FunctionCmdletBase
     {
-        [Parameter(Position = 0, Mandatory = true)]
-        public double A;
-
-        protected override void EndProcessing()
+        protected override void ProcessInputObject(double value)
         {
-            WriteObject(Math.Truncate(A));
+            WriteObject(Math.Truncate(value));
         }
     }
 
@@ -376,14 +377,11 @@ namespace Horker.DataAnalysis
 
     [Cmdlet("Get", "Math.Factorial")]
     [Alias("math.factorial")]
-    public class GetMathFactorial : PSCmdlet
+    public class GetMathFactorial : FunctionCmdletBase
     {
-        [Parameter(Position = 0, Mandatory = true)]
-        public double N;
-
-        protected override void EndProcessing()
+        protected override void ProcessInputObject(double value)
         {
-            WriteObject(Special.Factorial(N));
+            WriteObject(Special.Factorial(value));
         }
     }
 
@@ -437,45 +435,9 @@ namespace Horker.DataAnalysis
 
     #region Aggregate functions
 
-    public abstract class AggregateCmdletBase : PSCmdlet
-    {
-        [Parameter(Position = 0, Mandatory = false)]
-        public IEnumerable<object> Values;
-
-        [Parameter(ValueFromPipeline = true, Mandatory = false)]
-        public object InputObject;
-
-        protected abstract void ProcessInputObject(double value);
-        protected abstract void ProcessArguments(IEnumerable<double> values);
-        protected abstract void Process();
-
-        protected override void ProcessRecord()
-        {
-            if (InputObject != null) {
-                var obj = InputObject;
-                if (InputObject is PSObject) {
-                    obj = (obj as PSObject).BaseObject;
-                }
-                var v = Convert.ToDouble(obj);
-                ProcessInputObject(v);
-            }
-        }
-
-        protected override void EndProcessing()
-        {
-            if (Values != null) {
-                var values = Values.Select(x => Convert.ToDouble(x));
-
-                ProcessArguments(values);
-            }
-
-            Process();
-        }
-    }
-
     [Cmdlet("Get", "Math.Max")]
     [Alias("math.max")]
-    public class GetMathMax : AggregateCmdletBase
+    public class GetMathMax : FunctionCmdletBase
     {
         private double _result = double.MinValue;
 
@@ -483,15 +445,6 @@ namespace Horker.DataAnalysis
         {
             if (value > _result) {
                 _result = value;
-            }
-        }
-
-        protected override void ProcessArguments(IEnumerable<double> values)
-        {
-            foreach (var value in values) {
-                if (value > _result) {
-                    _result = value;
-                }
             }
         }
 
@@ -503,7 +456,7 @@ namespace Horker.DataAnalysis
 
     [Cmdlet("Get", "Math.Min")]
     [Alias("math.min")]
-    public class GetMathMin : AggregateCmdletBase
+    public class GetMathMin : FunctionCmdletBase
     {
         private double _result = double.MaxValue;
 
@@ -511,15 +464,6 @@ namespace Horker.DataAnalysis
         {
             if (value < _result) {
                 _result = value;
-            }
-        }
-
-        protected override void ProcessArguments(IEnumerable<double> values)
-        {
-            foreach (var value in values) {
-                if (value < _result) {
-                    _result = value;
-                }
             }
         }
 
@@ -531,20 +475,13 @@ namespace Horker.DataAnalysis
 
     [Cmdlet("Get", "Math.Sum")]
     [Alias("math.sum")]
-    public class GetMathSum : AggregateCmdletBase
+    public class GetMathSum : FunctionCmdletBase
     {
         private double _result = 0.0;
 
         protected override void ProcessInputObject(double value)
         {
             _result += value;
-        }
-
-        protected override void ProcessArguments(IEnumerable<double> values)
-        {
-            foreach (var v in values) {
-                _result += v;
-            }
         }
 
         protected override void Process()
@@ -555,69 +492,43 @@ namespace Horker.DataAnalysis
 
     [Cmdlet("Get", "Math.Mean")]
     [Alias("math.mean")]
-    public class GetMathMean : PSCmdlet
+    public class GetMathMean : FunctionCmdletBase
     {
-        [Parameter(Position = 0, Mandatory = false)]
-        public IEnumerable<object> Values;
-
-        [Parameter(ValueFromPipeline = true, Mandatory = false)]
-        public object InputObject;
-
         private double _result = 0.0;
         private int _count = 0;
 
-        protected override void ProcessRecord()
+        protected override void ProcessInputObject(double value)
         {
-            if (InputObject != null) {
-                _result += Convert.ToDouble(InputObject);
-                ++_count;
-            }
+            _result += value;
+            ++_count;
         }
 
-        protected override void EndProcessing()
+        protected override void Process()
         {
-            if (Values != null) {
-                _result += Values.Select(x => Convert.ToDouble(x)).Sum();
-                _count += Values.Count();
-            }
-
             WriteObject(_result / _count);
         }
     }
 
     [Cmdlet("Get", "Math.Softmax")]
     [Alias("math.softmax")]
-    public class GetMathSoftmax : PSCmdlet
+    public class GetMathSoftmax : FunctionCmdletBase
     {
-        [Parameter(Position = 0, Mandatory = false)]
-        public IEnumerable<object> Values;
-
-        [Parameter(ValueFromPipeline = true, Mandatory = false)]
-        public double? InputObject;
-
         private List<double> _results;
 
-        protected override void BeginProcessing()
+        protected override void Initialize()
         {
             _results = new List<double>();
         }
 
-        protected override void ProcessRecord()
+        protected override void ProcessInputObject(double value)
         {
-            if (InputObject != null) {
-                var v = Convert.ToDouble(InputObject);
-                _results.Add(v);
-            }
+            _results.Add(value);
         }
 
-        protected override void EndProcessing()
+        protected override void Process()
         {
-            if (Values != null) {
-                var values = Values.Select(x => Convert.ToDouble(x));
-                _results.AddRange(values);
-            }
-
             var results = Special.Softmax(_results.ToArray());
+
             foreach (var value in results) {
                 WriteObject(value);
             }
