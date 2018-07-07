@@ -437,97 +437,118 @@ namespace Horker.DataAnalysis
 
     #region Aggregate functions
 
-    [Cmdlet("Get", "Math.Max")]
-    [Alias("math.max")]
-    public class GetMathMax : PSCmdlet
+    public abstract class AggregateCmdletBase : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = false)]
-        public double[] Values;
+        public IEnumerable<object> Values;
 
         [Parameter(ValueFromPipeline = true, Mandatory = false)]
-        public double? InputObject;
+        public object InputObject;
 
-        private double _result = double.MinValue;
+        protected abstract void ProcessInputObject(double value);
+        protected abstract void ProcessArguments(IEnumerable<double> values);
+        protected abstract void Process();
 
         protected override void ProcessRecord()
         {
-            if (InputObject != null && InputObject.Value > _result) {
-                _result = InputObject.Value;
+            if (InputObject != null) {
+                var obj = InputObject;
+                if (InputObject is PSObject) {
+                    obj = (obj as PSObject).BaseObject;
+                }
+                var v = Convert.ToDouble(obj);
+                ProcessInputObject(v);
             }
         }
 
         protected override void EndProcessing()
         {
             if (Values != null) {
-                var max = Values.Max();
+                var values = Values.Select(x => Convert.ToDouble(x));
 
-                if (max > _result) {
-                    _result = max;
-                }
+                ProcessArguments(values);
             }
 
+            Process();
+        }
+    }
+
+    [Cmdlet("Get", "Math.Max")]
+    [Alias("math.max")]
+    public class GetMathMax : AggregateCmdletBase
+    {
+        private double _result = double.MinValue;
+
+        protected override void ProcessInputObject(double value)
+        {
+            if (value > _result) {
+                _result = value;
+            }
+        }
+
+        protected override void ProcessArguments(IEnumerable<double> values)
+        {
+            foreach (var value in values) {
+                if (value > _result) {
+                    _result = value;
+                }
+            }
+        }
+
+        protected override void Process()
+        {
             WriteObject(_result);
         }
     }
 
     [Cmdlet("Get", "Math.Min")]
     [Alias("math.min")]
-    public class GetMathMin : PSCmdlet
+    public class GetMathMin : AggregateCmdletBase
     {
-        [Parameter(Position = 0, Mandatory = false)]
-        public double[] Values;
-
-        [Parameter(ValueFromPipeline = true, Mandatory = false)]
-        public double? InputObject;
-
         private double _result = double.MaxValue;
 
-        protected override void ProcessRecord()
+        protected override void ProcessInputObject(double value)
         {
-            if (InputObject != null && InputObject.Value < _result) {
-                _result = InputObject.Value;
+            if (value < _result) {
+                _result = value;
             }
         }
 
-        protected override void EndProcessing()
+        protected override void ProcessArguments(IEnumerable<double> values)
         {
-            if (Values != null) {
-                var min = Values.Min();
-
-                if (min < _result) {
-                    _result = min;
+            foreach (var value in values) {
+                if (value < _result) {
+                    _result = value;
                 }
             }
+        }
 
+        protected override void Process()
+        {
             WriteObject(_result);
         }
     }
 
     [Cmdlet("Get", "Math.Sum")]
     [Alias("math.sum")]
-    public class GetMathSum : PSCmdlet
+    public class GetMathSum : AggregateCmdletBase
     {
-        [Parameter(Position = 0, Mandatory = false)]
-        public double[] Values;
-
-        [Parameter(ValueFromPipeline = true, Mandatory = false)]
-        public double? InputObject;
-
         private double _result = 0.0;
 
-        protected override void ProcessRecord()
+        protected override void ProcessInputObject(double value)
         {
-            if (InputObject != null) {
-                _result += InputObject.Value;
+            _result += value;
+        }
+
+        protected override void ProcessArguments(IEnumerable<double> values)
+        {
+            foreach (var v in values) {
+                _result += v;
             }
         }
 
-        protected override void EndProcessing()
+        protected override void Process()
         {
-            if (Values != null) {
-                _result += Values.Sum();
-            }
-
             WriteObject(_result);
         }
     }
@@ -537,10 +558,10 @@ namespace Horker.DataAnalysis
     public class GetMathMean : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = false)]
-        public double[] Values;
+        public IEnumerable<object> Values;
 
         [Parameter(ValueFromPipeline = true, Mandatory = false)]
-        public double? InputObject;
+        public object InputObject;
 
         private double _result = 0.0;
         private int _count = 0;
@@ -548,7 +569,7 @@ namespace Horker.DataAnalysis
         protected override void ProcessRecord()
         {
             if (InputObject != null) {
-                _result += InputObject.Value;
+                _result += Convert.ToDouble(InputObject);
                 ++_count;
             }
         }
@@ -556,11 +577,50 @@ namespace Horker.DataAnalysis
         protected override void EndProcessing()
         {
             if (Values != null) {
-                _result += Values.Sum();
+                _result += Values.Select(x => Convert.ToDouble(x)).Sum();
                 _count += Values.Count();
             }
 
             WriteObject(_result / _count);
+        }
+    }
+
+    [Cmdlet("Get", "Math.Softmax")]
+    [Alias("math.softmax")]
+    public class GetMathSoftmax : PSCmdlet
+    {
+        [Parameter(Position = 0, Mandatory = false)]
+        public IEnumerable<object> Values;
+
+        [Parameter(ValueFromPipeline = true, Mandatory = false)]
+        public double? InputObject;
+
+        private List<double> _results;
+
+        protected override void BeginProcessing()
+        {
+            _results = new List<double>();
+        }
+
+        protected override void ProcessRecord()
+        {
+            if (InputObject != null) {
+                var v = Convert.ToDouble(InputObject);
+                _results.Add(v);
+            }
+        }
+
+        protected override void EndProcessing()
+        {
+            if (Values != null) {
+                var values = Values.Select(x => Convert.ToDouble(x));
+                _results.AddRange(values);
+            }
+
+            var results = Special.Softmax(_results.ToArray());
+            foreach (var value in results) {
+                WriteObject(value);
+            }
         }
     }
 

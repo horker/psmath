@@ -57,23 +57,4 @@ namespace Horker.DataAnalysis
             return s.ToArray();
         }
     }
-
-    [Cmdlet("Get", "Slice")]
-    [Alias("slice")]
-    public class GetSpan : PSCmdlet
-    {
-        [Parameter(Position = 0, Mandatory = true)]
-        public object[] Array;
-
-        [Parameter(Position = 1, Mandatory = true)]
-        public int Offset;
-
-        [Parameter(Position = 2, Mandatory = true)]
-        public int Count;
-
-        protected override void EndProcessing()
-        {
-            WriteObject(new Slice<object>(Array, Offset, Count));
-        }
-    }
 }
