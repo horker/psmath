@@ -14,7 +14,7 @@ namespace Horker.DataAnalysis
     public class FunctionCmdletBase : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = false)]
-        public IEnumerable<object> Values;
+        public object[] Values;
 
         [Parameter(ValueFromPipeline = true, Mandatory = false)]
         public object InputObject;
@@ -268,6 +268,16 @@ namespace Horker.DataAnalysis
         protected override void ProcessInputObject(double value)
         {
             WriteObject(Math.Round(value, Digits, Mode));
+        }
+    }
+
+    [Cmdlet("Get", "Math.Sigmoid")]
+    [Alias("math.sigmoid")]
+    public class GetMathSigmoid : FunctionCmdletBase
+    {
+        protected override void ProcessInputObject(double value)
+        {
+            WriteObject(1.0 / (1.0 + Math.Exp(-value)));
         }
     }
 
@@ -542,7 +552,8 @@ namespace Horker.DataAnalysis
 
             for (var i = minBar; i <= maxBar; ++i) {
                 var result = new PSObject();
-                result.Properties.Add(new PSNoteProperty("Label", i * BinWidth + Offset));
+                result.Properties.Add(new PSNoteProperty("Lower", i * BinWidth + Offset));
+                result.Properties.Add(new PSNoteProperty("Upper", (i + 1) * BinWidth + Offset));
                 result.Properties.Add(new PSNoteProperty("Count", hist[i - minBar]));
 
                 WriteObject(result);
