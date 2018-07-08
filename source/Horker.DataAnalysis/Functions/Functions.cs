@@ -756,6 +756,27 @@ namespace Horker.DataAnalysis
         }
     }
 
+    [Cmdlet("Get", "Math.MovingStandardDeviation")]
+    [Alias("math.movingstdev")]
+    public class GetMathMovingStandardDeviation : FunctionCmdletBase
+    {
+        [Parameter(Position = 2, Mandatory = true)]
+        public int WindowSize;
+
+        private MovingNormalStatistics _state;
+
+        protected override void Initialize()
+        {
+            _state = new MovingNormalStatistics(WindowSize);
+        }
+
+        protected override void ProcessInputObject(double value)
+        {
+            _state.Push(value);
+            WriteObject(_state.StandardDeviation);
+        }
+    }
+
     [Cmdlet("Get", "Math.MovingSum")]
     [Alias("math.movingsum")]
     public class GetMathMovingSum : FunctionCmdletBase
@@ -890,6 +911,31 @@ namespace Horker.DataAnalysis
             var result = _values.ToArray().Scale(ToMin, ToMax);
 
             WriteObject(result);
+        }
+    }
+
+    [Cmdlet("Get", "Math.Shuffle")]
+    [Alias("math.shuffle")]
+    public class GetMathShuffle : AggregateFunctionCmdletBase
+    {
+        protected override void Process()
+        {
+            // ref. https://en.wikipedia.org/wiki/Fisher-Yates_shuffle
+
+            int count = _values.Count;
+
+            var table = new double[count];
+            for (var i = 0; i < count; ++i) {
+                var j = Generator.Random.Next(i + 1);
+                if (j != i) {
+                    table[i] = table[j];
+                }
+                table[j] = _values[i];
+            }
+
+            for (var i = 0; i < count; ++i) {
+                WriteObject(table[i]);
+            }
         }
     }
 
