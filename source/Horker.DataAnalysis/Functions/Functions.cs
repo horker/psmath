@@ -5,10 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Management.Automation;
 using Accord.Math;
+using Accord.Statistics;
+using Accord.Math.Random;
+using Accord.Statistics.Moving;
 
 namespace Horker.DataAnalysis
 {
-    public abstract class FunctionCmdletBase : PSCmdlet
+    public class FunctionCmdletBase : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = false)]
         public IEnumerable<object> Values;
@@ -16,7 +19,7 @@ namespace Horker.DataAnalysis
         [Parameter(ValueFromPipeline = true, Mandatory = false)]
         public object InputObject;
 
-        protected virtual void Initialize() { }
+       protected virtual void Initialize() { }
 
         protected virtual void ProcessInputObject(double value) { }
 
@@ -60,6 +63,21 @@ namespace Horker.DataAnalysis
             }
 
             Process();
+        }
+    }
+
+    public class AggregateFunctionCmdletBase : FunctionCmdletBase
+    {
+        protected List<double> _values;
+
+        protected override void Initialize()
+        {
+            _values = new List<double>();
+        }
+
+        protected override void ProcessInputObject(double value)
+        {
+            _values.Add(value);
         }
     }
 
@@ -107,17 +125,14 @@ namespace Horker.DataAnalysis
 
     [Cmdlet("Get", "Math.Atan2")]
     [Alias("math.atan2")]
-    public class GetMathAtan2 : PSCmdlet
+    public class GetMathAtan2 : FunctionCmdletBase
     {
-        [Parameter(Position = 0, Mandatory = true)]
-        public double A;
-
         [Parameter(Position = 1, Mandatory = true)]
-        public double B;
+        public double Arg;
 
-        protected override void EndProcessing()
+        protected override void ProcessInputObject(double value)
         {
-            WriteObject(Math.Atan2(A, B));
+            WriteObject(Math.Atan2(value, Arg));
         }
     }
 
@@ -196,17 +211,14 @@ namespace Horker.DataAnalysis
 
     [Cmdlet("Get", "Math.IEEERemainder")]
     [Alias("math.rem")]
-    public class GetMathIEEERemainder : PSCmdlet
+    public class GetMathIEEERemainder : FunctionCmdletBase
     {
-        [Parameter(Position = 0, Mandatory = true)]
-        public double A;
-
         [Parameter(Position = 1, Mandatory = true)]
-        public double B;
+        public double Arg;
 
-        protected override void EndProcessing()
+        protected override void ProcessInputObject(double value)
         {
-            WriteObject(Math.IEEERemainder(A, B));
+            WriteObject(Math.IEEERemainder(value, Arg));
         }
     }
 
@@ -232,36 +244,30 @@ namespace Horker.DataAnalysis
 
     [Cmdlet("Get", "Math.Pow")]
     [Alias("math.pow")]
-    public class GetMathPow : PSCmdlet
+    public class GetMathPow : FunctionCmdletBase
     {
-        [Parameter(Position = 0, Mandatory = true)]
-        public double A;
-
         [Parameter(Position = 1, Mandatory = true)]
-        public double B;
+        public double Arg;
 
-        protected override void EndProcessing()
+        protected override void ProcessInputObject(double value)
         {
-            WriteObject(Math.Pow(A, B));
+            WriteObject(Math.Pow(value, Arg));
         }
     }
 
     [Cmdlet("Get", "Math.Round")]
     [Alias("math.round")]
-    public class GetMathRound : PSCmdlet
+    public class GetMathRound : FunctionCmdletBase
     {
-        [Parameter(Position = 0, Mandatory = true)]
-        public double Value;
-
         [Parameter(Position = 1, Mandatory = false)]
         public int Digits = 0;
 
         [Parameter(Position = 2, Mandatory = false)]
         public MidpointRounding Mode = MidpointRounding.ToEven;
 
-        protected override void EndProcessing()
+        protected override void ProcessInputObject(double value)
         {
-            WriteObject(Math.Round(Value, Digits, Mode));
+            WriteObject(Math.Round(value, Digits, Mode));
         }
     }
 
@@ -385,6 +391,20 @@ namespace Horker.DataAnalysis
         }
     }
 
+    [Cmdlet("Get", "Math.Softmax")]
+    [Alias("math.softmax")]
+    public class GetMathSoftmax : AggregateFunctionCmdletBase
+    {
+        protected override void Process()
+        {
+            var results = Special.Softmax(_values.ToArray());
+
+            foreach (var value in results) {
+                WriteObject(value);
+            }
+        }
+    }
+
     #endregion
 
     #region Accord.Math.Combinatorics
@@ -430,10 +450,156 @@ namespace Horker.DataAnalysis
         }
     }
 
-
     #endregion
 
-    #region Aggregate functions
+    #region Statistical values
+
+    [Cmdlet("Get", "Math.ContraHarmonicMean")]
+    [Alias("math.contraharmonicmean")]
+    public class GetMathContraHarmonicMean : AggregateFunctionCmdletBase
+    {
+        protected override void Process()
+        {
+            var result = Measures.ContraHarmonicMean(_values.ToArray());
+
+            WriteObject(result);
+        }
+    }
+
+    [Cmdlet("Get", "Math.CumulativeSum")]
+    [Alias("math.cumsum")]
+    public class GetMathCumulativeSum : AggregateFunctionCmdletBase
+    {
+        protected override void Process()
+        {
+            var result = _values.ToArray().CumulativeSum();
+
+            WriteObject(result);
+        }
+    }
+
+    [Cmdlet("Get", "Math.Entropy")]
+    [Alias("math.entropy")]
+    public class GetMathEntropy : AggregateFunctionCmdletBase
+    {
+        protected override void Process()
+        {
+            var result = Measures.Entropy(_values.ToArray());
+
+            WriteObject(result);
+        }
+    }
+
+    [Cmdlet("Get", "Math.Difference")]
+    [Alias("math.diff")]
+    public class GetMathDifference : FunctionCmdletBase
+    {
+        private bool _first;
+        private double _prev;
+
+        protected override void ProcessInputObject(double value)
+        {
+            if (_first) {
+                _first = false;
+            }
+            else {
+                WriteObject(value - _prev);
+            }
+
+            _prev = value;
+        }
+    }
+
+    [Cmdlet("Get", "Math.Histogram")]
+    [Alias("math.hist")]
+    public class GetMathHistogram : AggregateFunctionCmdletBase
+    {
+        [Parameter(Position = 1, Mandatory = false)]
+        public double BinWidth = double.NaN;
+
+        [Parameter(Position = 2, Mandatory = false)]
+        public double Offset = 0.0;
+
+        protected override void Process()
+        {
+            var min = _values.Min();
+            var max = _values.Max();
+
+            if (double.IsNaN(BinWidth)) {
+                var binCount = Math.Min(100, Math.Ceiling(Math.Sqrt(_values.Count)));
+                BinWidth = (max - min) / binCount;
+            }
+
+            int minBar = (int)Math.Floor((min - Offset) / BinWidth);
+            int maxBar = (int)Math.Floor((max - Offset) / BinWidth);
+
+            var hist = new int[maxBar - minBar + 1];
+
+            foreach (var value in _values) {
+                var bin = (int)Math.Floor((value - Offset) / BinWidth) - minBar;
+                ++hist[bin];
+            }
+
+            for (var i = minBar; i <= maxBar; ++i) {
+                var result = new PSObject();
+                result.Properties.Add(new PSNoteProperty("Label", i * BinWidth + Offset));
+                result.Properties.Add(new PSNoteProperty("Count", hist[i - minBar]));
+
+                WriteObject(result);
+            }
+        }
+    }
+
+    [Cmdlet("Get", "Math.GeometricMean")]
+    [Alias("math.geometric")]
+    public class GetMathGeometricMean : AggregateFunctionCmdletBase
+    {
+        protected override void Process()
+        {
+            var result = Measures.GeometricMean(_values.ToArray());
+
+            WriteObject(result);
+        }
+    }
+
+    [Cmdlet("Get", "Math.Kurtosis")]
+    [Alias("math.kurtosis")]
+    public class GetMathKurtosis : AggregateFunctionCmdletBase
+    {
+        [Parameter(Position = 2, Mandatory = false)]
+        SwitchParameter Unbiased = false;
+
+        protected override void Process()
+        {
+            var result = Measures.Kurtosis(_values.ToArray(), Unbiased);
+
+            WriteObject(result);
+        }
+    }
+
+    [Cmdlet("Get", "Math.LogGeometricMean")]
+    [Alias("math.loggeometric")]
+    public class GetMathLogGeometricMean : AggregateFunctionCmdletBase
+    {
+        protected override void Process()
+        {
+            var result = Measures.LogGeometricMean(_values.ToArray());
+
+            WriteObject(result);
+        }
+    }
+
+    [Cmdlet("Get", "Math.LowerQuartile")]
+    [Alias("math.lowerq")]
+    public class GetMathLowerquartile : AggregateFunctionCmdletBase
+    {
+        protected override void Process()
+        {
+            var result = Measures.LowerQuartile(_values.ToArray());
+
+            WriteObject(result);
+        }
+    }
 
     [Cmdlet("Get", "Math.Max")]
     [Alias("math.max")]
@@ -446,42 +612,6 @@ namespace Horker.DataAnalysis
             if (value > _result) {
                 _result = value;
             }
-        }
-
-        protected override void Process()
-        {
-            WriteObject(_result);
-        }
-    }
-
-    [Cmdlet("Get", "Math.Min")]
-    [Alias("math.min")]
-    public class GetMathMin : FunctionCmdletBase
-    {
-        private double _result = double.MaxValue;
-
-        protected override void ProcessInputObject(double value)
-        {
-            if (value < _result) {
-                _result = value;
-            }
-        }
-
-        protected override void Process()
-        {
-            WriteObject(_result);
-        }
-    }
-
-    [Cmdlet("Get", "Math.Sum")]
-    [Alias("math.sum")]
-    public class GetMathSum : FunctionCmdletBase
-    {
-        private double _result = 0.0;
-
-        protected override void ProcessInputObject(double value)
-        {
-            _result += value;
         }
 
         protected override void Process()
@@ -509,29 +639,498 @@ namespace Horker.DataAnalysis
         }
     }
 
-    [Cmdlet("Get", "Math.Softmax")]
-    [Alias("math.softmax")]
-    public class GetMathSoftmax : FunctionCmdletBase
+    [Cmdlet("Get", "Math.Median")]
+    [Alias("math.median")]
+    public class GetMathMedian : AggregateFunctionCmdletBase
     {
-        private List<double> _results;
-
-        protected override void Initialize()
+        protected override void Process()
         {
-            _results = new List<double>();
+            var result = Measures.Median(_values.ToArray());
+
+            WriteObject(result);
         }
+    }
+
+    [Cmdlet("Get", "Math.Min")]
+    [Alias("math.min")]
+    public class GetMathMin : FunctionCmdletBase
+    {
+        private double _result = double.MaxValue;
 
         protected override void ProcessInputObject(double value)
         {
-            _results.Add(value);
+            if (value < _result) {
+                _result = value;
+            }
         }
 
         protected override void Process()
         {
-            var results = Special.Softmax(_results.ToArray());
+            WriteObject(_result);
+        }
+    }
 
-            foreach (var value in results) {
-                WriteObject(value);
+    [Cmdlet("Get", "Math.Mode")]
+    [Alias("math.mode")]
+    public class GetMathMode : AggregateFunctionCmdletBase
+    {
+        protected override void Process()
+        {
+            var result = Measures.Mode(_values.ToArray());
+
+            WriteObject(result);
+        }
+    }
+
+    [Cmdlet("Get", "Math.MovingMax")]
+    [Alias("math.movingmmax")]
+    public class GetMathMovingMax : FunctionCmdletBase
+    {
+        [Parameter(Position = 2, Mandatory = true)]
+        public int WindowSize;
+
+        private MovingNormalStatistics _state;
+
+        protected override void Initialize()
+        {
+            _state = new MovingNormalStatistics(WindowSize);
+        }
+
+        protected override void ProcessInputObject(double value)
+        {
+            _state.Push(value);
+            WriteObject(_state.Max());
+        }
+    }
+
+    [Cmdlet("Get", "Math.MovingMean")]
+    [Alias("math.movingmean")]
+    public class GetMathMovingMean : FunctionCmdletBase
+    {
+        [Parameter(Position = 2, Mandatory = true)]
+        public int WindowSize;
+
+        private MovingNormalStatistics _state;
+
+        protected override void Initialize()
+        {
+            _state = new MovingNormalStatistics(WindowSize);
+        }
+
+        protected override void ProcessInputObject(double value)
+        {
+            _state.Push(value);
+            WriteObject(_state.Mean);
+        }
+    }
+
+    [Cmdlet("Get", "Math.MovingMin")]
+    [Alias("math.movingmmin")]
+    public class GetMathMovingMin : FunctionCmdletBase
+    {
+        [Parameter(Position = 2, Mandatory = true)]
+        public int WindowSize;
+
+        private MovingNormalStatistics _state;
+
+        protected override void Initialize()
+        {
+            _state = new MovingNormalStatistics(WindowSize);
+        }
+
+        protected override void ProcessInputObject(double value)
+        {
+            _state.Push(value);
+            WriteObject(_state.Min());
+        }
+    }
+
+    [Cmdlet("Get", "Math.MovingSum")]
+    [Alias("math.movingsum")]
+    public class GetMathMovingSum : FunctionCmdletBase
+    {
+        [Parameter(Position = 2, Mandatory = true)]
+        public int WindowSize;
+
+        private MovingNormalStatistics _state;
+
+        protected override void Initialize()
+        {
+            _state = new MovingNormalStatistics(WindowSize);
+        }
+
+        protected override void ProcessInputObject(double value)
+        {
+            _state.Push(value);
+            WriteObject(_state.Sum);
+        }
+    }
+
+    [Cmdlet("Get", "Math.MovingVariance")]
+    [Alias("math.movingvar")]
+    public class GetMathMovingVariance : FunctionCmdletBase
+    {
+        [Parameter(Position = 2, Mandatory = true)]
+        public int WindowSize;
+
+        private MovingNormalStatistics _state;
+
+        protected override void Initialize()
+        {
+            _state = new MovingNormalStatistics(WindowSize);
+        }
+
+        protected override void ProcessInputObject(double value)
+        {
+            _state.Push(value);
+            WriteObject(_state.Variance);
+        }
+    }
+
+    [Cmdlet("Get", "Math.Quantile")]
+    [Alias("math.quantile")]
+    public class GetMathQuantile : AggregateFunctionCmdletBase
+    {
+        [Parameter(Position = 2, Mandatory = true)]
+        public double Probabilities;
+
+        [Parameter(Position = 3, Mandatory = false)]
+        public QuantileMethod QuantileMethod = QuantileMethod.Default;
+
+        protected override void Process()
+        {
+            var result = _values.ToArray().Quantile(Probabilities, false, QuantileMethod, false);
+
+            WriteObject(result);
+        }
+    }
+
+    [Cmdlet("Get", "Math.Sample")]
+    [Alias("math.sample")]
+    public class GetMathSample : AggregateFunctionCmdletBase
+    {
+        [Parameter(Position = 2, Mandatory = true)]
+        public int Size;
+
+        [Parameter(Position = 3, Mandatory = false)]
+        public SwitchParameter Replacement;
+
+        protected override void Process()
+        {
+            // ref. https://en.wikipedia.org/wiki/Fisher-Yates_shuffle
+
+            int count = _values.Count;
+
+            if (Replacement) {
+                for (var i = 0; i < Size; ++i) {
+                    var j = Generator.Random.Next(count);
+                    WriteObject(_values[j]);
+                }
             }
+            else {
+                if (Size > count) {
+                    WriteError(new ErrorRecord(new ArgumentException("Sample size too large"), "", ErrorCategory.InvalidArgument, null));
+                }
+
+                if (count / Size >= 5) {
+                    var samples = new HashSet<double>();
+                    for (var i = Size; i > 0;) {
+                        var j = Generator.Random.Next(count);
+                        if (samples.Contains(j)) {
+                            continue;
+                        }
+
+                        samples.Add(j);
+                        --i;
+
+                        WriteObject(_values[j]);
+                    }
+                }
+                else {
+                    var table = new double[count];
+                    for (var i = 0; i < count; ++i) {
+                        var j = Generator.Random.Next(i + 1);
+                        if (j != i) {
+                            table[i] = table[j];
+                        }
+                        table[j] = _values[i];
+                    }
+
+                    for (var i = 0; i < Size; ++i) {
+                        WriteObject(table[i]);
+                    }
+                }
+            }
+        }
+    }
+
+    [Cmdlet("Get", "Math.Scale")]
+    [Alias("math.scale")]
+    public class GetMathScale : AggregateFunctionCmdletBase
+    {
+        [Parameter(Position = 2, Mandatory = true)]
+        public double ToMin;
+
+        [Parameter(Position = 3, Mandatory = true)]
+        public double ToMax;
+
+        protected override void Process()
+        {
+            var result = _values.ToArray().Scale(ToMin, ToMax);
+
+            WriteObject(result);
+        }
+    }
+
+    [Cmdlet("Get", "Math.Skewness")]
+    [Alias("math.skewness")]
+    public class GetMathSkewness : AggregateFunctionCmdletBase
+    {
+        [Parameter(Position = 2, Mandatory = false)]
+        public SwitchParameter Unbiased = false;
+
+        protected override void Process()
+        {
+            var result = Measures.Skewness(_values.ToArray(), Unbiased);
+
+            WriteObject(result);
+        }
+    }
+
+    [Cmdlet("Get", "Math.StandardDeviation")]
+    [Alias("math.stdev")]
+    public class GetMathStandardDevidation : AggregateFunctionCmdletBase
+    {
+        [Parameter(Position = 2, Mandatory = false)]
+        public SwitchParameter Unbiased = false;
+
+        protected override void Process()
+        {
+            var result = Measures.StandardDeviation(_values.ToArray(), Unbiased);
+
+            WriteObject(result);
+        }
+    }
+
+    [Cmdlet("Get", "Math.StandardError")]
+    [Alias("math.se")]
+    public class GetMathStandardError : AggregateFunctionCmdletBase
+    {
+        protected override void Process()
+        {
+            var result = Measures.StandardError(_values.ToArray());
+
+            WriteObject(result);
+        }
+    }
+
+    [Cmdlet("Get", "Math.Sum")]
+    [Alias("math.sum")]
+    public class GetMathSum : FunctionCmdletBase
+    {
+        private double _result = 0.0;
+
+        protected override void ProcessInputObject(double value)
+        {
+            _result += value;
+        }
+
+        protected override void Process()
+        {
+            WriteObject(_result);
+        }
+    }
+
+    [Cmdlet("Get", "Math.Summary")]
+    [Alias("math.summary")]
+    public class GetMathSummary : AggregateFunctionCmdletBase
+    {
+        protected override void Process()
+        {
+            var values = _values.ToArray();
+            values.Sort();
+
+            var result = new PSObject();
+            var props = result.Properties;
+
+            props.Add(new PSNoteProperty("Count", values.Length));
+            props.Add(new PSNoteProperty("Minimum", values[0]));
+            props.Add(new PSNoteProperty("LowerQuantile", values.Quantile(.25, true)));
+            props.Add(new PSNoteProperty("Median", values.Median()));
+            props.Add(new PSNoteProperty("Mean", values.Mean()));
+            props.Add(new PSNoteProperty("UpperQuantile", values.Quantile(.75, true)));
+            props.Add(new PSNoteProperty("Maximum", values[values.Length - 1]));
+
+            WriteObject(result);
+        }
+    }
+
+    [Cmdlet("Get", "Math.TruncatedMean")]
+    [Alias("math.truncatedmean")]
+    public class GetMathTruncatedMean : AggregateFunctionCmdletBase
+    {
+        [Parameter(Position = 2, Mandatory = true)]
+        public double Percent;
+
+        protected override void Process()
+        {
+            var result = Measures.TruncatedMean(_values.ToArray(), Percent);
+
+            WriteObject(result);
+        }
+    }
+
+    [Cmdlet("Get", "Math.UpperQuartile")]
+    [Alias("math.upperq")]
+    public class GetMathUpperQuartile : AggregateFunctionCmdletBase
+    {
+        protected override void Process()
+        {
+            var result = Measures.UpperQuartile(_values.ToArray());
+
+            WriteObject(result);
+        }
+    }
+
+    [Cmdlet("Get", "Math.Variance")]
+    [Alias("math.var")]
+    public class GetMathVariance : AggregateFunctionCmdletBase
+    {
+        [Parameter(Position = 2, Mandatory = false)]
+        public SwitchParameter Unbiased = false;
+
+        protected override void Process()
+        {
+            var result = Measures.Variance(_values.ToArray(), Unbiased);
+
+            WriteObject(result);
+        }
+    }
+
+    [Cmdlet("Get", "Math.ZScore")]
+    [Alias("math.zscore")]
+    public class GetMathZScore : AggregateFunctionCmdletBase
+    {
+        [Parameter(Position = 2, Mandatory = false)]
+        public SwitchParameter Unbiased = false;
+
+        protected override void Process()
+        {
+            var values = _values.ToArray();
+            var mean = values.Mean();
+            var sd = values.StandardDeviation(Unbiased);
+
+            for (var i = 0; i < values.Length; ++i) {
+                WriteObject((values[i] - mean) / sd);
+            }
+        }
+    }
+
+    #endregion
+
+    #region Scalar arithmetics
+
+    [Cmdlet("Get", "Math.Add")]
+    [Alias("math.add")]
+    public class GetMathPlus : FunctionCmdletBase
+    {
+        [Parameter(Position = 2, Mandatory = true, ParameterSetName = "Rhs")]
+        public double Rhs;
+
+        [Parameter(Position = 2, Mandatory = true, ParameterSetName = "Lhs")]
+        public double Lhs;
+
+        protected override void ProcessInputObject(double value)
+        {
+            if (ParameterSetName == "Rhs") {
+                WriteObject(value + Rhs);
+            }
+            else {
+                WriteObject(Lhs + value);
+            }
+        }
+    }
+
+    [Cmdlet("Get", "Math.Subtract")]
+    [Alias("math.sub")]
+    public class GetMathMinus : FunctionCmdletBase
+    {
+        [Parameter(Position = 2, Mandatory = true, ParameterSetName = "Rhs")]
+        public double Rhs;
+
+        [Parameter(Position = 2, Mandatory = true, ParameterSetName = "Lhs")]
+        public double Lhs;
+
+        protected override void ProcessInputObject(double value)
+        {
+            if (ParameterSetName == "Rhs") {
+                WriteObject(value - Rhs);
+            }
+            else {
+                WriteObject(Lhs - value);
+            }
+        }
+    }
+
+    [Cmdlet("Get", "Math.Multiply")]
+    [Alias("math.mul")]
+    public class GetMathMultiply : FunctionCmdletBase
+    {
+        [Parameter(Position = 2, Mandatory = true, ParameterSetName = "Rhs")]
+        public double Rhs;
+
+        [Parameter(Position = 2, Mandatory = true, ParameterSetName = "Lhs")]
+        public double Lhs;
+
+        protected override void ProcessInputObject(double value)
+        {
+            if (ParameterSetName == "Rhs") {
+                WriteObject(value * Rhs);
+            }
+            else {
+                WriteObject(Lhs * value);
+            }
+        }
+    }
+
+    [Cmdlet("Get", "Math.Divide")]
+    [Alias("math.div")]
+    public class GetMathDivide : FunctionCmdletBase
+    {
+        [Parameter(Position = 2, Mandatory = true, ParameterSetName = "Rhs")]
+        public double Rhs;
+
+        [Parameter(Position = 2, Mandatory = true, ParameterSetName = "Lhs")]
+        public double Lhs;
+
+        protected override void ProcessInputObject(double value)
+        {
+            if (ParameterSetName == "Rhs") {
+                WriteObject(value / Rhs);
+            }
+            else {
+                WriteObject(Lhs / value);
+            }
+        }
+    }
+
+    [Cmdlet("Get", "Math.Negate")]
+    [Alias("math.neg")]
+    public class GetMathNegate : FunctionCmdletBase
+    {
+        protected override void ProcessInputObject(double value)
+        {
+            WriteObject(-value);
+        }
+    }
+
+    [Cmdlet("Get", "Math.Inverse")]
+    [Alias("math.inv")]
+    public class GetMathInverse : FunctionCmdletBase
+    {
+        protected override void ProcessInputObject(double value)
+        {
+            WriteObject(1.0 / value);
         }
     }
 
