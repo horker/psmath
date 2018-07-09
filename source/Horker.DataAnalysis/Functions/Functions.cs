@@ -11,6 +11,8 @@ using Accord.Statistics.Moving;
 
 namespace Horker.DataAnalysis
 {
+    #region Base class for math function cmdlets
+
     public class FunctionCmdletBase : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = false)]
@@ -80,6 +82,34 @@ namespace Horker.DataAnalysis
             _values.Add(value);
         }
     }
+
+    #endregion
+
+    #region Accord.Math.Random
+
+    [Cmdlet("Get", "Math.RandomSeed")]
+    public class GetMathRandomSeed : PSCmdlet
+    {
+        protected override void EndProcessing()
+        {
+            WriteObject(Generator.Seed);
+        }
+    }
+
+    [Cmdlet("Set", "Math.RandomSeed")]
+    public class SetMathRandomSeed : PSCmdlet
+    {
+        [AllowNull()]
+        [Parameter(Position = 0, Mandatory = true)]
+        public int? Seed;
+
+        protected override void EndProcessing()
+        {
+            Generator.Seed = Seed;
+        }
+    }
+
+    #endregion
 
     #region System.Math
 
