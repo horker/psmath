@@ -7,20 +7,20 @@ using System.Diagnostics;
 namespace Horker.DataAnalysis
 {
     [Cmdlet("New", "Math.Matrix")]
-    [Alias("math.matrix")]
+    [Alias("mat")]
     public class NewMathMatrix : PSCmdlet
     {
         [Parameter(ValueFromPipeline = true, Mandatory = false)]
         public object InputObject;
 
         [Parameter(Position = 0, Mandatory = false)]
-        public int RowCount = int.MaxValue;
+        public object[] Values;
 
         [Parameter(Position = 1, Mandatory = false)]
-        public int ColumnCount = int.MaxValue;
+        public int RowCount = int.MaxValue;
 
         [Parameter(Position = 2, Mandatory = false)]
-        public object[] Values;
+        public int ColumnCount = int.MaxValue;
 
         [Parameter(Position = 3, Mandatory = false)]
         public SwitchParameter Transpose = false;

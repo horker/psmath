@@ -1178,5 +1178,74 @@ namespace Horker.DataAnalysis
         }
     }
 
+    [Cmdlet("Get", "Math.Distinct")]
+    [Alias("math.distinct")]
+    public class GetMathDistinct : AggregateFunctionCmdletBase
+    {
+        protected override void Process(double[] values)
+        {
+            var result = Accord.Math.Matrix.Distinct(values);
+
+            foreach (var value in result) {
+                WriteObject(value);
+            }
+        }
+    }
+
+    [Cmdlet("Get", "Math.DistinctCount")]
+    [Alias("math.distinctCount")]
+    public class GetMathDistinctCount : AggregateFunctionCmdletBase
+    {
+        protected override void Process(double[] values)
+        {
+            var result = Accord.Math.Matrix.DistinctCount(values);
+
+            WriteObject(result);
+        }
+    }
+
+    [Cmdlet("Test", "Math.Sorted")]
+    [Alias("math.issorted")]
+    public class TestMathSorted : AggregateFunctionCmdletBase
+    {
+        protected override void Process(double[] values)
+        {
+            var result = Accord.Math.Matrix.IsSorted(values);
+
+            WriteObject(result);
+        }
+    }
+
+    [Cmdlet("Get", "Math.Normalize")]
+    [Alias("math.normalize")]
+    public class GetMathNormalize : AggregateFunctionCmdletBase
+    {
+        [Parameter(Position = 1, Mandatory = false)]
+        public SwitchParameter Unbiased = false;
+
+        protected override void Process(double[] values)
+        {
+            var result = Accord.Math.Matrix.Normalize(values);
+
+            foreach (var value in result) {
+                WriteObject(value);
+            }
+        }
+    }
+
+    [Cmdlet("Get", "Math.Reverse")]
+    [Alias("math.reverse")]
+    public class GetMathReverse : AggregateFunctionCmdletBase
+    {
+        protected override void Process(double[] values)
+        {
+            var result = Accord.Math.Matrix.Reversed(values);
+
+            foreach (var value in values) {
+                WriteObject(value);
+            }
+        }
+    }
+
     #endregion
 }

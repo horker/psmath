@@ -18,7 +18,7 @@ namespace Tests
             using (var ps = PowerShell.Create()) {
                 var ci = new CmdletInfo("New-Math.Matrix", typeof(NewMathMatrix));
                 ps.AddCommand(ci);
-                ps.AddParameters(new object[] { 2, 3, new double[] { 1, 2, 3 } });
+                ps.AddParameters(new object[] { new double[] { 1, 2, 3 }, 2, 3 });
                 var results = ps.Invoke();
 
                 Assert.AreEqual(1, results.Count);

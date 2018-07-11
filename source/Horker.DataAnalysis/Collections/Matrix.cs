@@ -172,6 +172,31 @@ namespace Horker.DataAnalysis
             return new Matrix(_values);
         }
 
+        public override bool Equals(object other)
+        {
+            if (other is double[]) {
+                return Accord.Math.Matrix.IsEqual(_values, other as double[]);
+            }
+
+            if (other is Matrix) {
+                return Accord.Math.Matrix.IsEqual(_values, other as Matrix);
+            }
+
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            int hash = 123456789;
+            for (var row = 0; row < RowCount; ++row) {
+                for (var column = 0; column < ColumnCount; ++column) {
+                    hash ^= (int)this[row, column];
+                }
+            }
+
+            return hash;
+        }
+
         public string AsString()
         {
             // Long format
