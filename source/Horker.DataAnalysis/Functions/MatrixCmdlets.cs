@@ -698,6 +698,19 @@ namespace Horker.DataAnalysis
         }
     }
 
+    [Cmdlet("Get", "Matrix.Zero")]
+    [Alias("mat.zero")]
+    public class GetMatrixZero : MatrixCmdletBase
+    {
+        [Parameter(Position = 0, Mandatory = true)]
+        public int Size;
+
+        protected override void EndProcessing()
+        {
+            WriteObject(new Matrix(Size, Size));
+        }
+    }
+
     #endregion
 
     #region Tester
