@@ -119,19 +119,32 @@ namespace Horker.DataAnalysis
         }
     }
 
-    [Cmdlet("Get", "Matrix.Dot")]
-    [Alias("mat.dot")]
-    public class GetMatrixDot : MatrixBinaryOperatorCmdletBase
+    public class MatrixMultiplyOperatorCmdletBase : MatrixBinaryOperatorCmdletBase
     {
         protected override void EndProcessing()
         {
             Matrix lhs = Converter.ToMatrix(Lhs, true);
             Matrix rhs = Converter.ToMatrix(Rhs, false);
-
             rhs = AdjustRow(rhs, lhs.ColumnCount);
-            var result = new Matrix(Accord.Math.Matrix.Dot(lhs, rhs), true);
 
-            WriteObject(result);
+            var result = Process(lhs, rhs);
+
+            if (AsArray) {
+                WriteObject(result.ToArray());
+            }
+            else {
+                WriteObject(result);
+            }
+        }
+    }
+
+    [Cmdlet("Get", "Matrix.Dot")]
+    [Alias("mat.dot")]
+    public class GetMatrixDot : MatrixMultiplyOperatorCmdletBase
+    {
+        protected override Matrix Process(Matrix lhs, Matrix rhs)
+        {
+            return new Matrix(Accord.Math.Matrix.Dot(lhs, rhs), true);
         }
     }
 
