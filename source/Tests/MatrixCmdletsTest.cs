@@ -72,5 +72,30 @@ namespace Tests
                 Assert.AreEqual(2 * 10 + 5 * 10 + 8 * 10, matrix[1, 0]);
             }
         }
+
+        [TestMethod]
+        public void TestLuDecomposition()
+        {
+            using (var ps = PowerShell.Create()) {
+                var matrix = Matrix.Create(new double[] { 4, 6, 3, 3 }, 2, 2);
+
+                var ci = new CmdletInfo("Get-Matrix.LuDecomposition", typeof(GetMatrixLuDecomposition));
+                ps.AddCommand(ci);
+                ps.AddParameters(new Dictionary<string, object>() {
+                    { "Value",  matrix }
+                });
+                var results = ps.Invoke();
+
+                Assert.AreEqual(1, results.Count);
+                var lu = (LuWrapper)results[0].BaseObject;
+
+                Assert.IsTrue(Accord.Math.Matrix.IsUpperTriangular<double>(lu.U));
+                Assert.IsTrue(Accord.Math.Matrix.IsLowerTriangular<double>(lu.L));
+
+                var m = (Matrix)Accord.Math.Matrix.Dot(lu.L, lu.U);
+
+                Assert.AreEqual(matrix, m);
+            }
+        }
     }
 }

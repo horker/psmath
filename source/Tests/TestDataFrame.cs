@@ -49,16 +49,5 @@ namespace Tests
             }
         }
 
-        [TestMethod]
-        public void TestLuDecomposition()
-        {
-            var m = DataFrame.Create(new double[] { 1, 2, 3, 4 }, 2);
-
-            var lu = m.Lu();
-
-            var m2 =lu.L.Dot(lu.U);
-
-            Assert.AreEqual(true, true);
-        }
     }
 }

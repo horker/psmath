@@ -928,7 +928,7 @@ namespace Horker.DataAnalysis
 
     [Cmdlet("Get", "Matrix.Lu")]
     [Alias("mat.lu")]
-    public class GetMatrixLu : MatrixCmdletBase
+    public class GetMatrixLuDecomposition : MatrixCmdletBase
     {
         [Parameter(Position = 0, Mandatory = true)]
         public object Value;
