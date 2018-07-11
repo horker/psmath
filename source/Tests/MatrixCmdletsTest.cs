@@ -92,9 +92,12 @@ namespace Tests
                 Assert.IsTrue(Accord.Math.Matrix.IsUpperTriangular<double>(lu.U));
                 Assert.IsTrue(Accord.Math.Matrix.IsLowerTriangular<double>(lu.L));
 
-                var m = (Matrix)Accord.Math.Matrix.Dot(lu.L, lu.U);
+                var m = Accord.Math.Matrix.Dot(lu.L, lu.U);
 
-                Assert.AreEqual(matrix, m);
+                // To avoid errors caused by floating-point arithmetics
+                Accord.Math.Matrix.Apply(m, x => Math.Round(x, 1), m);
+
+                Assert.AreEqual(matrix, (Matrix)m);
             }
         }
     }
