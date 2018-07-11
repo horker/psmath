@@ -54,7 +54,7 @@ namespace Horker.DataAnalysis
 
             if (Values != null) {
                 if (_values.Count > 0) {
-                    WriteError(new ErrorRecord(new ArgumentException("Both pipeline and -Value argument are specified."), "", ErrorCategory.InvalidArgument, null));
+                    WriteError(new ErrorRecord(new ArgumentException("Both pipeline and -Value argumetns are given"), "", ErrorCategory.InvalidArgument, null));
                     return;
                 }
                 v = Values;

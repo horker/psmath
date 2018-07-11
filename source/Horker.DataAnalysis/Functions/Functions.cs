@@ -21,16 +21,9 @@ namespace Horker.DataAnalysis
         [Parameter(ValueFromPipeline = true, Mandatory = false)]
         public object InputObject;
 
-       protected virtual void Initialize() { }
+        protected virtual void Initialize() { }
 
         protected virtual void ProcessInputObject(double value) { }
-
-        protected virtual void ProcessArguments(IEnumerable<double> values)
-        {
-            foreach (var value in values) {
-                ProcessInputObject(value);
-            }
-        }
 
         protected virtual void Process() { }
 
@@ -42,45 +35,73 @@ namespace Horker.DataAnalysis
         protected override void ProcessRecord()
         {
             if (InputObject != null) {
-                var obj = InputObject;
-                if (InputObject is PSObject) {
-                    obj = (obj as PSObject).BaseObject;
+                if (Values != null && Values.Length > 0) {
+                    WriteError(new ErrorRecord(new ArgumentException("Both pipeline and -Value arguments are given"), "", ErrorCategory.InvalidArgument, null));
+                    return;
                 }
-                var v = Convert.ToDouble(obj);
-                ProcessInputObject(v);
+
+                ProcessInputObject(Converter.ToDouble(InputObject));
             }
         }
 
         protected override void EndProcessing()
         {
             if (Values != null) {
-                var values = Values.Select(x => {
-                    if (x is PSObject) {
-                        x = (x as PSObject).BaseObject;
-                    }
-                    return Convert.ToDouble(x);
-                });
-
-                ProcessArguments(values);
+                foreach (var value in Values) {
+                    ProcessInputObject(Converter.ToDouble(value));
+                }
             }
 
             Process();
         }
     }
 
-    public class AggregateFunctionCmdletBase : FunctionCmdletBase
+    public abstract class AggregateFunctionCmdletBase : PSCmdlet
     {
-        protected List<double> _values;
+        [Parameter(Position = 0, Mandatory = false)]
+        public object[] Values;
 
-        protected override void Initialize()
+        [Parameter(ValueFromPipeline = true, Mandatory = false)]
+        public object InputObject;
+
+        private List<double> _inputObjects;
+
+        protected override void ProcessRecord()
         {
-            _values = new List<double>();
+            if (InputObject != null) {
+                if (_inputObjects == null) {
+                    _inputObjects = new List<double>();
+                }
+
+                _inputObjects.Add(Converter.ToDouble(InputObject));
+            }
         }
 
-        protected override void ProcessInputObject(double value)
+        protected abstract void Process(double[] values);
+
+        protected override void EndProcessing()
         {
-            _values.Add(value);
+            double[] values;
+
+            if (_inputObjects != null) {
+                if (Values != null && Values.Length > 0) {
+                    WriteError(new ErrorRecord(new ArgumentException("Both pipeline and -Value arguments are given"), "", ErrorCategory.InvalidArgument, null));
+                    return;
+                }
+                values = _inputObjects.ToArray();
+            }
+            else {
+                if (Values != null) {
+                    values = Values.Apply(x => Converter.ToDouble(x));
+                }
+                else {
+                    values = new double[0];
+                }
+            }
+
+            Process(values);
         }
+
     }
 
     #endregion
@@ -97,6 +118,7 @@ namespace Horker.DataAnalysis
     }
 
     [Cmdlet("Set", "Math.RandomSeed")]
+    [Alias("math.randomseed")]
     public class SetMathRandomSeed : PSCmdlet
     {
         [AllowNull()]
@@ -435,9 +457,9 @@ namespace Horker.DataAnalysis
     [Alias("math.softmax")]
     public class GetMathSoftmax : AggregateFunctionCmdletBase
     {
-        protected override void Process()
+        protected override void Process(double[] values)
         {
-            var results = Special.Softmax(_values.ToArray());
+            var results = Special.Softmax(values);
 
             foreach (var value in results) {
                 WriteObject(value);
@@ -498,9 +520,9 @@ namespace Horker.DataAnalysis
     [Alias("math.contraharmonicmean")]
     public class GetMathContraHarmonicMean : AggregateFunctionCmdletBase
     {
-        protected override void Process()
+        protected override void Process(double[] values)
         {
-            var result = Measures.ContraHarmonicMean(_values.ToArray());
+            var result = Measures.ContraHarmonicMean(values);
 
             WriteObject(result);
         }
@@ -510,9 +532,9 @@ namespace Horker.DataAnalysis
     [Alias("math.cumsum")]
     public class GetMathCumulativeSum : AggregateFunctionCmdletBase
     {
-        protected override void Process()
+        protected override void Process(double[] values)
         {
-            var result = _values.ToArray().CumulativeSum();
+            var result = values.CumulativeSum();
 
             WriteObject(result);
         }
@@ -522,9 +544,9 @@ namespace Horker.DataAnalysis
     [Alias("math.entropy")]
     public class GetMathEntropy : AggregateFunctionCmdletBase
     {
-        protected override void Process()
+        protected override void Process(double[] values)
         {
-            var result = Measures.Entropy(_values.ToArray());
+            var result = Measures.Entropy(values);
 
             WriteObject(result);
         }
@@ -536,6 +558,11 @@ namespace Horker.DataAnalysis
     {
         private bool _first;
         private double _prev;
+
+        protected override void Initialize()
+        {
+            _first = true;
+        }
 
         protected override void ProcessInputObject(double value)
         {
@@ -560,13 +587,13 @@ namespace Horker.DataAnalysis
         [Parameter(Position = 2, Mandatory = false)]
         public double Offset = 0.0;
 
-        protected override void Process()
+        protected override void Process(double[] values)
         {
-            var min = _values.Min();
-            var max = _values.Max();
+            var min = values.Min();
+            var max = values.Max();
 
             if (double.IsNaN(BinWidth)) {
-                var binCount = Math.Min(100, Math.Ceiling(Math.Sqrt(_values.Count)));
+                var binCount = Math.Min(100, Math.Ceiling(Math.Sqrt(values.Length)));
                 BinWidth = (max - min) / binCount;
             }
 
@@ -575,7 +602,7 @@ namespace Horker.DataAnalysis
 
             var hist = new int[maxBar - minBar + 1];
 
-            foreach (var value in _values) {
+            foreach (var value in values) {
                 var bin = (int)Math.Floor((value - Offset) / BinWidth) - minBar;
                 ++hist[bin];
             }
@@ -595,9 +622,9 @@ namespace Horker.DataAnalysis
     [Alias("math.geometric")]
     public class GetMathGeometricMean : AggregateFunctionCmdletBase
     {
-        protected override void Process()
+        protected override void Process(double[] values)
         {
-            var result = Measures.GeometricMean(_values.ToArray());
+            var result = Measures.GeometricMean(values);
 
             WriteObject(result);
         }
@@ -607,12 +634,12 @@ namespace Horker.DataAnalysis
     [Alias("math.kurtosis")]
     public class GetMathKurtosis : AggregateFunctionCmdletBase
     {
-        [Parameter(Position = 2, Mandatory = false)]
+        [Parameter(Position = 1, Mandatory = false)]
         SwitchParameter Unbiased = false;
 
-        protected override void Process()
+        protected override void Process(double[] values)
         {
-            var result = Measures.Kurtosis(_values.ToArray(), Unbiased);
+            var result = Measures.Kurtosis(values, Unbiased);
 
             WriteObject(result);
         }
@@ -622,9 +649,9 @@ namespace Horker.DataAnalysis
     [Alias("math.loggeometric")]
     public class GetMathLogGeometricMean : AggregateFunctionCmdletBase
     {
-        protected override void Process()
+        protected override void Process(double[] values)
         {
-            var result = Measures.LogGeometricMean(_values.ToArray());
+            var result = Measures.LogGeometricMean(values);
 
             WriteObject(result);
         }
@@ -634,9 +661,9 @@ namespace Horker.DataAnalysis
     [Alias("math.lowerq")]
     public class GetMathLowerquartile : AggregateFunctionCmdletBase
     {
-        protected override void Process()
+        protected override void Process(double[] values)
         {
-            var result = Measures.LowerQuartile(_values.ToArray());
+            var result = Measures.LowerQuartile(values);
 
             WriteObject(result);
         }
@@ -684,9 +711,9 @@ namespace Horker.DataAnalysis
     [Alias("math.median")]
     public class GetMathMedian : AggregateFunctionCmdletBase
     {
-        protected override void Process()
+        protected override void Process(double[] values)
         {
-            var result = Measures.Median(_values.ToArray());
+            var result = Measures.Median(values);
 
             WriteObject(result);
         }
@@ -715,9 +742,9 @@ namespace Horker.DataAnalysis
     [Alias("math.mode")]
     public class GetMathMode : AggregateFunctionCmdletBase
     {
-        protected override void Process()
+        protected override void Process(double[] values)
         {
-            var result = Measures.Mode(_values.ToArray());
+            var result = Measures.Mode(values);
 
             WriteObject(result);
         }
@@ -727,7 +754,7 @@ namespace Horker.DataAnalysis
     [Alias("math.movingmmax")]
     public class GetMathMovingMax : FunctionCmdletBase
     {
-        [Parameter(Position = 2, Mandatory = true)]
+        [Parameter(Position = 1, Mandatory = true)]
         public int WindowSize;
 
         private MovingNormalStatistics _state;
@@ -748,7 +775,7 @@ namespace Horker.DataAnalysis
     [Alias("math.movingmean")]
     public class GetMathMovingMean : FunctionCmdletBase
     {
-        [Parameter(Position = 2, Mandatory = true)]
+        [Parameter(Position = 1, Mandatory = true)]
         public int WindowSize;
 
         private MovingNormalStatistics _state;
@@ -769,7 +796,7 @@ namespace Horker.DataAnalysis
     [Alias("math.movingmmin")]
     public class GetMathMovingMin : FunctionCmdletBase
     {
-        [Parameter(Position = 2, Mandatory = true)]
+        [Parameter(Position = 1, Mandatory = true)]
         public int WindowSize;
 
         private MovingNormalStatistics _state;
@@ -790,7 +817,7 @@ namespace Horker.DataAnalysis
     [Alias("math.movingstdev")]
     public class GetMathMovingStandardDeviation : FunctionCmdletBase
     {
-        [Parameter(Position = 2, Mandatory = true)]
+        [Parameter(Position = 1, Mandatory = true)]
         public int WindowSize;
 
         private MovingNormalStatistics _state;
@@ -811,7 +838,7 @@ namespace Horker.DataAnalysis
     [Alias("math.movingsum")]
     public class GetMathMovingSum : FunctionCmdletBase
     {
-        [Parameter(Position = 2, Mandatory = true)]
+        [Parameter(Position = 1, Mandatory = true)]
         public int WindowSize;
 
         private MovingNormalStatistics _state;
@@ -832,7 +859,7 @@ namespace Horker.DataAnalysis
     [Alias("math.movingvar")]
     public class GetMathMovingVariance : FunctionCmdletBase
     {
-        [Parameter(Position = 2, Mandatory = true)]
+        [Parameter(Position = 1, Mandatory = true)]
         public int WindowSize;
 
         private MovingNormalStatistics _state;
@@ -853,15 +880,15 @@ namespace Horker.DataAnalysis
     [Alias("math.quantile")]
     public class GetMathQuantile : AggregateFunctionCmdletBase
     {
-        [Parameter(Position = 2, Mandatory = true)]
+        [Parameter(Position = 1, Mandatory = true)]
         public double Probabilities;
 
-        [Parameter(Position = 3, Mandatory = false)]
+        [Parameter(Position = 2, Mandatory = false)]
         public QuantileMethod QuantileMethod = QuantileMethod.Default;
 
-        protected override void Process()
+        protected override void Process(double[] values)
         {
-            var result = _values.ToArray().Quantile(Probabilities, false, QuantileMethod, false);
+            var result = values.Quantile(Probabilities, false, QuantileMethod, false);
 
             WriteObject(result);
         }
@@ -871,22 +898,22 @@ namespace Horker.DataAnalysis
     [Alias("math.sample")]
     public class GetMathSample : AggregateFunctionCmdletBase
     {
-        [Parameter(Position = 2, Mandatory = true)]
+        [Parameter(Position = 1, Mandatory = true)]
         public int Size;
 
-        [Parameter(Position = 3, Mandatory = false)]
+        [Parameter(Position = 2, Mandatory = false)]
         public SwitchParameter Replacement;
 
-        protected override void Process()
+        protected override void Process(double[] values)
         {
             // ref. https://en.wikipedia.org/wiki/Fisher-Yates_shuffle
 
-            int count = _values.Count;
+            int count = values.Length;
 
             if (Replacement) {
                 for (var i = 0; i < Size; ++i) {
                     var j = Generator.Random.Next(count);
-                    WriteObject(_values[j]);
+                    WriteObject(values[j]);
                 }
             }
             else {
@@ -905,7 +932,7 @@ namespace Horker.DataAnalysis
                         samples.Add(j);
                         --i;
 
-                        WriteObject(_values[j]);
+                        WriteObject(values[j]);
                     }
                 }
                 else {
@@ -915,7 +942,7 @@ namespace Horker.DataAnalysis
                         if (j != i) {
                             table[i] = table[j];
                         }
-                        table[j] = _values[i];
+                        table[j] = values[i];
                     }
 
                     for (var i = 0; i < Size; ++i) {
@@ -930,15 +957,15 @@ namespace Horker.DataAnalysis
     [Alias("math.scale")]
     public class GetMathScale : AggregateFunctionCmdletBase
     {
-        [Parameter(Position = 2, Mandatory = true)]
+        [Parameter(Position = 1, Mandatory = true)]
         public double ToMin;
 
-        [Parameter(Position = 3, Mandatory = true)]
+        [Parameter(Position = 2, Mandatory = true)]
         public double ToMax;
 
-        protected override void Process()
+        protected override void Process(double[] values)
         {
-            var result = _values.ToArray().Scale(ToMin, ToMax);
+            var result = values.Scale(ToMin, ToMax);
 
             WriteObject(result);
         }
@@ -948,11 +975,11 @@ namespace Horker.DataAnalysis
     [Alias("math.shuffle")]
     public class GetMathShuffle : AggregateFunctionCmdletBase
     {
-        protected override void Process()
+        protected override void Process(double[] values)
         {
             // ref. https://en.wikipedia.org/wiki/Fisher-Yates_shuffle
 
-            int count = _values.Count;
+            int count = values.Length;
 
             var table = new double[count];
             for (var i = 0; i < count; ++i) {
@@ -960,7 +987,7 @@ namespace Horker.DataAnalysis
                 if (j != i) {
                     table[i] = table[j];
                 }
-                table[j] = _values[i];
+                table[j] = values[i];
             }
 
             for (var i = 0; i < count; ++i) {
@@ -973,12 +1000,12 @@ namespace Horker.DataAnalysis
     [Alias("math.skewness")]
     public class GetMathSkewness : AggregateFunctionCmdletBase
     {
-        [Parameter(Position = 2, Mandatory = false)]
+        [Parameter(Position = 1, Mandatory = false)]
         public SwitchParameter Unbiased = false;
 
-        protected override void Process()
+        protected override void Process(double[] values)
         {
-            var result = Measures.Skewness(_values.ToArray(), Unbiased);
+            var result = Measures.Skewness(values, Unbiased);
 
             WriteObject(result);
         }
@@ -988,12 +1015,12 @@ namespace Horker.DataAnalysis
     [Alias("math.stdev")]
     public class GetMathStandardDevidation : AggregateFunctionCmdletBase
     {
-        [Parameter(Position = 2, Mandatory = false)]
+        [Parameter(Position = 1, Mandatory = false)]
         public SwitchParameter Unbiased = false;
 
-        protected override void Process()
+        protected override void Process(double[] values)
         {
-            var result = Measures.StandardDeviation(_values.ToArray(), Unbiased);
+            var result = Measures.StandardDeviation(values, Unbiased);
 
             WriteObject(result);
         }
@@ -1003,9 +1030,9 @@ namespace Horker.DataAnalysis
     [Alias("math.se")]
     public class GetMathStandardError : AggregateFunctionCmdletBase
     {
-        protected override void Process()
+        protected override void Process(double[] values)
         {
-            var result = Measures.StandardError(_values.ToArray());
+            var result = Measures.StandardError(values);
 
             WriteObject(result);
         }
@@ -1032,21 +1059,20 @@ namespace Horker.DataAnalysis
     [Alias("math.summary")]
     public class GetMathSummary : AggregateFunctionCmdletBase
     {
-        protected override void Process()
+        protected override void Process(double[] values)
         {
-            var values = _values.ToArray();
-            values.Sort();
+            var sorted = values.Sorted();
 
             var result = new PSObject();
             var props = result.Properties;
 
-            props.Add(new PSNoteProperty("Count", values.Length));
-            props.Add(new PSNoteProperty("Minimum", values[0]));
-            props.Add(new PSNoteProperty("LowerQuantile", values.Quantile(.25, true)));
-            props.Add(new PSNoteProperty("Median", values.Median()));
-            props.Add(new PSNoteProperty("Mean", values.Mean()));
-            props.Add(new PSNoteProperty("UpperQuantile", values.Quantile(.75, true)));
-            props.Add(new PSNoteProperty("Maximum", values[values.Length - 1]));
+            props.Add(new PSNoteProperty("Count", sorted.Length));
+            props.Add(new PSNoteProperty("Minimum", sorted[0]));
+            props.Add(new PSNoteProperty("LowerQuantile", sorted.Quantile(.25, true)));
+            props.Add(new PSNoteProperty("Median", sorted.Median()));
+            props.Add(new PSNoteProperty("Mean", sorted.Mean()));
+            props.Add(new PSNoteProperty("UpperQuantile", sorted.Quantile(.75, true)));
+            props.Add(new PSNoteProperty("Maximum", sorted[sorted.Length - 1]));
 
             WriteObject(result);
         }
@@ -1056,12 +1082,12 @@ namespace Horker.DataAnalysis
     [Alias("math.truncatedmean")]
     public class GetMathTruncatedMean : AggregateFunctionCmdletBase
     {
-        [Parameter(Position = 2, Mandatory = true)]
+        [Parameter(Position = 1, Mandatory = true)]
         public double Percent;
 
-        protected override void Process()
+        protected override void Process(double[] values)
         {
-            var result = Measures.TruncatedMean(_values.ToArray(), Percent);
+            var result = Measures.TruncatedMean(values, Percent);
 
             WriteObject(result);
         }
@@ -1071,9 +1097,9 @@ namespace Horker.DataAnalysis
     [Alias("math.upperq")]
     public class GetMathUpperQuartile : AggregateFunctionCmdletBase
     {
-        protected override void Process()
+        protected override void Process(double[] values)
         {
-            var result = Measures.UpperQuartile(_values.ToArray());
+            var result = Measures.UpperQuartile(values);
 
             WriteObject(result);
         }
@@ -1083,12 +1109,12 @@ namespace Horker.DataAnalysis
     [Alias("math.var")]
     public class GetMathVariance : AggregateFunctionCmdletBase
     {
-        [Parameter(Position = 2, Mandatory = false)]
+        [Parameter(Position = 1, Mandatory = false)]
         public SwitchParameter Unbiased = false;
 
-        protected override void Process()
+        protected override void Process(double[] values)
         {
-            var result = Measures.Variance(_values.ToArray(), Unbiased);
+            var result = Measures.Variance(values, Unbiased);
 
             WriteObject(result);
         }
@@ -1098,12 +1124,11 @@ namespace Horker.DataAnalysis
     [Alias("math.zscore")]
     public class GetMathZScore : AggregateFunctionCmdletBase
     {
-        [Parameter(Position = 2, Mandatory = false)]
+        [Parameter(Position = 1, Mandatory = false)]
         public SwitchParameter Unbiased = false;
 
-        protected override void Process()
+        protected override void Process(double[] values)
         {
-            var values = _values.ToArray();
             var mean = values.Mean();
             var sd = values.StandardDeviation(Unbiased);
 
@@ -1121,10 +1146,10 @@ namespace Horker.DataAnalysis
     [Alias("math.add")]
     public class GetMathPlus : FunctionCmdletBase
     {
-        [Parameter(Position = 2, Mandatory = true, ParameterSetName = "Rhs")]
+        [Parameter(Position = 1, Mandatory = true, ParameterSetName = "Rhs")]
         public double Rhs;
 
-        [Parameter(Position = 2, Mandatory = true, ParameterSetName = "Lhs")]
+        [Parameter(Position = 1, Mandatory = true, ParameterSetName = "Lhs")]
         public double Lhs;
 
         protected override void ProcessInputObject(double value)
@@ -1142,10 +1167,10 @@ namespace Horker.DataAnalysis
     [Alias("math.sub")]
     public class GetMathMinus : FunctionCmdletBase
     {
-        [Parameter(Position = 2, Mandatory = true, ParameterSetName = "Rhs")]
+        [Parameter(Position = 1, Mandatory = true, ParameterSetName = "Rhs")]
         public double Rhs;
 
-        [Parameter(Position = 2, Mandatory = true, ParameterSetName = "Lhs")]
+        [Parameter(Position = 1, Mandatory = true, ParameterSetName = "Lhs")]
         public double Lhs;
 
         protected override void ProcessInputObject(double value)
@@ -1163,10 +1188,10 @@ namespace Horker.DataAnalysis
     [Alias("math.mul")]
     public class GetMathMultiply : FunctionCmdletBase
     {
-        [Parameter(Position = 2, Mandatory = true, ParameterSetName = "Rhs")]
+        [Parameter(Position = 1, Mandatory = true, ParameterSetName = "Rhs")]
         public double Rhs;
 
-        [Parameter(Position = 2, Mandatory = true, ParameterSetName = "Lhs")]
+        [Parameter(Position = 1, Mandatory = true, ParameterSetName = "Lhs")]
         public double Lhs;
 
         protected override void ProcessInputObject(double value)
@@ -1184,10 +1209,10 @@ namespace Horker.DataAnalysis
     [Alias("math.div")]
     public class GetMathDivide : FunctionCmdletBase
     {
-        [Parameter(Position = 2, Mandatory = true, ParameterSetName = "Rhs")]
+        [Parameter(Position = 1, Mandatory = true, ParameterSetName = "Rhs")]
         public double Rhs;
 
-        [Parameter(Position = 2, Mandatory = true, ParameterSetName = "Lhs")]
+        [Parameter(Position = 1, Mandatory = true, ParameterSetName = "Lhs")]
         public double Lhs;
 
         protected override void ProcessInputObject(double value)
@@ -1197,6 +1222,27 @@ namespace Horker.DataAnalysis
             }
             else {
                 WriteObject(Lhs / value);
+            }
+        }
+    }
+
+    [Cmdlet("Get", "Math.Reminder")]
+    [Alias("math.rem")]
+    public class GetMathReminder : FunctionCmdletBase
+    {
+        [Parameter(Position = 1, Mandatory = true, ParameterSetName = "Rhs")]
+        public double Rhs;
+
+        [Parameter(Position = 1, Mandatory = true, ParameterSetName = "Lhs")]
+        public double Lhs;
+
+        protected override void ProcessInputObject(double value)
+        {
+            if (ParameterSetName == "Rhs") {
+                WriteObject(value % Rhs);
+            }
+            else {
+                WriteObject(Lhs % value);
             }
         }
     }
