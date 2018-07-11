@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Management.Automation;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Horker.DataAnalysis
@@ -188,12 +189,18 @@ namespace Horker.DataAnalysis
                 }
                 return result;
             }
-            else if (input is Vector) {
-                return (input as Vector).ToDoubleArray();
+
+            if (input is IEnumerable) {
+                var result = new List<double>();
+
+                foreach (var value in (input as IEnumerable)) {
+                    result.Add(ToDouble(value));
+                }
+
+                return result.ToArray();
             }
-            else {
-                return (double[])input;
-            }
+
+            return new double[] { Convert.ToDouble(input) };
         }
 
         public static double[][] ToDoubleJaggedArray(object input)
@@ -283,5 +290,28 @@ namespace Horker.DataAnalysis
 
             return (double[,])input;
         }
+
+        public static Matrix ToMatrix(object input, bool rowVector)
+        {
+            Matrix result;
+
+            if (input is PSObject) {
+                input = (input as PSObject).BaseObject;
+            }
+            if (input is Horker.DataAnalysis.Matrix) {
+                result = input as Matrix;
+            }
+            else {
+                if (rowVector) {
+                    result = Matrix.Create(Converter.ToDoubleArray(input), 1);
+                }
+                else {
+                    result = Matrix.Create(Converter.ToDoubleArray(input), int.MaxValue, 1);
+                }
+            }
+
+            return result;
+        }
+
     }
 }

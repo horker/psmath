@@ -71,6 +71,7 @@
     <Compile Include="Collections\Matrix.cs" />
     <Compile Include="Distributions\Distributions.cs" />
     <Compile Include="Analyses\InvokeDescriptiveAnalysis.cs" />
+    <Compile Include="Functions\MatrixCmdlets.cs" />
     <Compile Include="Functions\Functions.cs" />
     <Compile Include="Collections\Slice.cs" />
     <Compile Include="Regressions\Cmdlets\InvokeGeneralizedLinearRegression.cs" />

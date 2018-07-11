@@ -20,15 +20,40 @@ namespace Horker.DataAnalysis
             }
         }
 
+        public double[] Row(int rowIndex)
+        {
+            var row = new double[ColumnCount];
+            for (var i = 0; i < ColumnCount; ++i) {
+                row[i] = _values[rowIndex, i];
+            }
+
+            return row;
+        }
+
+        public double[] Column(int columnIndex)
+        {
+            var column = new double[RowCount];
+            for (var i = 0; i < RowCount; ++i) {
+                column[i] = _values[i, columnIndex];
+            }
+
+            return column;
+        }
+
         public Matrix(int row, int column)
         {
             _values = new double[row, column];
         }
 
-        public Matrix(double[,] values)
+        public Matrix(double[,] values, bool noCopy = false)
         {
-            _values = new double[values.GetLength(0), values.GetLength(1)];
-            Array.Copy(values, _values, _values.GetLength(0) * _values.GetLength(1));
+            if (noCopy) {
+                _values = values;
+            }
+            else {
+                _values = new double[values.GetLength(0), values.GetLength(1)];
+                Array.Copy(values, _values, _values.GetLength(0) * _values.GetLength(1));
+            }
         }
 
         public static Matrix Create(double[][] jagged)
@@ -173,6 +198,25 @@ namespace Horker.DataAnalysis
             }
 
             return builder.ToString();
+        }
+
+        public double[] ToArray()
+        {
+            if (RowCount == 1) {
+                return Row(0);
+            }
+            else if (ColumnCount == 1) {
+                return Column(0);
+            }
+
+            var result = new double[RowCount * ColumnCount];
+            for (var column = 0; column < ColumnCount; ++column) {
+                for (var row = 0; row < RowCount; ++row) {
+                    result[row + RowCount * column] = this[row, column];
+                }
+            }
+
+            return result;
         }
 
         public static implicit operator double[,](Matrix matrix)
