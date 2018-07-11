@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using Accord.Math;
 
 namespace Horker.DataAnalysis
 {
@@ -278,6 +279,36 @@ namespace Horker.DataAnalysis
         public static implicit operator Matrix(double[][] jagged)
         {
             return Matrix.Create(jagged);
+        }
+
+        public Matrix T()
+        {
+            return _values.Transpose();
+        }
+
+        public Matrix Inv()
+        {
+            return _values.Inverse();
+        }
+
+        public Matrix Dot(Matrix b)
+        {
+            return _values.Dot(b);
+        }
+
+        public static Matrix operator* (Matrix a, Matrix b)
+        {
+            return a.Dot(b);
+        }
+
+        public static Matrix operator+ (Matrix a, Matrix b)
+        {
+            return Elementwise.Add(a, b);
+        }
+
+        public static Matrix operator- (Matrix a, Matrix b)
+        {
+            return Elementwise.Subtract(a, b);
         }
     }
 }
