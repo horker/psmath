@@ -76,9 +76,7 @@
     <Compile Include="Collections\Slice.cs" />
     <Compile Include="Regressions\Cmdlets\InvokeGeneralizedLinearRegression.cs" />
     <Compile Include="Regressions\Cmdlets\InvokeLinearRegression.cs" />
-    <Compile Include="Collections\Cmdlets\NewDataFrame.cs" />
     <Compile Include="Collections\Cmdlets\NewSequence.cs" />
-    <Compile Include="Collections\Cmdlets\NewVector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Collections\KeyComparers.cs" />
     <Compile Include="Regressions\Cmdlets\InvokeLogisticRegression.cs" />

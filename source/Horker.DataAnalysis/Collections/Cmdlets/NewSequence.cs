@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 
 namespace Horker.DataAnalysis
 {
-    [Cmdlet("New", "Sequence")]
+    [Cmdlet("New", "Math.Sequence")]
+    [Alias("seq")]
     public class NewSequence : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = true)]
@@ -26,15 +27,9 @@ namespace Horker.DataAnalysis
         public SwitchParameter Inclusive = false;
 
         [Parameter(Position = 5, Mandatory = false)]
-        public SwitchParameter AsVector = false;
-
-        [Parameter(Position = 6, Mandatory = false)]
-        public SwitchParameter AsDataFrame = false;
-
-        [Parameter(Position = 7, Mandatory = false)]
         public double? Value = null;
 
-        [Parameter(Position = 8, Mandatory = false)]
+        [Parameter(Position = 6, Mandatory = false)]
         public ScriptBlock[] F = null;
 
         protected override void EndProcessing()
@@ -63,20 +58,9 @@ namespace Horker.DataAnalysis
 
             DataFrame df;
             if (F == null) {
-                if (AsVector) {
-                    WriteObject(seq);
+                foreach (var value in seq) {
+                    WriteObject(value);
                 }
-                else if (AsDataFrame) {
-                    df = new DataFrame();
-                    df.DefineNewColumn("x", seq);
-                    WriteObject(df);
-                }
-                else {
-                    foreach (var value in seq) {
-                        WriteObject(value);
-                    }
-                }
-
                 return;
             }
 
@@ -100,23 +84,14 @@ namespace Horker.DataAnalysis
                 }
             }
 
-            if (AsVector) {
-                WriteObject(df.GetColumn(1));
-            }
-            else if (AsDataFrame) {
-                WriteObject(df);
-            }
-            else {
-                for (var i = 0; i < seq.Count; ++i) {
-                    var obj = new PSObject();
-                    obj.Properties.Add(new PSNoteProperty("x", seq[i]));
-                    for (var j = 0; j < df.ColumnCount; ++j) {
-                        obj.Properties.Add(new PSNoteProperty(df.ColumnNames[j], df.GetColumn(j)[i]));
-                    }
-                    WriteObject(obj);
+            for (var i = 0; i < seq.Count; ++i) {
+                var obj = new PSObject();
+                obj.Properties.Add(new PSNoteProperty("x", seq[i]));
+                for (var j = 0; j < df.ColumnCount; ++j) {
+                    obj.Properties.Add(new PSNoteProperty(df.ColumnNames[j], df.GetColumn(j)[i]));
                 }
+                WriteObject(obj);
             }
         }
-
     }
 }

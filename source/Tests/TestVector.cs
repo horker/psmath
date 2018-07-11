@@ -39,7 +39,7 @@ namespace Tests
             Assert.AreEqual(0, df["Code c"][3]);
             Assert.AreEqual(1, df["Code c"][4]);
         }
-
+/*
         [TestMethod]
         public void TestOuter()
         {
@@ -63,5 +63,6 @@ namespace Tests
             Assert.AreEqual(df[1, 1], 2.0 * 5);
             Assert.AreEqual(df[2, 1], 3.0 * 5);
         }
+*/
     }
 }
