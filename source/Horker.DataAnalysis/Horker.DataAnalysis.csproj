@@ -64,7 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Collections\Cmdlets\GetSlice.cs" />
-    <Compile Include="Collections\Cmdlets\NewMath.Matrix.cs" />
+    <Compile Include="Collections\Cmdlets\NewMathMatrix.cs" />
     <Compile Include="Collections\Converter.cs" />
     <Compile Include="Collections\DataFrame.cs" />
     <Compile Include="Collections\DataFrameGroup.cs" />
@@ -72,7 +72,7 @@
     <Compile Include="Distributions\Distributions.cs" />
     <Compile Include="Analyses\InvokeDescriptiveAnalysis.cs" />
     <Compile Include="Functions\MatrixCmdlets.cs" />
-    <Compile Include="Functions\Functions.cs" />
+    <Compile Include="Functions\MathCmdlets.cs" />
     <Compile Include="Collections\Slice.cs" />
     <Compile Include="Regressions\Cmdlets\InvokeGeneralizedLinearRegression.cs" />
     <Compile Include="Regressions\Cmdlets\InvokeLinearRegression.cs" />
