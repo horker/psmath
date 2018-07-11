@@ -299,14 +299,14 @@ namespace Horker.DataAnalysis
 
         #region Operators
 
-        public Matrix T()
+        public Matrix T
         {
-            return _values.Transpose();
+            get => _values.Transpose();
         }
 
-        public Matrix Inv()
+        public Matrix Inv
         {
-            return _values.Inverse();
+            get => _values.Inverse();
         }
 
         public Matrix Dot(Matrix b)

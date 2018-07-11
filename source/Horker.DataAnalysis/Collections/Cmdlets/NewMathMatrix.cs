@@ -63,7 +63,11 @@ namespace Horker.DataAnalysis
             }
             else {
                 var numbers = v.Select(x => Converter.ToDouble(x));
-                matrix = Matrix.Create(numbers.ToArray(), RowCount, ColumnCount, Transpose);
+                matrix = Matrix.Create(numbers.ToArray(), RowCount, ColumnCount);
+            }
+
+            if (Transpose) {
+                matrix = matrix.T;
             }
 
             WriteObject(matrix);

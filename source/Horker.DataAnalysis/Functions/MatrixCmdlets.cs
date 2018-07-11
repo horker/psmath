@@ -131,8 +131,8 @@ namespace Horker.DataAnalysis
     {
         protected override void EndProcessing()
         {
-            Matrix lhs = Converter.ToMatrix(Lhs, true);
-            Matrix rhs = Converter.ToMatrix(Rhs, false);
+            Matrix lhs = Converter.ToMatrix(Lhs, false);
+            Matrix rhs = Converter.ToMatrix(Rhs, true);
             rhs = AdjustRow(rhs, lhs.ColumnCount);
 
             var result = Process(lhs, rhs);

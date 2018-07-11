@@ -291,7 +291,7 @@ namespace Horker.DataAnalysis
             return (double[,])input;
         }
 
-        public static Matrix ToMatrix(object input, bool rowVector)
+        public static Matrix ToMatrix(object input, bool columnVector)
         {
             Matrix result;
 
@@ -302,11 +302,11 @@ namespace Horker.DataAnalysis
                 result = input as Matrix;
             }
             else {
-                if (rowVector) {
-                    result = Matrix.Create(Converter.ToDoubleArray(input), 1);
+                if (columnVector) {
+                    result = Matrix.Create(Converter.ToDoubleArray(input), int.MaxValue, 1);
                 }
                 else {
-                    result = Matrix.Create(Converter.ToDoubleArray(input), int.MaxValue, 1);
+                    result = Matrix.Create(Converter.ToDoubleArray(input), 1);
                 }
             }
 
