@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Text;
+using System.Collections.Generic;
+using Accord;
 using Accord.Math;
+using Accord.Math.Decompositions;
 
 namespace Horker.DataAnalysis
 {
@@ -323,7 +326,7 @@ namespace Horker.DataAnalysis
 
         #endregion
 
-        #region Operators
+        #region Algebra computations
 
         public Matrix T
         {
@@ -335,10 +338,537 @@ namespace Horker.DataAnalysis
             get => _values.Inverse();
         }
 
+        internal static Matrix AdjustRow(Matrix matrix, int rowCount)
+        {
+            if (matrix.RowCount == rowCount) {
+                return matrix;
+            }
+
+            if (matrix.RowCount != 1) {
+                throw new ArgumentException("Matrix sizes are inconsistent");
+            }
+
+            return Matrix.Create(matrix.Row(0), rowCount, matrix.ColumnCount, true);
+        }
+
+        internal Matrix AdjustRow(Matrix matrix)
+        {
+            return AdjustRow(matrix, RowCount);
+        }
+
+        internal static Matrix AdjustColumn(Matrix matrix, int columnCount)
+        {
+            if (matrix.ColumnCount == columnCount) {
+                return matrix;
+            }
+
+            if (matrix.ColumnCount != 1) {
+                throw new ArgumentException("Matrix sizes are inconsistent");
+            }
+
+            return Matrix.Create(matrix.Column(0), matrix.RowCount, columnCount, false);
+        }
+
+        internal Matrix AdjustColumn(Matrix matrix)
+        {
+            return AdjustColumn(matrix, ColumnCount);
+        }
+
+        internal static Matrix AdjustRowColumn(Matrix matrix, int rowCount, int columnCount)
+        {
+            if (matrix.RowCount == rowCount) {
+                if (matrix.ColumnCount == columnCount) {
+                    return matrix;
+                }
+
+                if (matrix.ColumnCount == 1) {
+                    return Matrix.Create(matrix.Column(0), rowCount, columnCount, false);
+                }
+            }
+            else {
+                if (matrix.RowCount == 1 && (matrix.ColumnCount == columnCount || matrix.ColumnCount == 1)) {
+                    return Matrix.Create(matrix.Row(0), rowCount, columnCount, true);
+                }
+            }
+
+            throw new ArgumentException("Matrix sizes are inconsistent");
+        }
+
+        internal Matrix AdjustRowColumn(Matrix matrix)
+        {
+            return AdjustRowColumn(matrix, RowCount, ColumnCount);
+        }
+
+        internal static double[] EnsureSequence(Matrix matrix)
+        {
+            if (matrix.RowCount == 1) {
+                return matrix.Row(0);
+            }
+
+            if (matrix.ColumnCount == 1) {
+                return matrix.Column(0);
+            }
+
+            throw new ArgumentException("[n x 1] or [1 x n] matrix is required");
+        }
+
+        internal static Matrix EnsureMatrix(double[] values, Matrix origin)
+        {
+            if (origin.RowCount == 1) {
+                return Matrix.Create(values, 1);
+            }
+            return Matrix.Create(values, int.MaxValue, 1);
+        }
+
+        internal Matrix EnsureMatrix(double[] values)
+        {
+            return EnsureMatrix(values, _values);
+        }
+
+        public Matrix Apply(Func<double, double> func)
+        {
+            return _values.Apply(func);
+        }
+
+        public Tuple<int, int> ArgMax()
+        {
+            return _values.ArgMax();
+        }
+
+        public Tuple<int, int> ArgMin()
+        {
+            return _values.ArgMin();
+        }
+
+        public int[] ArgSort()
+        {
+            return EnsureSequence(_values).ArgSort();
+        }
+
+        public int[] Bottom(int count)
+        {
+            return EnsureSequence(_values).Bottom(count);
+        }
+
+        public Matrix Cartesian()
+        {
+            return null;
+        }
+
+        public Matrix Concatenate(Matrix b)
+        {
+            return _values.Concatenate(AdjustRow(b));
+        }
+
+        public Matrix Convolve(Matrix kernel, bool trim = false)
+        {
+            return EnsureMatrix(EnsureSequence(_values).Convolve(EnsureSequence(kernel), trim));
+        }
+
+        public int Count(Func<double, bool> func)
+        {
+            return EnsureSequence(_values).Count(func);
+        }
+
+        public Matrix Cross(Matrix b)
+        {
+            return EnsureMatrix(EnsureSequence(_values).Cross(EnsureSequence(b)));
+        }
+
+        public Matrix CumulativeSum(int dimension)
+        {
+            return _values.CumulativeSum(dimension);
+        }
+
+        public ISolverMatrixDecomposition<double> Decomposite(bool leastSquares = false)
+        {
+            return _values.Decompose(leastSquares);
+        }
+
+        public double Determinant(bool symmetric = false)
+        {
+            return _values.Determinant(symmetric);
+        }
+
+        public double[][] Distinct()
+        {
+            return _values.Distinct();
+        }
+
+        public int[] DistinctCount()
+        {
+            return _values.DistinctCount();
+        }
+
         public Matrix Dot(Matrix b)
         {
+            b = AdjustRow(b, ColumnCount);
             return _values.Dot(b);
         }
+
+        public Matrix Expand(int[] count)
+        {
+            return Accord.Math.Matrix.Expand(_values, count);
+        }
+
+        public int[][] Find(Func<double, bool> func)
+        {
+            return _values.Find(func);
+        }
+
+        public Matrix First(int count)
+        {
+            return EnsureMatrix(EnsureSequence(_values).First(count));
+        }
+
+        public int First(Func<double, bool> func)
+        {
+            return EnsureSequence(_values).First(func);
+        }
+
+        public Nullable<int> FirstOrNull(Func<double, bool> func)
+        {
+            return EnsureSequence(_values).FirstOrNull(func);
+        }
+
+        public Matrix Flatten(MatrixOrder order = MatrixOrder.CRowMajor)
+        {
+            return EnsureMatrix(_values.Flatten(order));
+        }
+
+        public Matrix GetLowerTriangle(bool includeDiagonal = true)
+        {
+            return _values.GetLowerTriangle(includeDiagonal);
+        }
+
+        public int GetNumberOfElements()
+        {
+            return _values.GetNumberOfElements();
+        }
+
+        public DoubleRange GetRange()
+        {
+            return _values.GetRange();
+        }
+
+        public Matrix GetSymmetric(MatrixType type)
+        {
+            return _values.GetSymmetric(type);
+        }
+
+        public int GetTotalLength()
+        {
+            return _values.GetTotalLength();
+        }
+
+        public Matrix GetUpperTriangle(bool includeDiagonal = true)
+        {
+            return _values.GetUpperTriangle(includeDiagonal);
+        }
+
+        public bool HasInfinity()
+        {
+            return _values.HasInfinity();
+        }
+
+        public bool HasNaN()
+        {
+            return _values.HasNaN();
+        }
+
+        public Matrix Inverse()
+        {
+            return _values.Inverse();
+        }
+
+        public bool IsDiagonal()
+        {
+            return _values.IsDiagonal();
+        }
+
+        public bool IsLowerTriangular()
+        {
+            return _values.IsLowerTriangular();
+        }
+
+        public bool IsPositiveDefinite()
+        {
+            return _values.IsPositiveDefinite();
+        }
+
+        public bool IsSingular()
+        {
+            return _values.IsSingular();
+        }
+        
+        public bool IsSymmetric()
+        {
+            return _values.IsSymmetric();
+        }
+
+        public bool IsUpperTriangular()
+        {
+            return _values.IsUpperTriangular();
+        }
+
+        public Matrix Kronecker(Matrix b)
+        {
+            // TODO: matrix size
+            return _values.Kronecker(b);
+        }
+
+        public Matrix Last(int count)
+        {
+            return EnsureMatrix(EnsureSequence(_values).Last(count));
+        }
+
+        public double LogDeterminant(bool symmetric = false)
+        {
+            return _values.LogDeterminant(symmetric);
+        }
+
+        public double LogPseudoDeterminant()
+        {
+            return _values.LogPseudoDeterminant();
+        }
+
+        public double Max()
+        {
+            return _values.Max();
+        }
+
+        public Matrix Merge(Matrix b)
+        {
+            return EnsureMatrix(Accord.Math.Matrix.Merge(new double[][] { EnsureSequence(_values), EnsureSequence(b) }));
+        }
+
+        public double Min()
+        {
+            return _values.Min();
+        }
+
+        public Matrix Normalize()
+        {
+            return EnsureMatrix(EnsureSequence(_values).Normalize(true));
+        }
+
+        public Matrix Null()
+        {
+            return _values.Null();
+        }
+
+        public Matrix OneHot()
+        {
+            return Accord.Math.Matrix.OneHot<double>(EnsureSequence(_values).Apply(x => (int)x));
+        }
+
+        public Matrix Outer(Matrix b)
+        {
+            return EnsureSequence(_values).Outer(EnsureSequence(b));
+        }
+
+        public double Product()
+        {
+            return _values.Product();
+        }
+
+        public double PseudoDeterminant()
+        {
+            return _values.PseudoDeterminant();
+        }
+
+        public int Rank()
+        {
+            return _values.Rank();
+        }
+
+        public Matrix Reversed()
+        {
+            return EnsureMatrix(EnsureSequence(_values).Reversed());
+        }
+
+        public Matrix Shuffle()
+        {
+            var seq = EnsureSequence(_values);
+            seq.Shuffle();
+            return EnsureMatrix(seq);
+        }
+
+        public Matrix Solve(Matrix rightSide, bool leastSquares = false)
+        {
+            return _values.Solve(rightSide, leastSquares);
+        }
+
+        public Matrix Sort(Matrix keys)
+        {
+            return Accord.Math.Matrix.Sort(EnsureSequence(keys), _values);
+        }
+
+        public double[][] Split(int size)
+        {
+            return EnsureSequence(_values).Split(size);
+        }
+
+        public Matrix Stack(Matrix b)
+        {
+            return Accord.Math.Matrix.Stack(_values, AdjustColumn(Values));
+        }
+
+        public double Sum()
+        {
+            return _values.Sum();
+        }
+
+        public int[] Top(int count)
+        {
+            return EnsureSequence(_values).Top(count);
+        }
+
+        public double Trace()
+        {
+            return _values.Trace();
+        }
+
+        public Matrix Transpose()
+        {
+            return _values.Transpose();
+        }
+
+        #endregion
+
+        #region Elementwise operations
+
+        public Matrix Abs(Matrix b)
+        {
+            return Elementwise.Abs(_values, AdjustRowColumn(b));
+        }
+
+        public Matrix Add(Matrix b)
+        {
+            return Elementwise.Add(_values, AdjustRowColumn(b));
+        }
+
+        public Matrix Ceiling()
+        {
+            return Elementwise.Ceiling(_values);
+        }
+
+        public Matrix Divide(Matrix b)
+        {
+            return Elementwise.Divide(_values, AdjustRowColumn(b));
+        }
+
+        public Matrix DivideByDiagonal(Matrix b)
+        {
+            return Elementwise.DivideByDiagonal(_values, EnsureSequence(b));
+        }
+
+        public Matrix Exp()
+        {
+            return Elementwise.Exp(_values);
+        }
+
+        public Matrix Floor()
+        {
+            return Elementwise.Floor(_values);
+        }
+
+        public Matrix Log()
+        {
+            return Elementwise.Log(_values);
+        }
+
+        public Matrix Multiply(Matrix b)
+        {
+            return Elementwise.Multiply(_values, AdjustRowColumn(b));
+        }
+
+        public Matrix Pow(double exp)
+        {
+            return Elementwise.Pow(_values, exp);
+        }
+
+        public Matrix Round()
+        {
+            return Elementwise.Round(_values);
+        }
+
+        public Matrix Sign()
+        {
+            return Elementwise.Sign(_values);
+        }
+
+        public Matrix SignedPow(double exp)
+        {
+            return Elementwise.SignedPow(_values, exp);
+        }
+
+        public Matrix SignSqrt()
+        {
+            return Elementwise.SignSqrt(_values);
+        }
+
+        public Matrix Sqrt()
+        {
+            return Elementwise.Sqrt(_values);
+        }
+
+        public Matrix Subtract(Matrix b)
+        {
+            return Elementwise.Subtract(_values, AdjustRowColumn(b));
+        }
+
+        #endregion
+
+        #region Accord.Math.Combinatoricss
+
+        public Matrix Combinations(int k = -1)
+        {
+            if (k == -1) {
+                k = _values.Length;
+            }
+
+            var seq = EnsureSequence(_values);
+            var rowCount = (int)Special.Binomial(seq.Length, k);
+
+            var result = new double[rowCount, k];
+            var rowIndex = 0;
+            foreach (var row in Combinatorics.Combinations(seq, k)) {
+                for (var column = 0; column < k; ++column) {
+                    result[rowIndex, column] = row[column];
+                }
+                ++rowIndex;
+            }
+
+            return result;
+        }
+
+        public Matrix Permutations()
+        {
+            var seq = EnsureSequence(_values);
+            var rowCount = (int)Special.Factorial(seq.Length);
+
+            var result = new double[rowCount, seq.Length];
+            var rowIndex = 0;
+            foreach (var row in Combinatorics.Permutations(seq)) {
+                for (var column = 0; column < seq.Length; ++column) {
+                    result[rowIndex, column] = row[column];
+                }
+                ++rowIndex;
+            }
+
+            return result;
+        }
+
+        public Matrix Subsets(int k)
+        {
+            // TODO
+            return null;
+        }
+
+        #endregion
+
+        #region Operators
 
         public static Matrix operator* (Matrix a, Matrix b)
         {
@@ -347,12 +877,12 @@ namespace Horker.DataAnalysis
 
         public static Matrix operator+ (Matrix a, Matrix b)
         {
-            return Elementwise.Add(a, b);
+            return a.Add(b);
         }
 
         public static Matrix operator- (Matrix a, Matrix b)
         {
-            return Elementwise.Subtract(a, b);
+            return a.Subtract(b);
         }
 
         #endregion
