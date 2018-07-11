@@ -122,21 +122,17 @@ namespace Horker.DataAnalysis
             return matrix;
         }
 
-        public static Matrix Diagonal(double value, int rowCount, int columnCount = int.MaxValue)
+        public static Matrix Diagonal(double[] values, int rowCount, int columnCount = int.MaxValue)
         {
-            if (rowCount == int.MaxValue) {
-                rowCount = 1;
-            }
-
             if (columnCount == int.MaxValue) {
                 columnCount = rowCount;
             }
 
             var matrix = new Matrix(rowCount, columnCount);
+            var limit = Math.Min(rowCount, columnCount);
 
-            var minCount = Math.Min(rowCount, columnCount);
-            for (var i = 0; i < minCount; ++i) {
-                matrix[i, i] = value;
+            for (var i = 0; i < limit; ++i) {
+                matrix[i, i] = values[i % values.Length];
             }
 
             return matrix;
@@ -144,7 +140,7 @@ namespace Horker.DataAnalysis
 
         public static Matrix Identity(int count)
         {
-            return Diagonal(1.0, count, count);
+            return Diagonal(new double[] { 1.0 }, count, count);
         }
 
         public static Matrix WithValue(double value, int rowCount, int columnCount = int.MaxValue)

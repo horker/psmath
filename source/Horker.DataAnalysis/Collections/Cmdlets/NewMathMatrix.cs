@@ -28,9 +28,6 @@ namespace Horker.DataAnalysis
         [Parameter(Position = 4, Mandatory = false)]
         public SwitchParameter FromJagged;
 
-        [Parameter(Position = 5, Mandatory = false)]
-        public SwitchParameter Diagonal;
-
         private List<object> _values;
 
         protected override void BeginProcessing()
@@ -63,13 +60,6 @@ namespace Horker.DataAnalysis
             Matrix matrix;
             if (FromJagged) {
                 matrix = Matrix.Create(Converter.ToDoubleJaggedArray(v));
-            }
-            else if (Diagonal) {
-                if (v.Count != 1) {
-                    WriteError(new ErrorRecord(new ArgumentException("Single value is acceptable for -Diagonal"), "", ErrorCategory.InvalidArgument, null));
-                    return;
-                }
-                matrix = Matrix.Diagonal(Converter.ToDouble(v[0]), RowCount, ColumnCount);
             }
             else {
                 var numbers = v.Select(x => Converter.ToDouble(x));

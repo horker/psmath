@@ -391,6 +391,22 @@ namespace Horker.DataAnalysis
         }
     }
 
+    [Cmdlet("Get", "Matrix.Diagonal")]
+    [Alias("mat.diagonal")]
+    public class GetMatrixDiagonal : AggregateFunctionCmdletBase
+    {
+        [Parameter(Position = 1, Mandatory = true)]
+        public int RowCount;
+
+        [Parameter(Position = 2, Mandatory = false)]
+        public int ColumnCount = int.MaxValue;
+
+        protected override void Process(double[] values)
+        {
+            WriteObject(Matrix.Diagonal(values, RowCount, ColumnCount));
+        }
+    }
+
     [Cmdlet("Get", "Matrix.Distinct")]
     [Alias("mat.distinct")]
     public class GetMatrixDictinct : MatrixCmdletBase
