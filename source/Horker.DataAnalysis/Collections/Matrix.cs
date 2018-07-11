@@ -8,38 +8,7 @@ namespace Horker.DataAnalysis
     {
         private double[,] _values;
 
-        public int RowCount => _values.GetLength(0);
-        public int ColumnCount => _values.GetLength(1);
-        public double[,] Values => _values;
-
-        public double this[int row, int column]
-        {
-            get => _values[row, column];
-            set
-            {
-                _values[row, column] = value;
-            }
-        }
-
-        public double[] Row(int rowIndex)
-        {
-            var row = new double[ColumnCount];
-            for (var i = 0; i < ColumnCount; ++i) {
-                row[i] = _values[rowIndex, i];
-            }
-
-            return row;
-        }
-
-        public double[] Column(int columnIndex)
-        {
-            var column = new double[RowCount];
-            for (var i = 0; i < RowCount; ++i) {
-                column[i] = _values[i, columnIndex];
-            }
-
-            return column;
-        }
+        #region Constructors and factory methods
 
         public Matrix(int row, int column)
         {
@@ -169,6 +138,47 @@ namespace Horker.DataAnalysis
             return new Matrix(_values);
         }
 
+        #endregion
+
+        #region Accessors
+
+        public int RowCount => _values.GetLength(0);
+        public int ColumnCount => _values.GetLength(1);
+        public double[,] Values => _values;
+
+        public double this[int row, int column]
+        {
+            get => _values[row, column];
+            set
+            {
+                _values[row, column] = value;
+            }
+        }
+
+        public double[] Row(int rowIndex)
+        {
+            var row = new double[ColumnCount];
+            for (var i = 0; i < ColumnCount; ++i) {
+                row[i] = _values[rowIndex, i];
+            }
+
+            return row;
+        }
+
+        public double[] Column(int columnIndex)
+        {
+            var column = new double[RowCount];
+            for (var i = 0; i < RowCount; ++i) {
+                column[i] = _values[i, columnIndex];
+            }
+
+            return column;
+        }
+
+        #endregion
+
+        #region Object methods
+
         public override bool Equals(object other)
         {
             if (other is double[]) {
@@ -193,6 +203,10 @@ namespace Horker.DataAnalysis
 
             return hash;
         }
+
+        #endregion
+
+        #region Convertors
 
         public string AsString()
         {
@@ -281,6 +295,10 @@ namespace Horker.DataAnalysis
             return Matrix.Create(jagged);
         }
 
+        #endregion
+
+        #region Operators
+
         public Matrix T()
         {
             return _values.Transpose();
@@ -310,5 +328,7 @@ namespace Horker.DataAnalysis
         {
             return Elementwise.Subtract(a, b);
         }
+
+        #endregion
     }
 }
