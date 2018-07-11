@@ -165,6 +165,19 @@ namespace Horker.DataAnalysis
             return row;
         }
 
+        public Matrix Rows(params int[] rowIndexes)
+        {
+            var matrix = new double[rowIndexes.Length, ColumnCount];
+
+            for (var column = 0; column < ColumnCount; ++column) {
+                for (var row = 0; row < rowIndexes.Length; ++row) {
+                    matrix[row, column] = _values[rowIndexes[row], column];
+                }
+            }
+
+            return matrix;
+        }
+
         public double[] Column(int columnIndex)
         {
             var column = new double[RowCount];
@@ -173,6 +186,19 @@ namespace Horker.DataAnalysis
             }
 
             return column;
+        }
+
+        public Matrix Columns(params int[] columnIndexes)
+        {
+            var matrix = new double[RowCount, columnIndexes.Length];
+
+            for (var column = 0; column < columnIndexes.Length; ++column) {
+                for (var row = 0; row < RowCount; ++row) {
+                    matrix[row, column] = _values[row, columnIndexes[column]];
+                }
+            }
+
+            return matrix;
         }
 
         #endregion
