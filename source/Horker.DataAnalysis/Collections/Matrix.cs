@@ -172,8 +172,10 @@ namespace Horker.DataAnalysis
             return new Matrix(_values);
         }
 
-        public override string ToString()
+        public string AsString()
         {
+            // Long format
+
             string[,] elements = new string[RowCount, ColumnCount];
             int maxLength = int.MinValue;
 
@@ -187,14 +189,37 @@ namespace Horker.DataAnalysis
                 }
             }
 
+            string delim = "\r\n";
+
             var builder = new StringBuilder();
-            builder.AppendFormat("[{0} x {1}]\r\n", RowCount, ColumnCount);
+            builder.AppendFormat("[{0} x {1}]{2}", RowCount, ColumnCount, delim);
 
             for (var row = 0; row < RowCount; ++row) {
                 for (var column = 0; column < ColumnCount; ++column) {
                     builder.Append(elements[row, column].PadLeft(maxLength + 1));
                 }
-                builder.Append("\r\n");
+                if (row < RowCount - 1) {
+                    builder.Append(delim);
+                }
+            }
+
+            return builder.ToString();
+        }
+
+        public override string ToString()
+        {
+            // Short format
+
+            var builder = new StringBuilder();
+            builder.AppendFormat("[{0} x {1}]", RowCount, ColumnCount);
+
+            for (var column = 0; column < ColumnCount; ++column) {
+                builder.Append(" [");
+                for (var row = 0; row < RowCount; ++row) {
+                    builder.Append(' ');
+                    builder.Append(this[row, column]);
+                }
+                builder.Append(" ]");
             }
 
             return builder.ToString();

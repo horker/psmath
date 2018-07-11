@@ -22,5 +22,25 @@
                 </CustomEntries>
             </CustomControl>
         </View>
+
+        <View>
+            <Name>Horker.DataAnalysis.Matrix</Name>
+            <ViewSelectedBy>
+                <TypeName>Horker.DataAnalysis.Matrix</TypeName>
+            </ViewSelectedBy>
+            <CustomControl>
+                <CustomEntries>
+                    <CustomEntry>
+                        <CustomItem>
+                            <ExpressionBinding>
+                                <ScriptBlock>
+                                    $_.AsString()
+                                </ScriptBlock>
+                            </ExpressionBinding>
+                        </CustomItem>
+                    </CustomEntry>
+                </CustomEntries>
+            </CustomControl>
+        </View>
     </ViewDefinitions>
 </Configuration>
