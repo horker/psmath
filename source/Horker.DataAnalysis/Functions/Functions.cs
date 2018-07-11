@@ -1140,130 +1140,41 @@ namespace Horker.DataAnalysis
 
     #endregion
 
-    #region Scalar arithmetics
+    #region Accord.Math.Matrix
 
-    [Cmdlet("Get", "Math.Add")]
-    [Alias("math.add")]
-    public class GetMathPlus : FunctionCmdletBase
+    [Cmdlet("Get", "Math.ArgMax")]
+    [Alias("math.argmax")]
+    public class GetMathArgMax : AggregateFunctionCmdletBase
     {
-        [Parameter(Position = 1, Mandatory = true, ParameterSetName = "Rhs")]
-        public double Rhs;
-
-        [Parameter(Position = 1, Mandatory = true, ParameterSetName = "Lhs")]
-        public double Lhs;
-
-        protected override void ProcessInputObject(double value)
+        protected override void Process(double[] values)
         {
-            if (ParameterSetName == "Rhs") {
-                WriteObject(value + Rhs);
-            }
-            else {
-                WriteObject(Lhs + value);
-            }
+            var result = Accord.Math.Matrix.ArgMax(values);
+
+            WriteObject(result);
         }
     }
 
-    [Cmdlet("Get", "Math.Subtract")]
-    [Alias("math.sub")]
-    public class GetMathMinus : FunctionCmdletBase
+    [Cmdlet("Get", "Math.ArgMin")]
+    [Alias("math.argmin")]
+    public class GetMathArgMin : AggregateFunctionCmdletBase
     {
-        [Parameter(Position = 1, Mandatory = true, ParameterSetName = "Rhs")]
-        public double Rhs;
-
-        [Parameter(Position = 1, Mandatory = true, ParameterSetName = "Lhs")]
-        public double Lhs;
-
-        protected override void ProcessInputObject(double value)
+        protected override void Process(double[] values)
         {
-            if (ParameterSetName == "Rhs") {
-                WriteObject(value - Rhs);
-            }
-            else {
-                WriteObject(Lhs - value);
-            }
+            var result = Accord.Math.Matrix.ArgMin(values);
+
+            WriteObject(result);
         }
     }
 
-    [Cmdlet("Get", "Math.Multiply")]
-    [Alias("math.mul")]
-    public class GetMathMultiply : FunctionCmdletBase
+    [Cmdlet("Get", "Math.ArgSort")]
+    [Alias("math.argsort")]
+    public class GetMathArgSort : AggregateFunctionCmdletBase
     {
-        [Parameter(Position = 1, Mandatory = true, ParameterSetName = "Rhs")]
-        public double Rhs;
-
-        [Parameter(Position = 1, Mandatory = true, ParameterSetName = "Lhs")]
-        public double Lhs;
-
-        protected override void ProcessInputObject(double value)
+        protected override void Process(double[] values)
         {
-            if (ParameterSetName == "Rhs") {
-                WriteObject(value * Rhs);
-            }
-            else {
-                WriteObject(Lhs * value);
-            }
-        }
-    }
+            var result = Accord.Math.Matrix.ArgSort(values);
 
-    [Cmdlet("Get", "Math.Divide")]
-    [Alias("math.div")]
-    public class GetMathDivide : FunctionCmdletBase
-    {
-        [Parameter(Position = 1, Mandatory = true, ParameterSetName = "Rhs")]
-        public double Rhs;
-
-        [Parameter(Position = 1, Mandatory = true, ParameterSetName = "Lhs")]
-        public double Lhs;
-
-        protected override void ProcessInputObject(double value)
-        {
-            if (ParameterSetName == "Rhs") {
-                WriteObject(value / Rhs);
-            }
-            else {
-                WriteObject(Lhs / value);
-            }
-        }
-    }
-
-    [Cmdlet("Get", "Math.Reminder")]
-    [Alias("math.rem")]
-    public class GetMathReminder : FunctionCmdletBase
-    {
-        [Parameter(Position = 1, Mandatory = true, ParameterSetName = "Rhs")]
-        public double Rhs;
-
-        [Parameter(Position = 1, Mandatory = true, ParameterSetName = "Lhs")]
-        public double Lhs;
-
-        protected override void ProcessInputObject(double value)
-        {
-            if (ParameterSetName == "Rhs") {
-                WriteObject(value % Rhs);
-            }
-            else {
-                WriteObject(Lhs % value);
-            }
-        }
-    }
-
-    [Cmdlet("Get", "Math.Negate")]
-    [Alias("math.neg")]
-    public class GetMathNegate : FunctionCmdletBase
-    {
-        protected override void ProcessInputObject(double value)
-        {
-            WriteObject(-value);
-        }
-    }
-
-    [Cmdlet("Get", "Math.Inverse")]
-    [Alias("math.inv")]
-    public class GetMathInverse : FunctionCmdletBase
-    {
-        protected override void ProcessInputObject(double value)
-        {
-            WriteObject(1.0 / value);
+            WriteObject(result);
         }
     }
 
