@@ -434,6 +434,19 @@ namespace Horker.DataAnalysis
         }
     }
 
+    [Cmdlet("Get", "Matrix.Identity")]
+    [Alias("mat.identity")]
+    public class GetMatrixIdentity : MatrixCmdletBase
+    {
+        [Parameter(Position = 0, Mandatory = true)]
+        public int Size;
+
+        protected override void EndProcessing()
+        {
+            WriteObject(Matrix.Identity(Size));
+        }
+    }
+
     [Cmdlet("Get", "Matrix.LowerTriangle")]
     [Alias("mat.lowertri")]
     public class GetMatrixLowerTriangle : MatrixUnaryOperatorCmdletBase

@@ -142,9 +142,9 @@ namespace Horker.DataAnalysis
             return matrix;
         }
 
-        public static Matrix Identity(int rowCount, int columnCount = int.MaxValue)
+        public static Matrix Identity(int count)
         {
-            return Diagonal(1.0, rowCount, columnCount);
+            return Diagonal(1.0, count, count);
         }
 
         public static Matrix WithValue(double value, int rowCount, int columnCount = int.MaxValue)

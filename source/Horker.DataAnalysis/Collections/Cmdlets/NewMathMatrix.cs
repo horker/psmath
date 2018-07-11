@@ -31,9 +31,6 @@ namespace Horker.DataAnalysis
         [Parameter(Position = 5, Mandatory = false)]
         public SwitchParameter Diagonal;
 
-        [Parameter(Position = 6, Mandatory = false)]
-        public SwitchParameter Identity;
-
         private List<object> _values;
 
         protected override void BeginProcessing()
@@ -73,13 +70,6 @@ namespace Horker.DataAnalysis
                     return;
                 }
                 matrix = Matrix.Diagonal(Converter.ToDouble(v[0]), RowCount, ColumnCount);
-            }
-            else if (Identity) {
-                if (v.Count != 0) {
-                    WriteError(new ErrorRecord(new ArgumentException("Values are not necessary for -Identity"), "", ErrorCategory.InvalidArgument, null));
-                    return;
-                }
-                matrix = Matrix.Identity(RowCount, ColumnCount);
             }
             else {
                 var numbers = v.Select(x => Converter.ToDouble(x));
