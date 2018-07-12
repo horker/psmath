@@ -705,14 +705,14 @@ namespace Horker.DataAnalysis
             return Accord.Math.Matrix.Sort(EnsureSequence(keys), _values);
         }
 
-        public double[][] Split(int size)
+        public Matrix Split(int size)
         {
-            return EnsureSequence(_values).Split(size);
+            return Matrix.Create(EnsureSequence(_values).Split(size));
         }
 
         public Matrix Stack(Matrix b)
         {
-            return Accord.Math.Matrix.Stack(_values, AdjustColumn(Values));
+            return Accord.Math.Matrix.Stack(_values, AdjustColumn(b));
         }
 
         public double Sum()
