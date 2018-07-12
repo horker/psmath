@@ -478,10 +478,11 @@ namespace Horker.DataAnalysis
 
         public Matrix CumulativeSum(int dimension)
         {
+            // TODO: correct?
             return _values.CumulativeSum(dimension);
         }
 
-        public ISolverMatrixDecomposition<double> Decomposite(bool leastSquares = false)
+        public ISolverMatrixDecomposition<double> Decompose(bool leastSquares = false)
         {
             return _values.Decompose(leastSquares);
         }
