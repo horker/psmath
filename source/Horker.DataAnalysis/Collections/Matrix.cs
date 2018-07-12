@@ -452,6 +452,7 @@ namespace Horker.DataAnalysis
 
         public Matrix Cartesian()
         {
+            // TODO
             return null;
         }
 
@@ -526,7 +527,7 @@ namespace Horker.DataAnalysis
             return EnsureSequence(_values).First(func);
         }
 
-        public Nullable<int> FirstOrNull(Func<double, bool> func)
+        public int? FirstOrNull(Func<double, bool> func)
         {
             return EnsureSequence(_values).FirstOrNull(func);
         }
@@ -832,12 +833,12 @@ namespace Horker.DataAnalysis
             var rowCount = (int)Special.Binomial(seq.Length, k);
 
             var result = new double[rowCount, k];
-            var rowIndex = 0;
-            foreach (var row in Combinatorics.Combinations(seq, k)) {
+            var row = 0;
+            foreach (var set in Combinatorics.Combinations(seq, k)) {
                 for (var column = 0; column < k; ++column) {
-                    result[rowIndex, column] = row[column];
+                    result[row, column] = set[column];
                 }
-                ++rowIndex;
+                ++row;
             }
 
             return result;
@@ -849,12 +850,12 @@ namespace Horker.DataAnalysis
             var rowCount = (int)Special.Factorial(seq.Length);
 
             var result = new double[rowCount, seq.Length];
-            var rowIndex = 0;
-            foreach (var row in Combinatorics.Permutations(seq)) {
+            var row = 0;
+            foreach (var set in Combinatorics.Permutations(seq)) {
                 for (var column = 0; column < seq.Length; ++column) {
-                    result[rowIndex, column] = row[column];
+                    result[row, column] = set[column];
                 }
-                ++rowIndex;
+                ++row;
             }
 
             return result;
