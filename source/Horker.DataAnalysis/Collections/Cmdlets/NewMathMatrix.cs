@@ -14,7 +14,7 @@ namespace Horker.DataAnalysis
         public object InputObject;
 
         [Parameter(Position = 0, Mandatory = false)]
-        public object[] Values;
+        public object Values;
 
         [Parameter(Position = 1, Mandatory = false)]
         public int RowCount = int.MaxValue;
@@ -28,45 +28,90 @@ namespace Horker.DataAnalysis
         [Parameter(Position = 4, Mandatory = false)]
         public SwitchParameter FromJagged;
 
-        private List<object> _values;
+        private List<object> _inputObjects;
 
         protected override void BeginProcessing()
         {
-            _values = new List<object>();
+            _inputObjects = new List<object>();
         }
 
         protected override void ProcessRecord()
         {
-            if (InputObject != null) {
-                _values.Add(InputObject);
+            if (InputObject != null)
+            {
+                _inputObjects.Add(InputObject);
             }
         }
 
         protected override void EndProcessing()
         {
-            IReadOnlyList<object> v;
+            IReadOnlyList<object> array;
+            Matrix matrix = null;
 
-            if (Values != null) {
-                if (_values.Count > 0) {
+            if (Values != null)
+            {
+                if (_inputObjects.Count > 0)
+                {
                     WriteError(new ErrorRecord(new ArgumentException("Both pipeline and -Value argumetns are given"), "", ErrorCategory.InvalidArgument, null));
                     return;
                 }
-                v = Values;
+
+                if (Values is IReadOnlyList<object>)
+                {
+                    array = (IReadOnlyList<object>)Values;
+                }
+                else
+                {
+                    array = new object[1] { Values };
+                }
             }
-            else {
-                v = _values;
+            else
+            {
+                if (_inputObjects.Count == 0)
+                {
+                    WriteError(new ErrorRecord(new ArgumentException("Values are required"), "", ErrorCategory.InvalidArgument, null));
+                    return;
+                }
+                array = _inputObjects;
             }
 
-            Matrix matrix;
-            if (FromJagged) {
-                matrix = Matrix.Create(Converter.ToDoubleJaggedArray(v));
+            if (FromJagged)
+            {
+                matrix = Matrix.Create(Converter.ToDoubleJaggedArray(array));
             }
-            else {
-                var numbers = v.Select(x => Converter.ToDouble(x));
-                matrix = Matrix.Create(numbers.ToArray(), RowCount, ColumnCount);
+            else
+            {
+                if (array.Count == 1)
+                {
+                    if (array[0] is double[,])
+                    {
+                        matrix = new Matrix(array[0] as double[,]);
+                    }
+                    else if (array[0] is object[,] || array[0] is float[,])
+                    {
+                        var a = array[0] as object[,];
+                        var da = new double[a.GetLength(0), a.GetLength(1)];
+
+                        for (var column = 0; column < a.GetLength(1); ++column)
+                        {
+                            for (var row = 0; row < a.GetLength(0); ++row)
+                            {
+                                da[row, column] = Converter.ToDouble(a[row, column]);
+                            }
+                        }
+                        matrix = new Matrix(da);
+                    }
+                }
             }
 
-            if (Transpose) {
+            if (matrix == null)
+            {
+                var da = array.Select(x => Converter.ToDouble(x));
+                matrix = Matrix.Create(da.ToArray(), RowCount, ColumnCount);
+            }
+
+            if (Transpose)
+            {
                 matrix = matrix.T;
             }
 
