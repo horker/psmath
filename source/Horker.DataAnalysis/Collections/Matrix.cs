@@ -5,6 +5,7 @@ using Accord;
 using Accord.Math;
 using Accord.Math.Decompositions;
 using Accord.Statistics;
+using System.Management.Automation;
 
 namespace Horker.DataAnalysis
 {
@@ -481,6 +482,34 @@ namespace Horker.DataAnalysis
         {
             bool transpose = dimension == 1;
             return _values.ToJagged(transpose);
+        }
+
+        public IEnumerable<PSObject> ToPSObject(bool transpose = false)
+        {
+            if (!transpose)
+            {
+                for (var row = 0; row < RowCount; ++row)
+                {
+                    var obj = new PSObject();
+                    for (var column = 0; column < ColumnCount; ++column)
+                    {
+                        obj.Properties.Add(new PSNoteProperty("c" + column, this[row, column]));
+                    }
+                    yield return obj;
+                }
+            }
+            else
+            {
+                for (var column = 0; column < ColumnCount; ++column)
+                {
+                    var obj = new PSObject();
+                    for (var row = 0; row < RowCount; ++row)
+                    {
+                        obj.Properties.Add(new PSNoteProperty("c" + row, this[row, column]));
+                    }
+                    yield return obj;
+                }
+            }
         }
 
         public static implicit operator double[,] (Matrix matrix)
