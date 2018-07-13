@@ -14,13 +14,39 @@ namespace Horker.DataAnalysis
             if (Math.Sign(b - a) != Math.Sign(step))
                 throw new ArgumentException("Invalid range definition");
 
-            var count = (int)Math.Ceiling(Math.Abs((b - a) / step));
-            if (inclusive && (b - a) % step == 0)
-                ++count;
-
-            for (var i = 0; i < count; ++i)
+            if (b >= a)
             {
-                yield return a + step * i;
+                if (inclusive)
+                {
+                    for (var i = 0; a + step * i <= b; ++i)
+                    {
+                        yield return a + step * i;
+                    }
+                }
+                else
+                {
+                    for (var i = 0; a + step * i < b; ++i)
+                    {
+                        yield return a + step * i;
+                    }
+                }
+            }
+            else
+            {
+                if (inclusive)
+                {
+                    for (var i = 0; a + step * i >= b; ++i)
+                    {
+                        yield return a + step * i;
+                    }
+                }
+                else
+                {
+                    for (var i = 0; a + step * i > b; ++i)
+                    {
+                        yield return a + step * i;
+                    }
+                }
             }
         }
 
@@ -52,63 +78,16 @@ namespace Horker.DataAnalysis
         }
     }
 
-    [Cmdlet("New", "Math.Sequence")]
-    [Alias("seq")]
-    public class NewMathSequence : PSCmdlet
+    public abstract class SequenceCmdletBase : PSCmdlet
     {
-        [Parameter(Position = 0, Mandatory = true)]
-        public double Start = 0;
-
-        [Parameter(Position = 1, Mandatory = false)]
-        public double? Stop = null;
-
-        [Parameter(Position = 2, Mandatory = false)]
-        public double? Step = null;
-
-        [Parameter(Position = 3, Mandatory = false)]
-        public int Count = int.MaxValue;
-
-        [Parameter(Position = 4, Mandatory = false)]
-        public SwitchParameter Inclusive = false;
-
-        [Parameter(Position = 5, Mandatory = false)]
+        [Parameter(Position = 9, Mandatory = false)]
         public ScriptBlock[] Func = null;
+
+        protected abstract IEnumerable<double> GetSequence();
 
         protected override void EndProcessing()
         {
-            double start, stop, step;
-            if (!Step.HasValue)
-            {
-                if (!Stop.HasValue)
-                {
-                    start = 0;
-                    stop = Start;
-                    step = 1;
-                }
-                else
-                {
-                    start = 0;
-                    stop = Start;
-                    step = Stop.Value;
-                }
-            }
-            else
-            {
-                start = Start;
-                stop = Stop.Value;
-                step = Step.Value;
-            }
-
-            IEnumerable<double> seq;
-
-            if (Count == int.MaxValue)
-            {
-                seq = SequenceHelper.GetRange(start, stop, step, Inclusive);
-            }
-            else
-            {
-                seq = SequenceHelper.GetInterval(start, stop, Count, Inclusive);
-            }
+            IEnumerable<double> seq = GetSequence();
 
             if (Func == null)
             {
@@ -140,39 +119,140 @@ namespace Horker.DataAnalysis
         }
     }
 
-    [Cmdlet("New", "Math.SequenceWithValues")]
-    [Alias("seq.values")]
-    public class NewMathSequenceWithValues : PSCmdlet
+    [Cmdlet("New", "Math.Sequence")]
+    [Alias("seq")]
+    public class NewMathSequence : SequenceCmdletBase
     {
         [Parameter(Position = 0, Mandatory = true)]
-        public int Count;
+        public double Start = 0;
 
         [Parameter(Position = 1, Mandatory = false)]
+        public double? Stop = null;
+
+        [Parameter(Position = 2, Mandatory = false)]
+        public double? Step = null;
+
+        [Parameter(Position = 3, Mandatory = false)]
+        public int Count = int.MaxValue;
+
+        [Parameter(Position = 4, Mandatory = false)]
+        public SwitchParameter Inclusive = false;
+
+        protected override IEnumerable<double> GetSequence()
+        {
+            double start, stop, step;
+
+            if (!Step.HasValue)
+            {
+                if (!Stop.HasValue)
+                {
+                    start = 0;
+                    stop = Start;
+                    step = 1;
+                }
+                else
+                {
+                    start = 0;
+                    stop = Start;
+                    step = Stop.Value;
+                }
+            }
+            else
+            {
+                start = Start;
+                stop = Stop.Value;
+                step = Step.Value;
+            }
+
+            return SequenceHelper.GetRange(start, stop, step, Inclusive);
+        }
+    }
+
+    [Cmdlet("New", "Math.SequenceInLinearSpace")]
+    [Alias("seq.linspace")]
+    public class NewMathSequenceInLinearSpace : SequenceCmdletBase
+    {
+        [Parameter(Position = 0, Mandatory = true)]
+        public double Start = 0;
+
+        [Parameter(Position = 1, Mandatory = false)]
+        public double? Stop = null;
+
+        [Parameter(Position = 2, Mandatory = false)]
+        public int? Count = null;
+
+        [Parameter(Position = 3, Mandatory = false)]
+        public SwitchParameter Inclusive = false;
+
+        protected override IEnumerable<double> GetSequence()
+        {
+            double start, stop;
+            int count;
+
+            if (!Stop.HasValue)
+            {
+                if (!Count.HasValue)
+                {
+                    start = 0;
+                    stop = Start;
+                    count = 100;
+                }
+                else
+                {
+                    start = 0;
+                    stop = Start;
+                    count = (int)Stop.Value;
+                }
+            }
+            else
+            {
+                start = Start;
+                stop = Stop.Value;
+                count = Count.Value;
+            }
+
+            return SequenceHelper.GetInterval(start, stop, count, Inclusive);
+        }
+    }
+
+    [Cmdlet("New", "Math.SequenceWithValues")]
+    [Alias("seq.values")]
+    public class NewMathSequenceWithValues : SequenceCmdletBase
+    {
+        [Parameter(Position = 0, Mandatory = true)]
         public object Values = 0;
 
-        protected override void EndProcessing()
+        [Parameter(Position = 1, Mandatory = false)]
+        public int Count = int.MaxValue;
+
+        protected override IEnumerable<double> GetSequence()
         {
             var values = Converter.ToDoubleArray(Values);
 
+            if (Count == int.MaxValue)
+            {
+                Count = values.Length;
+            }
+
             for (var i = 0; i < Count; ++i)
             {
-                WriteObject(values[i % values.Length]);
+                yield return values[i % values.Length];
             }
         }
     }
 
-    [Cmdlet("New", "Math.SequenceWithZeros")]
+    [Cmdlet("New", "Math.ZeroSequence")]
     [Alias("seq.zeros")]
-    public class NewMathSequenceWithZeros : PSCmdlet
+    public class NewMathZeroSequence : SequenceCmdletBase
     {
         [Parameter(Position = 0, Mandatory = true)]
         public int Count;
 
-        protected override void EndProcessing()
+        protected override IEnumerable<double> GetSequence()
         {
             for (var i = 0; i < Count; ++i)
             {
-                WriteObject(0);
+                yield return i;
             }
         }
     }
