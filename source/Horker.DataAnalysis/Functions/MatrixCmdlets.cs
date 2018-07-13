@@ -7,6 +7,8 @@ using Accord.Math.Decompositions;
 
 namespace Horker.DataAnalysis
 {
+    #region Helper classes
+
     public class MatrixCmdletBase : PSCmdlet
     {
         public Matrix AdjustRow(Matrix matrix, int rowCount)
@@ -163,15 +165,155 @@ namespace Horker.DataAnalysis
         }
     }
 
-    [Cmdlet("Get", "Matrix.Dot")]
-    [Alias("mat.dot")]
-    public class GetMatrixDot : MatrixMultiplyOperatorCmdletBase
+    #endregion
+
+    #region Factory cmdlets
+
+    [Cmdlet("New", "Matrix.Identity")]
+    [Alias("mat.identity")]
+    public class NewMatrixIdentity : MatrixCmdletBase
     {
-        protected override Matrix Process(Matrix lhs, Matrix rhs)
+        [Parameter(Position = 0, Mandatory = true)]
+        public int Size;
+
+        protected override void EndProcessing()
         {
-            return new Matrix(Accord.Math.Matrix.Dot(lhs, rhs), true);
+            WriteObject(Matrix.Identity(Size));
         }
     }
+
+    [Cmdlet("New", "Matrix.Magic")]
+    [Alias("mat.magic")]
+    public class NewMatrixMagic : MatrixCmdletBase
+    {
+        [Parameter(Position = 0, Mandatory = true)]
+        public int Size;
+
+        protected override void EndProcessing()
+        {
+            var result = Accord.Math.Matrix.Magic(Size);
+            WriteObject(new Matrix(result, false));
+        }
+    }
+
+    [Cmdlet("New", "Matrix.Mesh")]
+    [Alias("mat.mesh")]
+    public class NewMatrixMesh : MatrixCmdletBase
+    {
+        [Parameter(Position = 0, Mandatory = true)]
+        public double RowMinimum;
+
+        [Parameter(Position = 1, Mandatory = true)]
+        public double RowMaximum;
+
+        [Parameter(Position = 2, Mandatory = true)]
+        public int RowCount;
+
+        [Parameter(Position = 3, Mandatory = true)]
+        public double ColumnMinimum;
+
+        [Parameter(Position = 4, Mandatory = true)]
+        public double ColumnMaximum;
+
+        [Parameter(Position = 5, Mandatory = true)]
+        public int ColumnCount;
+
+        protected override void EndProcessing()
+        {
+            var result = Accord.Math.Matrix.Mesh(
+                new Accord.DoubleRange(RowMinimum, RowMaximum), RowCount,
+                new Accord.DoubleRange(ColumnMinimum, ColumnMaximum), ColumnCount
+            );
+            WriteObject(Matrix.Create(result));
+        }
+    }
+
+    [Cmdlet("New", "Matrix.OneHot")]
+    [Alias("mat.onehot")]
+    public class NewMatrixOneHot : AggregateFunctionCmdletBase
+    {
+        protected override void Process(double[] values)
+        {
+            var indexes = values.Select(x => (int)x).ToArray();
+            var result = Accord.Math.Matrix.OneHot(indexes);
+            WriteObject(new Matrix(result, false));
+        }
+    }
+
+    [Cmdlet("New", "Matrix.Diagonal")]
+    [Alias("mat.diagonal")]
+    public class NewMatrixDiagonal : AggregateFunctionCmdletBase
+    {
+        [Parameter(Position = 1, Mandatory = true)]
+        public int RowCount = int.MaxValue;
+
+        [Parameter(Position = 2, Mandatory = false)]
+        public int ColumnCount = int.MaxValue;
+
+        protected override void Process(double[] values)
+        {
+            WriteObject(Matrix.Diagonal(values, RowCount, ColumnCount));
+        }
+    }
+
+    [Cmdlet("New", "Matrix.Zero")]
+    [Alias("mat.zero")]
+    public class NewMatrixZero : MatrixCmdletBase
+    {
+        [Parameter(Position = 0, Mandatory = true)]
+        public int Size;
+
+        protected override void EndProcessing()
+        {
+            WriteObject(new Matrix(Size, Size));
+        }
+    }
+
+    [Cmdlet("ConvertFrom", "Matrix.Object")]
+    [Alias("mat.fromobject")]
+    public class ConvertFromMatrixObject : MatrixCmdletBase
+    {
+        [Parameter(ValueFromPipeline = true, Mandatory = false)]
+        public PSObject InputObject;
+
+        [Parameter(Position = 0, Mandatory = false)]
+        public PSObject[] Objects;
+
+        private List<PSObject> _inputObjects;
+
+        protected override void BeginProcessing()
+        {
+            _inputObjects = new List<PSObject>();
+        }
+
+        protected override void ProcessRecord()
+        {
+            if (InputObject != null)
+            {
+                _inputObjects.Add(InputObject);
+            }
+        }
+
+        protected override void EndProcessing()
+        {
+            if (Objects != null && Objects.Length > 0)
+            {
+                if (_inputObjects.Count > 0)
+                {
+                    WriteError(new ErrorRecord(new ArgumentException("Both pipeline and -Object argumetns are given"), "", ErrorCategory.InvalidArgument, null));
+                    return;
+                }
+
+                WriteObject(Matrix.Create(Objects));
+            }
+            else
+            {
+                WriteObject(Matrix.Create(_inputObjects.ToArray()));
+            }
+        }
+    }
+
+    #endregion
 
     #region Elementwise operators
 
@@ -392,22 +534,6 @@ namespace Horker.DataAnalysis
         }
     }
 
-    [Cmdlet("Get", "Matrix.Diagonal")]
-    [Alias("mat.diagonal")]
-    public class GetMatrixDiagonal : AggregateFunctionCmdletBase
-    {
-        [Parameter(Position = 1, Mandatory = true)]
-        public int RowCount;
-
-        [Parameter(Position = 2, Mandatory = false)]
-        public int ColumnCount = int.MaxValue;
-
-        protected override void Process(double[] values)
-        {
-            WriteObject(Matrix.Diagonal(values, RowCount, ColumnCount));
-        }
-    }
-
     [Cmdlet("Get", "Matrix.Distinct")]
     [Alias("mat.distinct")]
     public class GetMatrixDictinct : MatrixCmdletBase
@@ -451,16 +577,13 @@ namespace Horker.DataAnalysis
         }
     }
 
-    [Cmdlet("Get", "Matrix.Identity")]
-    [Alias("mat.identity")]
-    public class GetMatrixIdentity : MatrixCmdletBase
+    [Cmdlet("Get", "Matrix.Dot")]
+    [Alias("mat.dot")]
+    public class GetMatrixDot : MatrixMultiplyOperatorCmdletBase
     {
-        [Parameter(Position = 0, Mandatory = true)]
-        public int Size;
-
-        protected override void EndProcessing()
+        protected override Matrix Process(Matrix lhs, Matrix rhs)
         {
-            WriteObject(Matrix.Identity(Size));
+            return new Matrix(Accord.Math.Matrix.Dot(lhs, rhs), true);
         }
     }
 
@@ -551,64 +674,6 @@ namespace Horker.DataAnalysis
         }
     }
 
-    [Cmdlet("Get", "Matrix.Magic")]
-    [Alias("mat.magic")]
-    public class GetMatrixMagic : MatrixCmdletBase
-    {
-        [Parameter(Position = 0, Mandatory = true)]
-        public int Size;
-
-        protected override void EndProcessing()
-        {
-            var result = Accord.Math.Matrix.Magic(Size);
-            WriteObject(new Matrix(result, false));
-        }
-    }
-
-    [Cmdlet("Get", "Matrix.Mesh")]
-    [Alias("mat.mesh")]
-    public class GetMatrixMesh : MatrixCmdletBase
-    {
-        [Parameter(Position = 0, Mandatory = true)]
-        public double RowMinimum;
-
-        [Parameter(Position = 1, Mandatory = true)]
-        public double RowMaximum;
-
-        [Parameter(Position = 2, Mandatory = true)]
-        public int RowCount;
-
-        [Parameter(Position = 3, Mandatory = true)]
-        public double ColumnMinimum;
-
-        [Parameter(Position = 4, Mandatory = true)]
-        public double ColumnMaximum;
-
-        [Parameter(Position = 5, Mandatory = true)]
-        public int ColumnCount;
-
-        protected override void EndProcessing()
-        {
-            var result = Accord.Math.Matrix.Mesh(
-                new Accord.DoubleRange(RowMinimum, RowMaximum), RowCount,
-                new Accord.DoubleRange(ColumnMinimum, ColumnMaximum), ColumnCount
-            );
-            WriteObject(Matrix.Create(result));
-        }
-    }
-
-    [Cmdlet("Get", "Matrix.OneHot")]
-    [Alias("mat.onehot")]
-    public class GetMatrixOneHot : AggregateFunctionCmdletBase
-    {
-        protected override void Process(double[] values)
-        {
-            var indexes = values.Select(x => (int)x).ToArray();
-            var result = Accord.Math.Matrix.OneHot(indexes);
-            WriteObject(new Matrix(result, false));
-        }
-    }
-
     [Cmdlet("Get", "Matrix.Product")]
     [Alias("mat.product")]
     public class GetMatrixProduct : MatrixCmdletBase
@@ -695,19 +760,6 @@ namespace Horker.DataAnalysis
         protected override Matrix Process(Matrix value)
         {
             return new Matrix(Accord.Math.Matrix.Transpose<double>(value), true);
-        }
-    }
-
-    [Cmdlet("Get", "Matrix.Zero")]
-    [Alias("mat.zero")]
-    public class GetMatrixZero : MatrixCmdletBase
-    {
-        [Parameter(Position = 0, Mandatory = true)]
-        public int Size;
-
-        protected override void EndProcessing()
-        {
-            WriteObject(new Matrix(Size, Size));
         }
     }
 

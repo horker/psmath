@@ -283,6 +283,27 @@ namespace Horker.DataAnalysis
             }
         }
 
+        public static Matrix Create(PSObject[] objects)
+        {
+            var names = new List<string>();
+            foreach (var p in objects[0].Properties)
+            {
+                names.Add(p.Name);
+            }
+
+            var result = new double[objects.Length, names.Count];
+
+            for (var row = 0; row < objects.Length; ++row)
+            {
+                for (var column = 0; column < names.Count; ++column)
+                {
+                    result[row, column] = Converter.ToDouble(objects[row].Properties[names[column]].Value);
+                }
+            }
+
+            return new Matrix(result, true);
+        }
+
         public Matrix Clone()
         {
             return new Matrix(_values);

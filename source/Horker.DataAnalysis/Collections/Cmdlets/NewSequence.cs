@@ -260,7 +260,7 @@ namespace Horker.DataAnalysis
     }
 
     [Cmdlet("New", "Math.SequenceWithValues")]
-    [Alias("seq.values")]
+    [Alias("seq.value")]
     public class NewMathSequenceWithValues : SequenceCmdletBase
     {
         [Parameter(Position = 0, Mandatory = true)]
@@ -286,7 +286,7 @@ namespace Horker.DataAnalysis
     }
 
     [Cmdlet("New", "Math.ZeroSequence")]
-    [Alias("seq.zeros")]
+    [Alias("seq.zero")]
     public class NewMathZeroSequence : SequenceCmdletBase
     {
         [Parameter(Position = 0, Mandatory = true)]
