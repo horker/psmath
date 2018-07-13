@@ -9,7 +9,7 @@ namespace Horker.DataAnalysis
 {
     class SequenceHelper
     {
-        public static double[] GetRange(double a, double b, double step = 1.0, bool inclusive = true)
+        public static IEnumerable<double> GetRange(double a, double b, double step, bool inclusive)
         {
             if (Math.Sign(b - a) != Math.Sign(step))
                 throw new ArgumentException("Invalid range definition");
@@ -18,19 +18,13 @@ namespace Horker.DataAnalysis
             if (inclusive && (b - a) % step == 0)
                 ++count;
 
-            var result = new double[count];
-            double value = a;
-
             for (var i = 0; i < count; ++i)
             {
-                result[i] = value;
-                value += step;
+                yield return a + step * i;
             }
-
-            return result;
         }
 
-        public static double[] GetInterval(double a, double b, int count, bool inclusive = true)
+        public static IEnumerable<double> GetInterval(double a, double b, int count, bool inclusive)
         {
             if (a >= b || count <= 0)
                 throw new ArgumentException("Invalid range definition");
@@ -44,7 +38,7 @@ namespace Horker.DataAnalysis
                 step = (b - a) / (count - 1);
                 for (var i = 0; i < count; ++i)
                 {
-                    result[i] = a + step * i;
+                    yield return a + step * i;
                 }
             }
             else
@@ -52,11 +46,9 @@ namespace Horker.DataAnalysis
                 step = (b - a) / count;
                 for (var i = 0; i < count; ++i)
                 {
-                    result[i] = a + step * i;
+                    yield return a + step * i;
                 }
             }
-
-            return result;
         }
     }
 
@@ -79,13 +71,11 @@ namespace Horker.DataAnalysis
         [Parameter(Position = 4, Mandatory = false)]
         public SwitchParameter Inclusive = false;
 
-        [Parameter(Position = 6, Mandatory = false)]
+        [Parameter(Position = 5, Mandatory = false)]
         public ScriptBlock[] Func = null;
 
         protected override void EndProcessing()
         {
-            double[] seq;
-
             double start, stop, step;
             if (!Step.HasValue)
             {
@@ -109,6 +99,8 @@ namespace Horker.DataAnalysis
                 step = Step.Value;
             }
 
+            IEnumerable<double> seq;
+
             if (Count == int.MaxValue)
             {
                 seq = SequenceHelper.GetRange(start, stop, step, Inclusive);
@@ -120,29 +112,30 @@ namespace Horker.DataAnalysis
 
             if (Func == null)
             {
-                foreach (var value in seq)
+                foreach (var x in seq)
                 {
-                    WriteObject(value);
+                    WriteObject(x);
                 }
-                return;
             }
-
-            var va = new List<PSVariable>() { new PSVariable("x") };
-
-            foreach (var x in seq)
+            else
             {
-                var obj = new PSObject();
-                obj.Properties.Add(new PSNoteProperty("x", x));
+                var va = new List<PSVariable>() { new PSVariable("x") };
 
-                for (int i = 0; i < Func.Length; ++i)
+                foreach (var x in seq)
                 {
-                    va[0].Value = x;
-                    var y = Func[i].InvokeWithContext(null, va, null).Last();
+                    var obj = new PSObject();
+                    obj.Properties.Add(new PSNoteProperty("x", x));
 
-                    obj.Properties.Add(new PSNoteProperty("y" + i, y));
+                    for (int i = 0; i < Func.Length; ++i)
+                    {
+                        va[0].Value = x;
+                        var y = Func[i].InvokeWithContext(null, va, new object[] { x }).Last();
+
+                        obj.Properties.Add(new PSNoteProperty("y" + i, y));
+                    }
+
+                    WriteObject(obj);
                 }
-
-                WriteObject(obj);
             }
         }
     }
