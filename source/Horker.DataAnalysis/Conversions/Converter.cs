@@ -51,14 +51,14 @@ namespace Horker.DataAnalysis
             }
         }
 
-        public static object ToDateTime(object input)
+        public static DateTime? ToDateTime(object input)
         {
             if (input is PSObject) {
                 input = (input as PSObject).BaseObject;
             }
 
             if (input is DateTime) {
-                return input;
+                return (DateTime)input;
             }
             else if (input is DateTimeOffset) {
                 return ((DateTimeOffset)input).DateTime;
@@ -80,14 +80,14 @@ namespace Horker.DataAnalysis
             }
         }
 
-        public static object ToDateTime(object input, string format)
+        public static DateTime? ToDateTime(object input, string format)
         {
             if (input is PSObject) {
                 input = (input as PSObject).BaseObject;
             }
 
             if (input is DateTime) {
-                return input;
+                return (DateTime)input;
             }
             else if (input is DateTimeOffset) {
                 return ((DateTimeOffset)input).DateTime;
@@ -107,14 +107,14 @@ namespace Horker.DataAnalysis
             }
         }
 
-        public static object ToDateTimeOffset(object input, bool assumeLocal = true)
+        public static DateTimeOffset? ToDateTimeOffset(object input, bool assumeLocal = true)
         {
             if (input is PSObject) {
                 input = (input as PSObject).BaseObject;
             }
 
             if (input is DateTimeOffset) {
-                return input;
+                return (DateTimeOffset)input;
             }
             else if (input is DateTime) {
                 return new DateTimeOffset((DateTime)input);
@@ -144,14 +144,14 @@ namespace Horker.DataAnalysis
             }
         }
 
-        public static object ToDateTimeOffset(object input, string format)
+        public static DateTimeOffset? ToDateTimeOffset(object input, string format)
         {
             if (input is PSObject) {
                 input = (input as PSObject).BaseObject;
             }
 
             if (input is DateTimeOffset) {
-                return input;
+                return (DateTimeOffset)input;
             }
             else if (input is DateTime) {
                 return new DateTimeOffset((DateTime)input);

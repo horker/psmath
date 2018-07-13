@@ -65,10 +65,11 @@
   <ItemGroup>
     <Compile Include="Collections\Slice\Get-Math.Slice.cs" />
     <Compile Include="Collections\Matrix\New-Math.Matrix.cs" />
-    <Compile Include="Collections\DataFrame\Converter.cs" />
+    <Compile Include="Conversions\Converter.cs" />
     <Compile Include="Collections\DataFrame\DataFrame.cs" />
     <Compile Include="Collections\DataFrame\DataFrameGroup.cs" />
     <Compile Include="Collections\Matrix\Matrix.cs" />
+    <Compile Include="Conversions\ConversionCmdlets.cs" />
     <Compile Include="Statistics\Distributions\Distributions.cs" />
     <Compile Include="Statistics\Analyses\InvokeDescriptiveAnalysis.cs" />
     <Compile Include="Collections\Matrix\MatrixCmdlets.cs" />
