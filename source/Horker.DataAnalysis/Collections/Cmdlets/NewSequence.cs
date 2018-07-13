@@ -80,8 +80,14 @@ namespace Horker.DataAnalysis
 
     public abstract class SequenceCmdletBase : PSCmdlet
     {
-        [Parameter(Position = 9, Mandatory = false)]
+        [Parameter(Position = 10, Mandatory = false)]
         public ScriptBlock[] Func = null;
+
+        [Parameter(Position = 11, Mandatory = false)]
+        public SwitchParameter NoSeq;
+
+        [Parameter(Position = 12, Mandatory = false)]
+        public SwitchParameter AsMatrix;
 
         protected abstract IEnumerable<double> GetSequence();
 
@@ -89,31 +95,69 @@ namespace Horker.DataAnalysis
         {
             IEnumerable<double> seq = GetSequence();
 
-            if (Func == null)
+            if (!AsMatrix)
             {
-                foreach (var x in seq)
+                if (Func == null)
                 {
-                    WriteObject(x);
+                    foreach (var x in seq)
+                    {
+                        WriteObject(x);
+                    }
+                }
+                else
+                {
+                    var va = new List<PSVariable>() { new PSVariable("x") };
+
+                    foreach (var x in seq)
+                    {
+                        var obj = new PSObject();
+
+                        if (!NoSeq)
+                            obj.Properties.Add(new PSNoteProperty("x", x));
+
+                        for (int i = 0; i < Func.Length; ++i)
+                        {
+                            va[0].Value = x;
+                            var y = Func[i].InvokeWithContext(null, va, new object[] { x }).Last();
+
+                            obj.Properties.Add(new PSNoteProperty("y" + i, y));
+                        }
+
+                        WriteObject(obj);
+                    }
                 }
             }
             else
             {
-                var va = new List<PSVariable>() { new PSVariable("x") };
-
-                foreach (var x in seq)
+                if (Func == null)
                 {
-                    var obj = new PSObject();
-                    obj.Properties.Add(new PSNoteProperty("x", x));
+                    WriteObject(Matrix.Create(seq.ToArray(), int.MaxValue));
+                }
+                else
+                {
+                    var s = NoSeq ? 0 : 1;
 
-                    for (int i = 0; i < Func.Length; ++i)
+                    var seqarray = seq.ToArray();
+                    var result = new double[seqarray.Length, Func.Length + s];
+
+                    var va = new List<PSVariable>() { new PSVariable("x") };
+
+                    for (var i = 0; i < seqarray.Length; ++i)
                     {
-                        va[0].Value = x;
-                        var y = Func[i].InvokeWithContext(null, va, new object[] { x }).Last();
+                        var x = seqarray[i];
 
-                        obj.Properties.Add(new PSNoteProperty("y" + i, y));
+                        if (!NoSeq)
+                            result[i, 0] = x;
+
+                        for (int j = 0; j < Func.Length; ++j)
+                        {
+                            va[0].Value = x;
+                            var y = Func[j].InvokeWithContext(null, va, new object[] { x }).Last();
+                            result[i, j + s] = (double)y.BaseObject;
+                        }
                     }
 
-                    WriteObject(obj);
+                    WriteObject(new Matrix(result, true));
                 }
             }
         }
@@ -252,7 +296,7 @@ namespace Horker.DataAnalysis
         {
             for (var i = 0; i < Count; ++i)
             {
-                yield return i;
+                yield return 0;
             }
         }
     }
