@@ -894,6 +894,11 @@ namespace Horker.DataAnalysis
             return _values.Pad(all);
         }
 
+        public Matrix Pad(int topBottom, int rightLeft)
+        {
+            return _values.Pad(topBottom, rightLeft);
+        }
+
         public Matrix Pad(int top, int right, int bottom, int left)
         {
             return _values.Pad(top, right, bottom, left);

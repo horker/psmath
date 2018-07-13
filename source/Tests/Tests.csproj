@@ -63,6 +63,7 @@
   <ItemGroup>
     <Compile Include="MatrixCmdletsTest.cs" />
     <Compile Include="NewMathMatrixTest.cs" />
+    <Compile Include="NewMathSequenceTest.cs" />
     <Compile Include="TestDataFrame.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestVector.cs" />

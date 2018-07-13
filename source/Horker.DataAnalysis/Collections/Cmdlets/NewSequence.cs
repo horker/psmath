@@ -7,90 +7,179 @@ using System.Threading.Tasks;
 
 namespace Horker.DataAnalysis
 {
+    class SequenceHelper
+    {
+        public static double[] GetRange(double a, double b, double step = 1.0, bool inclusive = true)
+        {
+            if (Math.Sign(b - a) != Math.Sign(step))
+                throw new ArgumentException("Invalid range definition");
+
+            var count = (int)Math.Ceiling(Math.Abs((b - a) / step));
+            if (inclusive && (b - a) % step == 0)
+                ++count;
+
+            var result = new double[count];
+            double value = a;
+
+            for (var i = 0; i < count; ++i)
+            {
+                result[i] = value;
+                value += step;
+            }
+
+            return result;
+        }
+
+        public static double[] GetInterval(double a, double b, int count, bool inclusive = true)
+        {
+            if (a >= b || count <= 0)
+                throw new ArgumentException("Invalid range definition");
+
+            var result = new double[count];
+
+            double step;
+
+            if (inclusive)
+            {
+                step = (b - a) / (count - 1);
+                for (var i = 0; i < count; ++i)
+                {
+                    result[i] = a + step * i;
+                }
+            }
+            else
+            {
+                step = (b - a) / count;
+                for (var i = 0; i < count; ++i)
+                {
+                    result[i] = a + step * i;
+                }
+            }
+
+            return result;
+        }
+    }
+
     [Cmdlet("New", "Math.Sequence")]
     [Alias("seq")]
-    public class NewSequence : PSCmdlet
+    public class NewMathSequence : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = true)]
         public double Start = 0;
 
         [Parameter(Position = 1, Mandatory = false)]
-        public double Stop = double.NaN;
+        public double? Stop = null;
 
         [Parameter(Position = 2, Mandatory = false)]
-        public double Step = 1;
+        public double? Step = null;
 
         [Parameter(Position = 3, Mandatory = false)]
-        public int Size = int.MaxValue;
+        public int Count = int.MaxValue;
 
         [Parameter(Position = 4, Mandatory = false)]
         public SwitchParameter Inclusive = false;
 
-        [Parameter(Position = 5, Mandatory = false)]
-        public double? Value = null;
-
         [Parameter(Position = 6, Mandatory = false)]
-        public ScriptBlock[] F = null;
+        public ScriptBlock[] Func = null;
 
         protected override void EndProcessing()
         {
-            Vector seq;
+            double[] seq;
 
-            if (!Value.HasValue) {
-                if (Double.IsNaN(Stop)) {
-                    Stop = Start;
-                    Start = 0;
+            double start, stop, step;
+            if (!Step.HasValue)
+            {
+                if (!Stop.HasValue)
+                {
+                    start = 0;
+                    stop = Start;
+                    step = 1;
                 }
-
-                if (Size == int.MaxValue) {
-                    seq = Vector.GetDoubleRange(Start, Stop, Step, Inclusive);
-                }
-                else {
-                    seq = Vector.GetDoubleInterval(Start, Stop, Size, Inclusive);
+                else
+                {
+                    start = 0;
+                    stop = Start;
+                    step = Stop.Value;
                 }
             }
-            else {
-                if (Size == int.MaxValue) {
-                    Size = (int)Start;
-                }
-                seq = Vector.WithValue(Value.Value, Size);
+            else
+            {
+                start = Start;
+                stop = Stop.Value;
+                step = Step.Value;
             }
 
-            DataFrame df;
-            if (F == null) {
-                foreach (var value in seq) {
+            if (Count == int.MaxValue)
+            {
+                seq = SequenceHelper.GetRange(start, stop, step, Inclusive);
+            }
+            else
+            {
+                seq = SequenceHelper.GetInterval(start, stop, Count, Inclusive);
+            }
+
+            if (Func == null)
+            {
+                foreach (var value in seq)
+                {
                     WriteObject(value);
                 }
                 return;
             }
 
-            df = new DataFrame();
-            df.DefineNewColumn("x", seq);
-
             var va = new List<PSVariable>() { new PSVariable("x") };
-            for (int i = 0; i < F.Length; ++i) {
-                var yseq = new Vector(seq.Count);
-                foreach (var x in seq) {
-                    va[0].Value = x;
-                    var y = F[i].InvokeWithContext(null, va, null).Last();
-                    yseq.Add(y);
-                }
 
-                if (F.Length == 1) {
-                    df.DefineNewColumn("y", yseq);
-                }
-                else {
-                    df.DefineNewColumn("y" + (i + 1), yseq);
-                }
-            }
-
-            for (var i = 0; i < seq.Count; ++i) {
+            foreach (var x in seq)
+            {
                 var obj = new PSObject();
-                obj.Properties.Add(new PSNoteProperty("x", seq[i]));
-                for (var j = 0; j < df.ColumnCount; ++j) {
-                    obj.Properties.Add(new PSNoteProperty(df.ColumnNames[j], df.GetColumn(j)[i]));
+                obj.Properties.Add(new PSNoteProperty("x", x));
+
+                for (int i = 0; i < Func.Length; ++i)
+                {
+                    va[0].Value = x;
+                    var y = Func[i].InvokeWithContext(null, va, null).Last();
+
+                    obj.Properties.Add(new PSNoteProperty("y" + i, y));
                 }
+
                 WriteObject(obj);
+            }
+        }
+    }
+
+    [Cmdlet("New", "Math.SequenceWithValues")]
+    [Alias("seq.values")]
+    public class NewMathSequenceWithValues : PSCmdlet
+    {
+        [Parameter(Position = 0, Mandatory = true)]
+        public int Count;
+
+        [Parameter(Position = 1, Mandatory = false)]
+        public object Values = 0;
+
+        protected override void EndProcessing()
+        {
+            var values = Converter.ToDoubleArray(Values);
+
+            for (var i = 0; i < Count; ++i)
+            {
+                WriteObject(values[i % values.Length]);
+            }
+        }
+    }
+
+    [Cmdlet("New", "Math.SequenceWithZeros")]
+    [Alias("seq.zeros")]
+    public class NewMathSequenceWithZeros : PSCmdlet
+    {
+        [Parameter(Position = 0, Mandatory = true)]
+        public int Count;
+
+        protected override void EndProcessing()
+        {
+            for (var i = 0; i < Count; ++i)
+            {
+                WriteObject(0);
             }
         }
     }
