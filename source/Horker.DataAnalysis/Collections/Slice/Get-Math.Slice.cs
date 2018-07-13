@@ -5,9 +5,9 @@ using System.Management.Automation;
 
 namespace Horker.DataAnalysis
 {
-    [Cmdlet("Get", "Slice")]
+    [Cmdlet("Get", "Math.Slice")]
     [Alias("slice")]
-    public class GetSlice : PSCmdlet
+    public class GetMathSlice : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = true)]
         public object[] Array;
