@@ -799,27 +799,6 @@ namespace Horker.DataAnalysis
 
     #region Decompositions
 
-    public class CholeskyWrapper
-    {
-        private CholeskyDecomposition _ch;
-
-        public CholeskyWrapper(CholeskyDecomposition ch)
-        {
-            _ch = ch;
-        }
-
-        public CholeskyDecomposition Source => _ch;
-        public double Determinant => _ch.Determinant;
-        public Vector Diagonal => new Vector(_ch.Diagonal);
-        public Matrix DiagonalMatrix => new Matrix(_ch.DiagonalMatrix);
-        public bool IsPositiveDefinite => _ch.IsPositiveDefinite;
-        public bool IsUndefined => _ch.IsUndefined;
-        public Matrix LeftTriangularFactor => new Matrix(_ch.LeftTriangularFactor);
-        public double LogDeterminant => _ch.LogDeterminant;
-        public bool Nonsingular => _ch.Nonsingular;
-        public Matrix A => LeftTriangularFactor;
-    }
-
     [Cmdlet("Get", "Matrix.CholeskyDecomposition")]
     [Alias("mat.cholesky")]
     public class GetMatrixCholeskyDecomposition : MatrixCmdletBase
@@ -840,20 +819,6 @@ namespace Horker.DataAnalysis
 
             WriteObject(result);
         }
-    }
-
-    public class GramSchmidtOrthogonalizationWrapper
-    {
-        private GramSchmidtOrthogonalization _gs;
-
-        public GramSchmidtOrthogonalizationWrapper(GramSchmidtOrthogonalization gs)
-        {
-            _gs = gs;
-        }
-
-        public GramSchmidtOrthogonalization Source => _gs;
-        public Matrix R => new Matrix(_gs.UpperTriangularFactor);
-        public Matrix Q => new Matrix(_gs.OrthogonalFactor);
     }
 
     [Cmdlet("Get", "Matrix.GramSchmidtOrthogonalization")]
@@ -878,24 +843,6 @@ namespace Horker.DataAnalysis
         }
     }
 
-    public class EigenvalueWrapper
-    {
-        private EigenvalueDecomposition _eigen;
-
-        public EigenvalueWrapper(EigenvalueDecomposition eigen)
-        {
-            _eigen = eigen;
-        }
-
-        public EigenvalueDecomposition Source => _eigen;
-        public Matrix DiagonalMatrix => _eigen.DiagonalMatrix;
-        public Matrix Eigenvectors => _eigen.Eigenvectors;
-        public double[] ImaginaryEigenvalues => _eigen.ImaginaryEigenvalues;
-        public double Rank => _eigen.Rank;
-        public Matrix Vectors => _eigen.Eigenvectors;
-        public double[] Values => _eigen.RealEigenvalues;
-    }
-
     [Cmdlet("Get", "Matrix.Eigenvalue")]
     [Alias("mat.eigenvalue")]
     public class GetMatrixEigenvalue : MatrixCmdletBase
@@ -918,27 +865,6 @@ namespace Horker.DataAnalysis
         }
     }
 
-    public class LuWrapper
-    {
-        private LuDecomposition _lu;
-
-        public LuWrapper(LuDecomposition lu)
-        {
-            _lu = lu;
-        }
-
-        public LuDecomposition Source => _lu;
-
-        public double Determinant => _lu.Determinant;
-        public double LogDeterminant => _lu.LogDeterminant;
-        public bool Nonsingular => _lu.Nonsingular;
-        public Matrix LowerTriangularFactor => _lu.LowerTriangularFactor;
-        public Matrix UpperTriangularFactor => _lu.UpperTriangularFactor;
-        public int[] PivotPermutationVector => _lu.PivotPermutationVector;
-        public Matrix L => LowerTriangularFactor;
-        public Matrix U => UpperTriangularFactor;
-    }
-
     [Cmdlet("Get", "Matrix.Lu")]
     [Alias("mat.lu")]
     public class GetMatrixLuDecomposition : MatrixCmdletBase
@@ -952,23 +878,10 @@ namespace Horker.DataAnalysis
         protected override void EndProcessing()
         {
             var value = Converter.ToMatrix(Value, true);
-            var result = new LuWrapper(new LuDecomposition(value, Transpose));
+            var result = new LuDecompositionWrapper(new LuDecomposition(value, Transpose));
 
             WriteObject(result);
         }
-    }
-
-    public class NonnegativeMatrixFactorizationWrapper
-    {
-        private NonnegativeMatrixFactorization _nmf;
-
-        public NonnegativeMatrixFactorizationWrapper(NonnegativeMatrixFactorization nmf)
-        {
-            _nmf = nmf;
-        }
-
-        public Matrix W => _nmf.LeftNonnegativeFactors;
-        public Matrix H => _nmf.RightNonnegativeFactors;
     }
 
     [Cmdlet("Get", "Matrix.NonnegativeMatrixFactorization")]
@@ -994,23 +907,6 @@ namespace Horker.DataAnalysis
         }
     }
 
-    public class QrWrapper
-    {
-        private QrDecomposition _qr;
-
-        public QrWrapper(QrDecomposition qr)
-        {
-            _qr = qr;
-        }
-
-        public QrDecomposition Source => _qr;
-
-        public double[] Diagonal => _qr.Diagonal;
-        public bool FullRank => _qr.FullRank;
-        public Matrix Q => _qr.OrthogonalFactor;
-        public Matrix R => _qr.UpperTriangularFactor;
-    }
-
     [Cmdlet("Get", "Matrix.QrDecomposition")]
     [Alias("mat.qr")]
     public class GetMatrixQrDecomposition : MatrixCmdletBase
@@ -1027,37 +923,10 @@ namespace Horker.DataAnalysis
         protected override void EndProcessing()
         {
             var value = Converter.ToMatrix(Value, true);
-            var result = new QrWrapper(new QrDecomposition(value, Transpose, Economy, false));
+            var result = new QrDecompositionWrapper(new QrDecomposition(value, Transpose, Economy, false));
 
             WriteObject(result);
         }
-    }
-
-    public class SvdWrapper
-    {
-        private SingularValueDecomposition _svd;
-
-        public SvdWrapper(SingularValueDecomposition svd)
-        {
-            _svd = svd;
-        }
-
-        public SingularValueDecomposition Source => _svd;
-
-        public double AbsoluteDeterminant => _svd.AbsoluteDeterminant;
-        public double Condition => _svd.Condition;
-        public double[] Diagonal => _svd.Diagonal;
-        public bool IsSingular => _svd.IsSingular;
-        public double LogDeterminant => _svd.LogDeterminant;
-        public double LogPseudoDeterminant => _svd.LogPseudoDeterminant;
-        public int[] Ordering => _svd.Ordering;
-        public double PseudoDeteminant => _svd.PseudoDeterminant;
-        public double Rank => _svd.Rank;
-        public double Threshold => _svd.Threshold;
-        public double TwoNorm => _svd.TwoNorm;
-        public Matrix U => _svd.LeftSingularVectors;
-        public Matrix D => _svd.DiagonalMatrix;
-        public Matrix V => _svd.RightSingularVectors;
     }
 
     [Cmdlet("Get", "Matrix.SingularValueDecomposition")]
@@ -1079,7 +948,7 @@ namespace Horker.DataAnalysis
         protected override void EndProcessing()
         {
             var value = Converter.ToMatrix(Value, true);
-            var result = new SvdWrapper(new SingularValueDecomposition(
+            var result = new SingularValueDecompositionWrapper(new SingularValueDecomposition(
             value, !NoComputeLeft, !NoComputeRight, AutoTranspose, false));
 
             WriteObject(result);

@@ -7,6 +7,110 @@ using Accord.Math.Decompositions;
 
 namespace Horker.DataAnalysis
 {
+    public class CholeskyWrapper
+    {
+        private CholeskyDecomposition _ch;
+
+        public CholeskyWrapper(CholeskyDecomposition ch)
+        {
+            _ch = ch;
+        }
+
+        public CholeskyDecomposition Source => _ch;
+        public Matrix L => _ch.LeftTriangularFactor;
+    }
+
+    public class GramSchmidtOrthogonalizationWrapper
+    {
+        private GramSchmidtOrthogonalization _gs;
+
+        public GramSchmidtOrthogonalizationWrapper(GramSchmidtOrthogonalization gs)
+        {
+            _gs = gs;
+        }
+
+        public GramSchmidtOrthogonalization Source => _gs;
+        public Matrix R => new Matrix(_gs.UpperTriangularFactor);
+        public Matrix Q => new Matrix(_gs.OrthogonalFactor);
+    }
+
+    public class EigenvalueWrapper
+    {
+        private EigenvalueDecomposition _eigen;
+
+        public EigenvalueWrapper(EigenvalueDecomposition eigen)
+        {
+            _eigen = eigen;
+        }
+
+        public EigenvalueDecomposition Source => _eigen;
+
+        public Matrix Vectors => _eigen.Eigenvectors;
+        public Matrix Values => Matrix.Create(_eigen.RealEigenvalues, int.MaxValue, 1);
+    }
+
+    public class LuDecompositionWrapper
+    {
+        private LuDecomposition _lu;
+
+        public LuDecompositionWrapper(LuDecomposition lu)
+        {
+            _lu = lu;
+        }
+
+        public LuDecomposition Source => _lu;
+
+        public int[] P => _lu.PivotPermutationVector;
+        public Matrix L => _lu.LowerTriangularFactor;
+        public Matrix U => _lu.UpperTriangularFactor;
+    }
+
+    public class NonnegativeMatrixFactorizationWrapper
+    {
+        private NonnegativeMatrixFactorization _nmf;
+
+        public NonnegativeMatrixFactorizationWrapper(NonnegativeMatrixFactorization nmf)
+        {
+            _nmf = nmf;
+        }
+
+        public NonnegativeMatrixFactorization Source => _nmf;
+
+        public Matrix W => _nmf.LeftNonnegativeFactors;
+        public Matrix H => _nmf.RightNonnegativeFactors;
+    }
+
+    public class QrDecompositionWrapper
+    {
+        private QrDecomposition _qr;
+
+        public QrDecompositionWrapper(QrDecomposition qr)
+        {
+            _qr = qr;
+        }
+
+        public QrDecomposition Source => _qr;
+
+        public Matrix Q => _qr.OrthogonalFactor;
+        public Matrix R => _qr.UpperTriangularFactor;
+    }
+
+    public class SingularValueDecompositionWrapper
+    {
+        private SingularValueDecomposition _svd;
+
+        public SingularValueDecompositionWrapper(SingularValueDecomposition svd)
+        {
+            _svd = svd;
+        }
+
+        public SingularValueDecomposition Source => _svd;
+
+        public Matrix U => _svd.LeftSingularVectors;
+        public Matrix D => _svd.DiagonalMatrix;
+        public Matrix V => _svd.RightSingularVectors;
+    }
+
     public class Matrix
     {
         private double[,] _values;
@@ -20,10 +124,12 @@ namespace Horker.DataAnalysis
 
         public Matrix(double[,] values, bool noCopy = false)
         {
-            if (noCopy) {
+            if (noCopy)
+            {
                 _values = values;
             }
-            else {
+            else
+            {
                 _values = new double[values.GetLength(0), values.GetLength(1)];
                 Array.Copy(values, _values, _values.GetLength(0) * _values.GetLength(1));
             }
@@ -34,16 +140,20 @@ namespace Horker.DataAnalysis
             int rowCount = jagged.Length;
 
             int columnCount = 0;
-            foreach (var j in jagged) {
-                if (columnCount < j.Length) {
+            foreach (var j in jagged)
+            {
+                if (columnCount < j.Length)
+                {
                     columnCount = j.Length;
                 }
             }
 
             var matrix = new Matrix(rowCount, columnCount);
 
-            for (var row = 0; row < rowCount; ++row) {
-                for (var column = 0; column < jagged[row].Length; ++column) {
+            for (var row = 0; row < rowCount; ++row)
+            {
+                for (var column = 0; column < jagged[row].Length; ++column)
+                {
                     matrix[row, column] = jagged[row][column];
                 }
             }
@@ -52,26 +162,34 @@ namespace Horker.DataAnalysis
 
         public static Matrix Create(double[] array, int rowCount = int.MaxValue, int columnCount = int.MaxValue, bool transpose = false)
         {
-            if (array.Length == 0) {
+            if (array.Length == 0)
+            {
                 array = new double[1];
             }
 
-            if (columnCount == int.MaxValue) {
-                if (rowCount == int.MaxValue) {
+            if (columnCount == int.MaxValue)
+            {
+                if (rowCount == int.MaxValue)
+                {
                     columnCount = 1;
                     rowCount = array.Length;
                 }
-                else {
+                else
+                {
                     columnCount = array.Length / rowCount;
-                    if (columnCount == 0 || array.Length % rowCount != 0) {
+                    if (columnCount == 0 || array.Length % rowCount != 0)
+                    {
                         ++columnCount;
                     }
                 }
             }
-            else {
-                if (rowCount == int.MaxValue) {
+            else
+            {
+                if (rowCount == int.MaxValue)
+                {
                     rowCount = array.Length / columnCount;
-                    if (rowCount == 0 || array.Length % columnCount != 0) {
+                    if (rowCount == 0 || array.Length % columnCount != 0)
+                    {
                         ++rowCount;
                     }
                 }
@@ -79,13 +197,17 @@ namespace Horker.DataAnalysis
 
             var matrix = new Matrix(rowCount, columnCount);
 
-            for (int column = 0; column < columnCount; ++column) {
-                for (int row = 0; row < rowCount; ++row) {
+            for (int column = 0; column < columnCount; ++column)
+            {
+                for (int row = 0; row < rowCount; ++row)
+                {
                     int index;
-                    if (transpose) {
+                    if (transpose)
+                    {
                         index = (row * columnCount + column) % array.Length;
                     }
-                    else {
+                    else
+                    {
                         index = (column * rowCount + row) % array.Length;
                     }
                     matrix[row, column] = array[index];
@@ -97,14 +219,16 @@ namespace Horker.DataAnalysis
 
         public static Matrix Diagonal(double[] values, int rowCount, int columnCount = int.MaxValue)
         {
-            if (columnCount == int.MaxValue) {
+            if (columnCount == int.MaxValue)
+            {
                 columnCount = rowCount;
             }
 
             var matrix = new Matrix(rowCount, columnCount);
             var limit = Math.Min(rowCount, columnCount);
 
-            for (var i = 0; i < limit; ++i) {
+            for (var i = 0; i < limit; ++i)
+            {
                 matrix[i, i] = values[i % values.Length];
             }
 
@@ -118,22 +242,31 @@ namespace Horker.DataAnalysis
 
         public static Matrix WithValue(double value, int rowCount, int columnCount = int.MaxValue)
         {
-            if (rowCount == int.MaxValue) {
+            if (rowCount == int.MaxValue)
+            {
                 rowCount = 1;
             }
 
-            if (columnCount == int.MaxValue) {
+            if (columnCount == int.MaxValue)
+            {
                 columnCount = rowCount;
             }
 
             var matrix = new Matrix(rowCount, columnCount);
-            for (var column = 0; column < columnCount; ++column) {
-                for (var row = 0; row < rowCount; ++row) {
+            for (var column = 0; column < columnCount; ++column)
+            {
+                for (var row = 0; row < rowCount; ++row)
+                {
                     matrix[row, column] = value;
                 }
             }
 
             return matrix;
+        }
+
+        public static Matrix CreateAs(Matrix source)
+        {
+            return new Matrix(source.RowCount, source.ColumnCount);
         }
 
         public Matrix Clone()
@@ -161,7 +294,8 @@ namespace Horker.DataAnalysis
         public double[] Row(int rowIndex)
         {
             var row = new double[ColumnCount];
-            for (var i = 0; i < ColumnCount; ++i) {
+            for (var i = 0; i < ColumnCount; ++i)
+            {
                 row[i] = _values[rowIndex, i];
             }
 
@@ -172,8 +306,10 @@ namespace Horker.DataAnalysis
         {
             var matrix = new double[rowIndexes.Length, ColumnCount];
 
-            for (var column = 0; column < ColumnCount; ++column) {
-                for (var row = 0; row < rowIndexes.Length; ++row) {
+            for (var column = 0; column < ColumnCount; ++column)
+            {
+                for (var row = 0; row < rowIndexes.Length; ++row)
+                {
                     matrix[row, column] = _values[rowIndexes[row], column];
                 }
             }
@@ -184,7 +320,8 @@ namespace Horker.DataAnalysis
         public double[] Column(int columnIndex)
         {
             var column = new double[RowCount];
-            for (var i = 0; i < RowCount; ++i) {
+            for (var i = 0; i < RowCount; ++i)
+            {
                 column[i] = _values[i, columnIndex];
             }
 
@@ -195,8 +332,10 @@ namespace Horker.DataAnalysis
         {
             var matrix = new double[RowCount, columnIndexes.Length];
 
-            for (var column = 0; column < columnIndexes.Length; ++column) {
-                for (var row = 0; row < RowCount; ++row) {
+            for (var column = 0; column < columnIndexes.Length; ++column)
+            {
+                for (var row = 0; row < RowCount; ++row)
+                {
                     matrix[row, column] = _values[row, columnIndexes[column]];
                 }
             }
@@ -210,11 +349,13 @@ namespace Horker.DataAnalysis
 
         public override bool Equals(object other)
         {
-            if (other is double[]) {
+            if (other is double[])
+            {
                 return Accord.Math.Matrix.IsEqual(_values, other as double[]);
             }
 
-            if (other is Matrix) {
+            if (other is Matrix)
+            {
                 return Accord.Math.Matrix.IsEqual(_values, other as Matrix);
             }
 
@@ -224,8 +365,10 @@ namespace Horker.DataAnalysis
         public override int GetHashCode()
         {
             int hash = 123456789;
-            for (var row = 0; row < RowCount; ++row) {
-                for (var column = 0; column < ColumnCount; ++column) {
+            for (var row = 0; row < RowCount; ++row)
+            {
+                for (var column = 0; column < ColumnCount; ++column)
+                {
                     hash ^= (int)this[row, column];
                 }
             }
@@ -244,11 +387,14 @@ namespace Horker.DataAnalysis
             string[,] elements = new string[RowCount, ColumnCount];
             int maxLength = int.MinValue;
 
-            for (var column = 0; column < ColumnCount; ++column) {
-                for (var row = 0; row < RowCount; ++row) {
+            for (var column = 0; column < ColumnCount; ++column)
+            {
+                for (var row = 0; row < RowCount; ++row)
+                {
                     var s = this[row, column].ToString("0.#####");
                     elements[row, column] = s;
-                    if (maxLength < s.Length) {
+                    if (maxLength < s.Length)
+                    {
                         maxLength = s.Length;
                     }
                 }
@@ -259,11 +405,14 @@ namespace Horker.DataAnalysis
             var builder = new StringBuilder();
             builder.AppendFormat("[{0} x {1}]{2}", RowCount, ColumnCount, delim);
 
-            for (var row = 0; row < RowCount; ++row) {
-                for (var column = 0; column < ColumnCount; ++column) {
+            for (var row = 0; row < RowCount; ++row)
+            {
+                for (var column = 0; column < ColumnCount; ++column)
+                {
                     builder.Append(elements[row, column].PadLeft(maxLength + 1));
                 }
-                if (row < RowCount - 1) {
+                if (row < RowCount - 1)
+                {
                     builder.Append(delim);
                 }
             }
@@ -278,9 +427,11 @@ namespace Horker.DataAnalysis
             var builder = new StringBuilder();
             builder.AppendFormat("[{0} x {1}]", RowCount, ColumnCount);
 
-            for (var column = 0; column < ColumnCount; ++column) {
+            for (var column = 0; column < ColumnCount; ++column)
+            {
                 builder.Append(" [");
-                for (var row = 0; row < RowCount; ++row) {
+                for (var row = 0; row < RowCount; ++row)
+                {
                     builder.Append(' ');
                     builder.Append(this[row, column]);
                 }
@@ -292,16 +443,20 @@ namespace Horker.DataAnalysis
 
         public double[] ToArray()
         {
-            if (RowCount == 1) {
+            if (RowCount == 1)
+            {
                 return Row(0);
             }
-            else if (ColumnCount == 1) {
+            else if (ColumnCount == 1)
+            {
                 return Column(0);
             }
 
             var result = new double[RowCount * ColumnCount];
-            for (var column = 0; column < ColumnCount; ++column) {
-                for (var row = 0; row < RowCount; ++row) {
+            for (var column = 0; column < ColumnCount; ++column)
+            {
+                for (var row = 0; row < RowCount; ++row)
+                {
                     result[row + RowCount * column] = this[row, column];
                 }
             }
@@ -309,7 +464,7 @@ namespace Horker.DataAnalysis
             return result;
         }
 
-        public static implicit operator double[,](Matrix matrix)
+        public static implicit operator double[,] (Matrix matrix)
         {
             return matrix.Values;
         }
@@ -340,11 +495,13 @@ namespace Horker.DataAnalysis
 
         internal static Matrix AdjustRow(Matrix matrix, int rowCount)
         {
-            if (matrix.RowCount == rowCount) {
+            if (matrix.RowCount == rowCount)
+            {
                 return matrix;
             }
 
-            if (matrix.RowCount != 1) {
+            if (matrix.RowCount != 1)
+            {
                 throw new ArgumentException("Matrix sizes are inconsistent");
             }
 
@@ -358,11 +515,13 @@ namespace Horker.DataAnalysis
 
         internal static Matrix AdjustColumn(Matrix matrix, int columnCount)
         {
-            if (matrix.ColumnCount == columnCount) {
+            if (matrix.ColumnCount == columnCount)
+            {
                 return matrix;
             }
 
-            if (matrix.ColumnCount != 1) {
+            if (matrix.ColumnCount != 1)
+            {
                 throw new ArgumentException("Matrix sizes are inconsistent");
             }
 
@@ -376,17 +535,22 @@ namespace Horker.DataAnalysis
 
         internal static Matrix AdjustRowColumn(Matrix matrix, int rowCount, int columnCount)
         {
-            if (matrix.RowCount == rowCount) {
-                if (matrix.ColumnCount == columnCount) {
+            if (matrix.RowCount == rowCount)
+            {
+                if (matrix.ColumnCount == columnCount)
+                {
                     return matrix;
                 }
 
-                if (matrix.ColumnCount == 1) {
+                if (matrix.ColumnCount == 1)
+                {
                     return Matrix.Create(matrix.Column(0), rowCount, columnCount, false);
                 }
             }
-            else {
-                if (matrix.RowCount == 1 && (matrix.ColumnCount == columnCount || matrix.ColumnCount == 1)) {
+            else
+            {
+                if (matrix.RowCount == 1 && (matrix.ColumnCount == columnCount || matrix.ColumnCount == 1))
+                {
                     return Matrix.Create(matrix.Row(0), rowCount, columnCount, true);
                 }
             }
@@ -401,11 +565,13 @@ namespace Horker.DataAnalysis
 
         internal static double[] EnsureSequence(Matrix matrix)
         {
-            if (matrix.RowCount == 1) {
+            if (matrix.RowCount == 1)
+            {
                 return matrix.Row(0);
             }
 
-            if (matrix.ColumnCount == 1) {
+            if (matrix.ColumnCount == 1)
+            {
                 return matrix.Column(0);
             }
 
@@ -414,7 +580,8 @@ namespace Horker.DataAnalysis
 
         internal static Matrix EnsureMatrix(double[] values, Matrix origin)
         {
-            if (origin.RowCount == 1) {
+            if (origin.RowCount == 1)
+            {
                 return Matrix.Create(values, 1);
             }
             return Matrix.Create(values, int.MaxValue, 1);
@@ -553,9 +720,39 @@ namespace Horker.DataAnalysis
             return _values.GetRange();
         }
 
-        public Matrix GetSymmetric(MatrixType type)
+        public Matrix GetSymmetric(MatrixType type = MatrixType.UpperTriangular)
         {
-            return _values.GetSymmetric(type);
+            // Accord.NET implementation has a bug
+
+            var result = Matrix.CreateAs(this);
+
+            switch (type)
+            {
+                case MatrixType.LowerTriangular:
+                    for (int i = 0; i < RowCount; i++)
+                    {
+                        for (int j = 0; j <= i; j++)
+                        {
+                            result[i, j] = result[j, i] = this[i, j];
+                        }
+                    }
+                    break;
+
+                case MatrixType.UpperTriangular:
+                    for (int i = 0; i < RowCount; i++)
+                    {
+                        for (int j = i; j < ColumnCount; j++)
+                        {
+                            result[i, j] = result[j, i] = this[i, j];
+                        }
+                    }
+                    break;
+
+                default:
+                    throw new Exception("Matrix type can be either LowerTriangular or UpperTrianguler.");
+            }
+
+            return result;
         }
 
         public int GetTotalLength()
@@ -602,7 +799,7 @@ namespace Horker.DataAnalysis
         {
             return _values.IsSingular();
         }
-        
+
         public bool IsSymmetric()
         {
             return _values.IsSymmetric();
@@ -615,7 +812,6 @@ namespace Horker.DataAnalysis
 
         public Matrix Kronecker(Matrix b)
         {
-            // TODO: matrix size
             return _values.Kronecker(b);
         }
 
@@ -826,7 +1022,8 @@ namespace Horker.DataAnalysis
 
         public Matrix Combinations(int k = -1)
         {
-            if (k == -1) {
+            if (k == -1)
+            {
                 k = _values.Length;
             }
 
@@ -835,8 +1032,10 @@ namespace Horker.DataAnalysis
 
             var result = new double[rowCount, k];
             var row = 0;
-            foreach (var set in Combinatorics.Combinations(seq, k)) {
-                for (var column = 0; column < k; ++column) {
+            foreach (var set in Combinatorics.Combinations(seq, k))
+            {
+                for (var column = 0; column < k; ++column)
+                {
                     result[row, column] = set[column];
                 }
                 ++row;
@@ -852,8 +1051,10 @@ namespace Horker.DataAnalysis
 
             var result = new double[rowCount, seq.Length];
             var row = 0;
-            foreach (var set in Combinatorics.Permutations(seq)) {
-                for (var column = 0; column < seq.Length; ++column) {
+            foreach (var set in Combinatorics.Permutations(seq))
+            {
+                for (var column = 0; column < seq.Length; ++column)
+                {
                     result[row, column] = set[column];
                 }
                 ++row;
@@ -872,21 +1073,61 @@ namespace Horker.DataAnalysis
 
         #region Operators
 
-        public static Matrix operator* (Matrix a, Matrix b)
+        public static Matrix operator *(Matrix a, Matrix b)
         {
             return a.Dot(b);
         }
 
-        public static Matrix operator+ (Matrix a, Matrix b)
+        public static Matrix operator +(Matrix a, Matrix b)
         {
             return a.Add(b);
         }
 
-        public static Matrix operator- (Matrix a, Matrix b)
+        public static Matrix operator -(Matrix a, Matrix b)
         {
             return a.Subtract(b);
         }
 
         #endregion
+
+        #region Accord.Math.Decompositions
+
+        public CholeskyWrapper Cholesky(bool robust = false, MatrixType type = MatrixType.UpperTriangular)
+        {
+            return new CholeskyWrapper(new CholeskyDecomposition(_values, robust, false, type));
+        }
+
+        public GramSchmidtOrthogonalizationWrapper gramSchmidtOrthogonalizationWrapper(bool modified = true)
+        {
+            return new GramSchmidtOrthogonalizationWrapper(new GramSchmidtOrthogonalization(_values, modified));
+        }
+
+        public EigenvalueWrapper Eigenvalue(bool assumeSymmetric = false, bool sort = false)
+        {
+            return new EigenvalueWrapper(new EigenvalueDecomposition(_values, assumeSymmetric, false, sort));
+        }
+
+        public LuDecompositionWrapper Lu(bool transpose = false)
+        {
+            return new LuDecompositionWrapper(new LuDecomposition(_values, transpose));
+        }
+
+        public NonnegativeMatrixFactorizationWrapper Nmf(int reduceDimension, int maxIter = 10000)
+        {
+            return new NonnegativeMatrixFactorizationWrapper(new NonnegativeMatrixFactorization(_values, reduceDimension, maxIter));
+        }
+
+        public QrDecompositionWrapper Qr(bool transpose = false, bool economy = true)
+        {
+            return new QrDecompositionWrapper(new QrDecomposition(_values, transpose, economy, false));
+        }
+
+        public SingularValueDecompositionWrapper Svd(bool computeLeft = true, bool computeRight = true, bool autoTranspose = false)
+        {
+            return new SingularValueDecompositionWrapper(new SingularValueDecomposition(_values, computeLeft, computeRight, autoTranspose));
+        }
+
+        #endregion
+
     }
 }
