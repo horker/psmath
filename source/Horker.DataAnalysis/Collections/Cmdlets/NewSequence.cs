@@ -104,6 +104,17 @@ namespace Horker.DataAnalysis
                         WriteObject(x);
                     }
                 }
+                else if (Func.Length == 1 && NoSeq)
+                {
+                    var va = new List<PSVariable>() { new PSVariable("x") };
+
+                    foreach (var x in seq)
+                    {
+                        va[0].Value = x;
+                        var y = Func[0].InvokeWithContext(null, va, new object[] { x }).Last();
+                        WriteObject(y);
+                    }
+                }
                 else
                 {
                     var va = new List<PSVariable>() { new PSVariable("x") };

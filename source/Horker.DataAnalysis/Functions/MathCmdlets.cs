@@ -610,6 +610,9 @@ namespace Horker.DataAnalysis
     [Alias("math.diff")]
     public class GetMathDifference : FunctionCmdletBase
     {
+        [Parameter(Position = 1, Mandatory = false)]
+        public SwitchParameter NoFirstZero;
+
         private bool _first;
         private double _prev;
 
@@ -621,6 +624,8 @@ namespace Horker.DataAnalysis
         protected override void ProcessInputObject(double value)
         {
             if (_first) {
+                if (!NoFirstZero)
+                    WriteObject(0.0);
                 _first = false;
             }
             else {
