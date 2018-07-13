@@ -1158,6 +1158,23 @@ namespace Horker.DataAnalysis
             return null;
         }
 
+        public static Matrix TruthTable(int[] symbols)
+        {
+            var result = new double[symbols.Product(), symbols.Length];
+
+            int row = 0;
+            foreach (int[] seq in Combinatorics.Sequences(symbols, false))
+            {
+                for (var column = 0; column < symbols.Length; ++column)
+                {
+                    result[row, column] = seq[column];
+                }
+                ++row;
+            }
+
+            return new Matrix(result, true);
+        }
+
         #endregion
 
         #region Operators

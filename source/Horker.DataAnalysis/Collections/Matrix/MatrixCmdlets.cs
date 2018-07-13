@@ -269,6 +269,20 @@ namespace Horker.DataAnalysis
         }
     }
 
+    [Cmdlet("New", "Matrix.TruthTable")]
+    [Alias("mat.truthtable")]
+    public class NewMatrixTruthTable : PSCmdlet
+    {
+        [Parameter(Position = 0, Mandatory = true)]
+        public object[] Symbols;
+
+        protected override void EndProcessing()
+        {
+            int[] sym = Symbols.Select(x => Convert.ToInt32(x)).ToArray();
+            WriteObject(Matrix.TruthTable(sym));
+        }
+    }
+
     [Cmdlet("ConvertFrom", "Matrix.Object")]
     [Alias("mat.fromobject")]
     public class ConvertFromMatrixObject : MatrixCmdletBase
