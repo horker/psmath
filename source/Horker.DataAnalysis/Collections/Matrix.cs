@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Accord;
 using Accord.Math;
 using Accord.Math.Decompositions;
+using Accord.Statistics;
 
 namespace Horker.DataAnalysis
 {
@@ -269,6 +270,18 @@ namespace Horker.DataAnalysis
             return new Matrix(source.RowCount, source.ColumnCount);
         }
 
+        public static Matrix Vector(double[] array, int dimension)
+        {
+            if (dimension == 0)
+            {
+                return Create(array, int.MaxValue);
+            }
+            else
+            {
+                return Create(array, 1);
+            }
+        }
+
         public Matrix Clone()
         {
             return new Matrix(_values);
@@ -427,10 +440,10 @@ namespace Horker.DataAnalysis
             var builder = new StringBuilder();
             builder.AppendFormat("[{0} x {1}]", RowCount, ColumnCount);
 
-            for (var column = 0; column < ColumnCount; ++column)
+            for (var row = 0; row < RowCount; ++row)
             {
                 builder.Append(" [");
-                for (var row = 0; row < RowCount; ++row)
+                for (var column = 0; column < ColumnCount; ++row)
                 {
                     builder.Append(' ');
                     builder.Append(this[row, column]);
@@ -441,7 +454,7 @@ namespace Horker.DataAnalysis
             return builder.ToString();
         }
 
-        public double[] ToArray()
+        public double[] ToFlatArray()
         {
             if (RowCount == 1)
             {
@@ -462,6 +475,17 @@ namespace Horker.DataAnalysis
             }
 
             return result;
+        }
+
+        public double[][] ToJagged(bool transpose = false)
+        {
+            return _values.ToJagged(transpose);
+        }
+
+        public double[][] ToJagged(int dimension)
+        {
+            bool transpose = dimension == 1;
+            return _values.ToJagged(transpose);
         }
 
         public static implicit operator double[,] (Matrix matrix)
@@ -865,6 +889,16 @@ namespace Horker.DataAnalysis
             return EnsureSequence(_values).Outer(EnsureSequence(b));
         }
 
+        public Matrix Pad(int all)
+        {
+            return _values.Pad(all);
+        }
+
+        public Matrix Pad(int top, int right, int bottom, int left)
+        {
+            return _values.Pad(top, right, bottom, left);
+        }
+
         public double Product()
         {
             return _values.Product();
@@ -1129,5 +1163,87 @@ namespace Horker.DataAnalysis
 
         #endregion
 
+        #region Accord.Statistics.Measures
+
+        public Matrix Correlation()
+        {
+            return _values.Correlation();
+        }
+
+        public Matrix Covariance()
+        {
+            return _values.Covariance();
+        }
+
+        public double Entropy(double eps = 0)
+        {
+            return _values.Entropy(eps);
+        }
+
+        public Matrix ExponentialWeightedCovariance(int window, double alpha = 0, bool unbiased = false)
+        {
+            return ToJagged(true).ExponentialWeightedCovariance(window, alpha, unbiased);
+        }
+
+        public Matrix Mean(int dimension = 0)
+        {
+            return Matrix.Vector(_values.Mean(dimension), 1 - dimension);
+        }
+
+        public Matrix Median(QuantileMethod type = QuantileMethod.Default)
+        {
+            return Matrix.Vector(_values.Median(type), 1);
+        }
+
+        public Matrix Mode()
+        {
+            return Matrix.Vector(_values.Mode(), 1);
+        }
+
+        public Matrix Skewness(bool unbiased = false)
+        {
+            return Matrix.Vector(_values.Skewness(unbiased), 1);
+        }
+
+        public Matrix StanardDeviation()
+        {
+            return Matrix.Vector(_values.StandardDeviation(), 1);
+        }
+
+        public Matrix StanardError()
+        {
+            return Matrix.Vector(Measures.StandardError(_values), 1);
+        }
+
+        public Matrix Variance()
+        {
+            return Matrix.Vector(_values.Variance(), 1);
+        }
+
+        public Matrix WeightedCovariance(double[] weights, int dimension = 0)
+        {
+            return Measures.WeightedCovariance(ToJagged(dimension), weights, 1 - dimension);
+        }
+
+        #endregion
+
+        #region Accord.Statistics.Tools
+
+        public Matrix Whitening(out Matrix transformMatrix)
+        {
+            double[,] trans;
+
+            var result = Accord.Statistics.Tools.Whitening(_values, out trans);
+            transformMatrix = trans;
+
+            return result;
+        }
+
+        public Matrix ZScores()
+        {
+            return Accord.Statistics.Tools.ZScores(_values);
+        }
+
+        #endregion
     }
 }

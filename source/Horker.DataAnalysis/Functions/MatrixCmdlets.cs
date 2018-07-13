@@ -60,7 +60,7 @@ namespace Horker.DataAnalysis
             var result = Process(value);
 
             if (AsArray) {
-                WriteObject(result.ToArray());
+                WriteObject(result.ToFlatArray());
             }
             else {
                 WriteObject(result);
@@ -89,7 +89,7 @@ namespace Horker.DataAnalysis
             var result = Process(lhs, rhs);
 
             if (AsArray) {
-                WriteObject(result.ToArray());
+                WriteObject(result.ToFlatArray());
             }
             else {
                 WriteObject(result);
@@ -119,7 +119,7 @@ namespace Horker.DataAnalysis
             var result = Process(lhs, rhs);
 
             if (AsArray) {
-                WriteObject(result.ToArray());
+                WriteObject(result.ToFlatArray());
             }
             else {
                 WriteObject(result);
@@ -138,7 +138,7 @@ namespace Horker.DataAnalysis
             var result = Process(lhs, rhs);
 
             if (AsArray) {
-                WriteObject(result.ToArray());
+                WriteObject(result.ToFlatArray());
             }
             else {
                 WriteObject(result);

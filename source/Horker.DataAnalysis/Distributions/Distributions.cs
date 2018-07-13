@@ -8,9 +8,6 @@ namespace Horker.DataAnalysis
     class DistributionHelper
     {
         private static string[][] Aliases = {
-            // Generate as Vector
-            new string[] { "Random", "if ($args.Length -eq 0) { $this.Generate(1) } else { $this.Generate($args[0]) | New-Vector }" },
-
             // Cumultive distribution function
             new string[] {"Cdf",    "$this.DistributionFunction($args[0])" },
 
@@ -45,17 +42,22 @@ namespace Horker.DataAnalysis
         {
             var obj = new PSObject(dist);
 
-            foreach (var a in Aliases) {
+            foreach (var a in Aliases)
+            {
                 obj.Methods.Add(new PSScriptMethod(a[0], ScriptBlock.Create(a[1])));
             }
 
-            if (dist is UnivariateDiscreteDistribution) {
-                foreach (var a in DiscreteAliases) {
+            if (dist is UnivariateDiscreteDistribution)
+            {
+                foreach (var a in DiscreteAliases)
+                {
                     obj.Methods.Add(new PSScriptMethod(a[0], ScriptBlock.Create(a[1])));
                 }
             }
-            else {
-                foreach (var a in ContinuousAliases) {
+            else
+            {
+                foreach (var a in ContinuousAliases)
+                {
                     obj.Methods.Add(new PSScriptMethod(a[0], ScriptBlock.Create(a[1])));
                 }
             }
@@ -100,10 +102,12 @@ namespace Horker.DataAnalysis
         {
             BetaDistribution dist;
 
-            if (ParameterSetName == "Alpha") {
+            if (ParameterSetName == "Alpha")
+            {
                 dist = new BetaDistribution(Alpha, Beta);
             }
-            else {
+            else
+            {
                 dist = new BetaDistribution(Successes, Trials);
             }
             var obj = DistributionHelper.AddConvinienceMethods(dist);
@@ -187,10 +191,12 @@ namespace Horker.DataAnalysis
         protected override void EndProcessing()
         {
             EmpiricalDistribution dist;
-            if (double.IsNaN(Smoothing)) {
+            if (double.IsNaN(Smoothing))
+            {
                 dist = new EmpiricalDistribution(_data.ToArray());
             }
-            else {
+            else
+            {
                 dist = new EmpiricalDistribution(_data.ToArray(), Smoothing);
             }
 

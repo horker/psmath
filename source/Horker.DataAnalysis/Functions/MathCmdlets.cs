@@ -552,6 +552,60 @@ namespace Horker.DataAnalysis
         }
     }
 
+    [Cmdlet("Get", "Math.ExponetialWeightedMean")]
+    [Alias("math.ewmean")]
+    public class GetMathExponentialWeightedMean : AggregateFunctionCmdletBase
+    {
+        [Parameter(Position = 1, Mandatory = false)]
+        public int Window = -1;
+
+        [Parameter(Position = 2, Mandatory = false)]
+        public double Alpha;
+
+        protected override void Process(double[] values)
+        {
+            double result;
+
+            if (Window == -1)
+            {
+                result = Measures.ExponentialWeightedMean(values, Alpha);
+            }
+            else
+            {
+                result = Measures.ExponentialWeightedMean(values, Window, Alpha);
+            }
+
+            WriteObject(result);
+        }
+    }
+
+    [Cmdlet("Get", "Math.ExponetialWeightedVariance")]
+    [Alias("math.ewvar")]
+    public class GetMathExponentialWeightedVariance : AggregateFunctionCmdletBase
+    {
+        [Parameter(Position = 1, Mandatory = false)]
+        public int Window = -1;
+
+        [Parameter(Position = 2, Mandatory = false)]
+        public double Alpha;
+
+        protected override void Process(double[] values)
+        {
+            double result;
+
+            if (Window == -1)
+            {
+                result = Measures.ExponentialWeightedVariance(values, Alpha);
+            }
+            else
+            {
+                result = Measures.ExponentialWeightedVariance(values, Window, Alpha);
+            }
+
+            WriteObject(result);
+        }
+    }
+
     [Cmdlet("Get", "Math.Difference")]
     [Alias("math.diff")]
     public class GetMathDifference : FunctionCmdletBase
@@ -1120,23 +1174,15 @@ namespace Horker.DataAnalysis
         }
     }
 
-    [Cmdlet("Get", "Math.ZScore")]
-    [Alias("math.zscore")]
-    public class GetMathZScore : AggregateFunctionCmdletBase
-    {
-        [Parameter(Position = 1, Mandatory = false)]
-        public SwitchParameter Unbiased = false;
-
-        protected override void Process(double[] values)
-        {
-            var mean = values.Mean();
-            var sd = values.StandardDeviation(Unbiased);
-
-            for (var i = 0; i < values.Length; ++i) {
-                WriteObject((values[i] - mean) / sd);
-            }
-        }
-    }
+    // TODO:
+    // WeightedEntropy
+    // WeightedMax
+    // WeightedMean
+    // WeightedMin
+    // WeightedMode
+    // WeightedScatter
+    // WeightedStandardDeviation
+    // WeightedVariance
 
     #endregion
 
@@ -1242,6 +1288,90 @@ namespace Horker.DataAnalysis
             var result = Accord.Math.Matrix.Reversed(values);
 
             foreach (var value in values) {
+                WriteObject(value);
+            }
+        }
+    }
+
+    #endregion
+
+    #region Accord.Statistics.Tools
+
+    [Cmdlet("Get", "Math.Center")]
+    [Alias("math.center")]
+    public class GetMathCenter : AggregateFunctionCmdletBase
+    {
+        protected override void Process(double[] values)
+        {
+            var result = Accord.Statistics.Tools.Center(values);
+
+            foreach (var value in result) {
+                WriteObject(value);
+            }
+        }
+    }
+
+    [Cmdlet("Get", "Math.Rank")]
+    [Alias("math.rank")]
+    public class GetMathRank : AggregateFunctionCmdletBase
+    {
+        [Parameter(Position = 1, Mandatory = false)]
+        public SwitchParameter AdjustForTies;
+
+        protected override void Process(double[] values)
+        {
+            var result = Accord.Statistics.Tools.Rank(values, false, AdjustForTies);
+
+            foreach (var value in result) {
+                WriteObject(value);
+            }
+        }
+    }
+
+    [Cmdlet("Get", "Math.Standardize")]
+    [Alias("math.standardize")]
+    public class GetMathStandardize : AggregateFunctionCmdletBase
+    {
+        protected override void Process(double[] values)
+        {
+            var result = Accord.Statistics.Tools.Standardize(values);
+
+            foreach (var value in result) {
+                WriteObject(value);
+            }
+        }
+    }
+
+    [Cmdlet("Get", "Math.Ties")]
+    [Alias("math.ties")]
+    public class GetMathTies : AggregateFunctionCmdletBase
+    {
+        protected override void Process(double[] values)
+        {
+            var result = Accord.Statistics.Tools.Ties(values);
+
+            foreach (var value in result) {
+                WriteObject(value);
+            }
+        }
+    }
+
+    [Cmdlet("Get", "Math.ZScore")]
+    [Alias("math.zscore")]
+    public class GetMathZScore : AggregateFunctionCmdletBase
+    {
+        [Parameter(Position = 1, Mandatory = false)]
+        public SwitchParameter Unbiased = false;
+
+        protected override void Process(double[] values)
+        {
+            var v = new double[values.Length, 1];
+            Array.Copy(values, v, values.Length);
+
+            var result = Accord.Statistics.Tools.ZScores(v);
+
+            foreach (var value in result)
+            {
                 WriteObject(value);
             }
         }
