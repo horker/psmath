@@ -47,7 +47,7 @@ namespace Horker.DataAnalysis
         public EigenvalueDecomposition Source => _eigen;
 
         public Matrix Vectors => _eigen.Eigenvectors;
-        public Matrix Values => Matrix.Create(_eigen.RealEigenvalues, int.MaxValue, 1);
+        public Matrix Values => Matrix.AsVector(_eigen.RealEigenvalues, 0);
     }
 
     public class LuDecompositionWrapper
@@ -270,7 +270,7 @@ namespace Horker.DataAnalysis
             return new Matrix(source.RowCount, source.ColumnCount);
         }
 
-        public static Matrix Vector(double[] array, int dimension)
+        public static Matrix AsVector(double[] array, int dimension)
         {
             if (dimension == 0)
             {
@@ -443,10 +443,10 @@ namespace Horker.DataAnalysis
             for (var row = 0; row < RowCount; ++row)
             {
                 builder.Append(" [");
-                for (var column = 0; column < ColumnCount; ++row)
+                for (var column = 0; column < ColumnCount; ++column)
                 {
                     builder.Append(' ');
-                    builder.Append(this[row, column]);
+                    builder.Append(this[row, column].ToString("0.#####"));
                 }
                 builder.Append(" ]");
             }
@@ -1192,37 +1192,37 @@ namespace Horker.DataAnalysis
 
         public Matrix Mean(int dimension = 0)
         {
-            return Matrix.Vector(_values.Mean(dimension), 1 - dimension);
+            return Matrix.AsVector(_values.Mean(dimension), 1 - dimension);
         }
 
         public Matrix Median(QuantileMethod type = QuantileMethod.Default)
         {
-            return Matrix.Vector(_values.Median(type), 1);
+            return Matrix.AsVector(_values.Median(type), 1);
         }
 
         public Matrix Mode()
         {
-            return Matrix.Vector(_values.Mode(), 1);
+            return Matrix.AsVector(_values.Mode(), 1);
         }
 
         public Matrix Skewness(bool unbiased = false)
         {
-            return Matrix.Vector(_values.Skewness(unbiased), 1);
+            return Matrix.AsVector(_values.Skewness(unbiased), 1);
         }
 
         public Matrix StanardDeviation()
         {
-            return Matrix.Vector(_values.StandardDeviation(), 1);
+            return Matrix.AsVector(_values.StandardDeviation(), 1);
         }
 
         public Matrix StanardError()
         {
-            return Matrix.Vector(Measures.StandardError(_values), 1);
+            return Matrix.AsVector(Measures.StandardError(_values), 1);
         }
 
         public Matrix Variance()
         {
-            return Matrix.Vector(_values.Variance(), 1);
+            return Matrix.AsVector(_values.Variance(), 1);
         }
 
         public Matrix WeightedCovariance(double[] weights, int dimension = 0)
