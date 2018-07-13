@@ -214,8 +214,13 @@ namespace Horker.DataAnalysis
             return matrix;
         }
 
-        public static Matrix Diagonal(double[] values, int rowCount, int columnCount = int.MaxValue)
+        public static Matrix Diagonal(double[] values, int rowCount = int.MaxValue, int columnCount = int.MaxValue)
         {
+            if (rowCount == int.MaxValue)
+            {
+                rowCount = values.Length;
+            }
+
             if (columnCount == int.MaxValue)
             {
                 columnCount = rowCount;
