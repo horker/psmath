@@ -65,6 +65,7 @@
   <ItemGroup>
     <Compile Include="Collections\Slice\Get-Math.Slice.cs" />
     <Compile Include="Collections\Matrix\New-Math.Matrix.cs" />
+    <Compile Include="Collections\Array\LinqMethods.cs" />
     <Compile Include="Conversions\Converter.cs" />
     <Compile Include="Collections\DataFrame\DataFrame.cs" />
     <Compile Include="Collections\DataFrame\DataFrameGroup.cs" />

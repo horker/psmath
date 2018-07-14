@@ -1,3 +1,51 @@
-Set-Alias nvec New-Vector
-Set-Alias nseq New-Sequence
-Set-Alias ndf New-DataFrame
+Set-StrictMode -Version Latest
+
+$methods = @(
+  "Aggregate"
+  "All"
+  "Any"
+  "AsEnumerable"
+  "Concat"
+  "Contains"
+  "Count"
+  "DefaultIfEmpty"
+  "Distinct"
+  "ElementAt"
+  "ElementAtOrDefault"
+  "Except"
+  "First"
+  "FirstOrDefault"
+  "GroupBy"
+  "GroupJoin"
+  "Intersect"
+  "Join"
+  "Last"
+  "LastOrDefault"
+  "LongCount"
+  "Max"
+  "Min"
+  "OrderBy"
+  "OrderByDescending"
+  "Reverse"
+  "Select"
+  "SelectMany"
+  "SequenceEqual"
+  "Single"
+  "SingleOrDefault"
+  "Skip"
+  "SkipWhile"
+  "Sum"
+  "Take"
+  "TakeWhile"
+  "ToDictionary"
+  "ToList"
+  "ToLookup"
+  "Union"
+  "Where"
+  "Zip"
+)
+
+foreach ($m in $methods) {
+  $mi = [Horker.DataAnalysis.LinqMethods].GetMethod($m)
+  Update-TypeData -TypeName System.Array -MemberName $m -MemberType CodeMethod -Value $mi -Force
+}
