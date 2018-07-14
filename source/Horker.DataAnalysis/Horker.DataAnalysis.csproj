@@ -76,6 +76,7 @@
     <Compile Include="Collections\Matrix\MatrixCmdlets.cs" />
     <Compile Include="Math\MathCmdlets.cs" />
     <Compile Include="Collections\Slice\Slice.cs" />
+    <Compile Include="Statistics\KalmanFilter2D.cs" />
     <Compile Include="Statistics\Regressions\InvokeGeneralizedLinearRegression.cs" />
     <Compile Include="Statistics\Regressions\InvokeLinearRegression.cs" />
     <Compile Include="Collections\Sequence\SequenceCmdlets.cs" />
