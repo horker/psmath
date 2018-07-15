@@ -63,9 +63,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Collections\Array\Accord.Statistics.MeasuresMethods.cs" />
+    <Compile Include="Collections\Array\Accord.Statistics.ToolsMethods.cs" />
+    <Compile Include="Collections\Array\Accord.Statistics.VectorMethods.cs" />
     <Compile Include="Collections\Slice\Get-Math.Slice.cs" />
     <Compile Include="Collections\Matrix\New-Math.Matrix.cs" />
-    <Compile Include="Collections\Array\LinqMethods.cs" />
+    <Compile Include="Collections\Array\System.LinqMethods.cs" />
     <Compile Include="Conversions\Converter.cs" />
     <Compile Include="Collections\DataFrame\DataFrame.cs" />
     <Compile Include="Collections\DataFrame\DataFrameGroup.cs" />
