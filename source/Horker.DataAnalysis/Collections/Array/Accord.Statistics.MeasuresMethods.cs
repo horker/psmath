@@ -4,7 +4,7 @@ using System.Linq;
 using System.Management.Automation;
 using Accord.Statistics;
 
-namespace Horker.DataAnalysis
+namespace Horker.DataAnalysis.ArrayMethods
 {
     internal class Helper
     {

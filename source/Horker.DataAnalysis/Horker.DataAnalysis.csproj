@@ -63,6 +63,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Collections\Array\Accord.Statistics.MatrixMethods.cs" />
     <Compile Include="Collections\Array\Accord.Statistics.MeasuresMethods.cs" />
     <Compile Include="Collections\Array\Accord.Statistics.ToolsMethods.cs" />
     <Compile Include="Collections\Array\Accord.Statistics.VectorMethods.cs" />

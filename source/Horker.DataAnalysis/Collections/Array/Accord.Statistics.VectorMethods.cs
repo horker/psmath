@@ -5,7 +5,7 @@ using System.Management.Automation;
 using Accord.Math;
 using Accord.Math.Random;
 
-namespace Horker.DataAnalysis
+namespace Horker.DataAnalysis.ArrayMethods
 {
     public class VectorMethods
     {

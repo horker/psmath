@@ -228,6 +228,31 @@ namespace Horker.DataAnalysis
         }
     }
 
+    [Cmdlet("New", "Matrix.MeshGrid")]
+    [Alias("mat.meshgrid")]
+    public class NewMatrixMeshGrid : MatrixCmdletBase
+    {
+        [Parameter(Position = 0, Mandatory = true)]
+        public object[] X;
+
+        [Parameter(Position = 1, Mandatory = true)]
+        public object[] Y;
+
+        protected override void EndProcessing()
+        {
+            var xarray = X.Select(x => Converter.ToDouble(x)).ToArray();
+            var yarray = Y.Select(x => Converter.ToDouble(x)).ToArray();
+
+            var grid = Accord.Math.Matrix.MeshGrid<double>(xarray, yarray);
+
+            var result = new PSObject();
+            result.Properties.Add(new PSNoteProperty("X", new Matrix(grid.Item1, true)));
+            result.Properties.Add(new PSNoteProperty("Y", new Matrix(grid.Item2, true)));
+
+            WriteObject(result);
+        }
+    }
+
     [Cmdlet("New", "Matrix.OneHot")]
     [Alias("mat.onehot")]
     public class NewMatrixOneHot : AggregateFunctionCmdletBase
@@ -256,8 +281,8 @@ namespace Horker.DataAnalysis
         }
     }
 
-    [Cmdlet("New", "Matrix.Zero")]
-    [Alias("mat.zero")]
+    [Cmdlet("New", "Matrix.Zeros")]
+    [Alias("mat.zeros")]
     public class NewMatrixZero : MatrixCmdletBase
     {
         [Parameter(Position = 0, Mandatory = true)]

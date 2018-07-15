@@ -2,7 +2,7 @@ Set-StrictMode -Version Latest
 
 $METHOD_LIST = @(
   [PSCustomObject]@{
-    ClassInfo = [Horker.DataAnalysis.LinqMethods]
+    ClassInfo = [Horker.DataAnalysis.ArrayMethods.LinqMethods]
     MethodNames = @(
       "Aggregate"
       "All"
@@ -50,7 +50,7 @@ $METHOD_LIST = @(
   }
 
   [PSCustomObject]@{
-    ClassInfo = [Horker.DataAnalysis.MeasuresMethods]
+    ClassInfo = [Horker.DataAnalysis.ArrayMethods.MeasuresMethods]
     MethodNames = @(
       "ContraHarmonicMean"
       "Entropy"
@@ -76,7 +76,7 @@ $METHOD_LIST = @(
   }
 
   [PSCustomObject]@{
-    ClassInfo = [Horker.DataAnalysis.ToolsMethods]
+    ClassInfo = [Horker.DataAnalysis.ArrayMethods.ToolsMethods]
     MethodNames = @(
       "Center"
       "Rank"
@@ -86,7 +86,7 @@ $METHOD_LIST = @(
   }
 
   [PSCustomObject]@{
-    ClassInfo = [Horker.DataAnalysis.VectorMethods]
+    ClassInfo = [Horker.DataAnalysis.ArrayMethods.VectorMethods]
     MethodNames = @(
       "Sample"
       "Scale"
@@ -94,12 +94,45 @@ $METHOD_LIST = @(
       "Sorted"
     )
   }
+
+  [PSCustomObject]@{
+    ClassInfo = [Horker.DataAnalysis.ArrayMethods.MatrixMethods]
+    MethodNames = @(
+      "ArgMin"
+      "ArgSort"
+      "Bottom"
+      "Cartesian"
+      "Clear"
+      "Concatenate"
+      "Copy"
+      "Cross"
+      "CumulativeSum"
+      "DistinctCount"
+      "Expand"
+      "Find"
+      "First"
+      "Get"
+      "HasInfinity"
+      "HasNaN"
+      "IsEqual"
+      "IsSorted"
+      "Kronecker"
+      "Normalize"
+      "Null"
+      "Outer"
+      "Product"
+      "Split"
+      "Stack"
+      "Swap"
+      "Top"
+      "Trim"
+    )
+  }
 )
 
 foreach ($l in $METHOD_LIST) {
   $ci = $l.ClassInfo
   foreach ($m in $l.MethodNames) {
-    Write-Host $m
     $mi = $ci.GetMethod($m)
     Update-TypeData -TypeName System.Array -MemberName $m -MemberType CodeMethod -Value $mi -Force
   }
