@@ -192,7 +192,7 @@ namespace Horker.DataAnalysis
         protected override void EndProcessing()
         {
             var result = Accord.Math.Matrix.Magic(Size);
-            WriteObject(new Matrix(result, false));
+            WriteObject(new Matrix(result, true));
         }
     }
 
@@ -261,7 +261,7 @@ namespace Horker.DataAnalysis
         {
             var indexes = values.Select(x => (int)x).ToArray();
             var result = Accord.Math.Matrix.OneHot(indexes);
-            WriteObject(new Matrix(result, false));
+            WriteObject(new Matrix(result, true));
         }
     }
 
