@@ -40,7 +40,7 @@ namespace Horker.DataAnalysis.ArrayMethods
         )
         {
             var s1 = Helper.GetDoubleArray(sequence1);
-            var s2 = Helper.GetDoubleArray(sequence1);
+            var s2 = Helper.GetDoubleArray(sequence2);
             return Matrix.Create(Accord.Math.Matrix.Cartesian(s1, s2));
         }
 
