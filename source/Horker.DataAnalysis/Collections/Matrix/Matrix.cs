@@ -18,7 +18,7 @@ namespace Horker.DataAnalysis
             _ch = ch;
         }
 
-        public Matrix L => _ch.LeftTriangularFactor;
+        public Matrix L => new Matrix(_ch.LeftTriangularFactor, true);
         public CholeskyDecomposition Source => _ch;
     }
 
@@ -31,8 +31,8 @@ namespace Horker.DataAnalysis
             _gs = gs;
         }
 
-        public Matrix R => new Matrix(_gs.UpperTriangularFactor);
-        public Matrix Q => new Matrix(_gs.OrthogonalFactor);
+        public Matrix R => new Matrix(_gs.UpperTriangularFactor, true);
+        public Matrix Q => new Matrix(_gs.OrthogonalFactor, true);
         public GramSchmidtOrthogonalization Source => _gs;
     }
 
@@ -45,7 +45,7 @@ namespace Horker.DataAnalysis
             _eigen = eigen;
         }
 
-        public Matrix Vectors => _eigen.Eigenvectors;
+        public Matrix Vectors => new Matrix(_eigen.Eigenvectors, true);
         public Matrix Values => Matrix.AsVector(_eigen.RealEigenvalues, 0);
         public EigenvalueDecomposition Source => _eigen;
     }
@@ -60,8 +60,8 @@ namespace Horker.DataAnalysis
         }
 
         public int[] P => _lu.PivotPermutationVector;
-        public Matrix L => _lu.LowerTriangularFactor;
-        public Matrix U => _lu.UpperTriangularFactor;
+        public Matrix L => new Matrix(_lu.LowerTriangularFactor, true);
+        public Matrix U => new Matrix(_lu.UpperTriangularFactor, true);
         public LuDecomposition Source => _lu;
     }
 
@@ -74,8 +74,8 @@ namespace Horker.DataAnalysis
             _nmf = nmf;
         }
 
-        public Matrix W => _nmf.LeftNonnegativeFactors;
-        public Matrix H => _nmf.RightNonnegativeFactors;
+        public Matrix W => new Matrix(_nmf.LeftNonnegativeFactors, true);
+        public Matrix H => new Matrix(_nmf.RightNonnegativeFactors, true);
         public NonnegativeMatrixFactorization Source => _nmf;
     }
 
@@ -88,8 +88,8 @@ namespace Horker.DataAnalysis
             _qr = qr;
         }
 
-        public Matrix Q => _qr.OrthogonalFactor;
-        public Matrix R => _qr.UpperTriangularFactor;
+        public Matrix Q => new Matrix(_qr.OrthogonalFactor, true);
+        public Matrix R => new Matrix(_qr.UpperTriangularFactor, true);
         public QrDecomposition Source => _qr;
     }
 
@@ -102,9 +102,9 @@ namespace Horker.DataAnalysis
             _svd = svd;
         }
 
-        public Matrix U => _svd.LeftSingularVectors;
-        public Matrix D => _svd.DiagonalMatrix;
-        public Matrix V => _svd.RightSingularVectors;
+        public Matrix U => new Matrix(_svd.LeftSingularVectors);
+        public Matrix D => new Matrix(_svd.DiagonalMatrix);
+        public Matrix V => new Matrix(_svd.RightSingularVectors);
         public SingularValueDecomposition Source => _svd;
     }
 
