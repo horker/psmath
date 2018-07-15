@@ -717,10 +717,35 @@ namespace Horker.DataAnalysis
             return EnsureMatrix(EnsureSequence(_values).Cross(EnsureSequence(b)));
         }
 
-        public Matrix CumulativeSum(int dimension)
+        public Matrix CumulativeSum(int dimension = 0)
         {
-            // TODO: correct?
-            return _values.CumulativeSum(dimension);
+            // Accord.NET implementation is broken (Sources/Accord.Math/Matrix/Matrix.Reduction.tt)
+
+            int rowCount = RowCount;
+            int columnCount = ColumnCount;
+
+            var result = Matrix.CreateAs(this);
+
+            if (dimension == 0)
+            {
+                result.Values.SetRow(0, Row(0));
+                for (int i = 1; i < RowCount; i++)
+                    for (int j = 0; j < ColumnCount; j++)
+                        result[i, j] = (result[i - 1, j] + this[i, j]);
+            }
+            else if (dimension == 1)
+            {
+                result.Values.SetColumn(0, Column(0));
+                for (int i = 1; i < ColumnCount; i++)
+                    for (int j = 0; j < RowCount; j++)
+                        result[j, i] = (result[j, i - 1] + this[j, i]);
+            }
+            else
+            {
+                throw new ArgumentException("Invalid dimension", "dimension");
+            }
+
+            return result;
         }
 
         public ISolverMatrixDecomposition<double> Decompose(bool leastSquares = false)
@@ -823,7 +848,7 @@ namespace Horker.DataAnalysis
                     break;
 
                 default:
-                    throw new Exception("Matrix type can be either LowerTriangular or UpperTrianguler.");
+                    throw new ArgumentException("Matrix type can be either LowerTriangular or UpperTrianguler.");
             }
 
             return result;
