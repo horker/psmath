@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
@@ -28,117 +29,169 @@ namespace Horker.DataAnalysis
 
         public static double ToDouble(object input)
         {
-            if (input is PSObject) {
+            if (input is PSObject)
                 input = (input as PSObject).BaseObject;
-            }
 
-            if (input is string) {
+            if (input is double)
+                return (double)input;
+
+            if (input is string)
+            {
                 var s = input as string;
                 s = _currencyRe.Replace(s, "");
                 var success = double.TryParse(s, NumberStyles.Any, NumberFormatInfo.InvariantInfo, out double result);
-                if (!success) {
+                if (!success)
                     return double.NaN;
-                }
+
                 return result;
             }
-            else {
-                try {
-                    return Convert.ToDouble(input);
-                }
-                catch {
-                    return double.NaN;
-                }
+
+            try
+            {
+                return Convert.ToDouble(input);
             }
+            catch
+            {
+                return double.NaN;
+            }
+        }
+
+        public static double[] ToDoubleArray(object input)
+        {
+            if (input is PSObject)
+                input = (input as PSObject).BaseObject;
+
+            if (input is double[])
+                return input as double[];
+
+            if (input is object[])
+                return (input as object[]).Select(x => Converter.ToDouble(x)).ToArray();
+
+            if (input is IEnumerable<double>)
+                return (input as IEnumerable<double>).ToArray();
+
+            if (input is IEnumerable<object>)
+                return (input as IEnumerable<double>).Select(x => Converter.ToDouble(x)).ToArray();
+
+            if (input is float[])
+                return (input as float[]).Select(x => (double)x).ToArray();
+
+            if (input is Int64[])
+                return (input as Int64[]).Select(x => (double)x).ToArray();
+
+            if (input is Int32[])
+                return (input as Int32[]).Select(x => (double)x).ToArray();
+
+            if (input is Int16[])
+                return (input as Int16[]).Select(x => (double)x).ToArray();
+
+            if (input is Byte[])
+                return (input as Byte[]).Select(x => (double)x).ToArray();
+
+            if (input is SByte[])
+                return (input as SByte[]).Select(x => (double)x).ToArray();
+
+            if (input is IEnumerable)
+            {
+                var result = new List<double>();
+
+                foreach (var value in (input as IEnumerable))
+                    result.Add(ToDouble(value));
+
+                return result.ToArray();
+            }
+
+            // Scalar value
+            return new double[] { Converter.ToDouble(input) };
         }
 
         public static DateTime? ToDateTime(object input)
         {
-            if (input is PSObject) {
+            if (input is PSObject)
                 input = (input as PSObject).BaseObject;
-            }
 
-            if (input is DateTime) {
+            if (input is DateTime)
                 return (DateTime)input;
-            }
-            else if (input is DateTimeOffset) {
+
+            if (input is DateTimeOffset)
                 return ((DateTimeOffset)input).DateTime;
-            }
-            else if (input is string) {
+
+            if (input is string)
+            {
                 var success = DateTime.TryParse(input as string, out DateTime result);
-                if (!success) {
+                if (!success)
                     return null;
-                }
+
                 return result;
             }
-            else {
-                try {
-                    return Convert.ToDateTime(input);
-                }
-                catch {
-                    return null;
-                }
+
+            try
+            {
+                return Convert.ToDateTime(input);
+            }
+            catch
+            {
+                return null;
             }
         }
 
         public static DateTime? ToDateTime(object input, string format)
         {
-            if (input is PSObject) {
+            if (input is PSObject)
                 input = (input as PSObject).BaseObject;
-            }
 
-            if (input is DateTime) {
+            if (input is DateTime)
                 return (DateTime)input;
-            }
-            else if (input is DateTimeOffset) {
+
+            if (input is DateTimeOffset)
                 return ((DateTimeOffset)input).DateTime;
+
+            try
+            {
+                if (input is string)
+                    return DateTime.ParseExact(input as string, format, CultureInfo.CurrentCulture);
+
+                return Convert.ToDateTime(input);
             }
-            else {
-                try {
-                    if (input is string) {
-                        return DateTime.ParseExact(input as string, format, CultureInfo.CurrentCulture);
-                    }
-                    else {
-                        return Convert.ToDateTime(input);
-                    }
-                }
-                catch {
-                    return null;
-                }
+            catch
+            {
+                return null;
             }
         }
 
         public static DateTimeOffset? ToDateTimeOffset(object input, bool assumeLocal = true)
         {
-            if (input is PSObject) {
+            if (input is PSObject)
                 input = (input as PSObject).BaseObject;
-            }
 
-            if (input is DateTimeOffset) {
+            if (input is DateTimeOffset)
                 return (DateTimeOffset)input;
-            }
-            else if (input is DateTime) {
+
+            if (input is DateTime)
                 return new DateTimeOffset((DateTime)input);
-            }
-            else if (input is string) {
+
+            if (input is string)
+            {
                 DateTimeStyles style = DateTimeStyles.AllowWhiteSpaces;
-                if (assumeLocal) {
+                if (assumeLocal)
                     style |= DateTimeStyles.AssumeLocal;
-                }
-                else {
+                else
                     style |= DateTimeStyles.AssumeUniversal;
-                }
 
                 var success = DateTimeOffset.TryParse(input as string, CultureInfo.CurrentCulture, style, out DateTimeOffset result);
-                if (!success) {
+                if (!success)
                     return null;
-                }
+
                 return result;
             }
-            else {
-                try {
+            else
+            {
+                try
+                {
                     return Convert.ToDateTime(input);
                 }
-                catch {
+                catch
+                {
                     return null;
                 }
             }
@@ -146,172 +199,136 @@ namespace Horker.DataAnalysis
 
         public static DateTimeOffset? ToDateTimeOffset(object input, string format)
         {
-            if (input is PSObject) {
+            if (input is PSObject)
                 input = (input as PSObject).BaseObject;
-            }
 
-            if (input is DateTimeOffset) {
+            if (input is DateTimeOffset)
                 return (DateTimeOffset)input;
-            }
-            else if (input is DateTime) {
+
+            if (input is DateTime)
                 return new DateTimeOffset((DateTime)input);
+
+            try
+            {
+                if (input is string)
+                    return DateTimeOffset.ParseExact(input as string, format, CultureInfo.CurrentCulture);
+
+                return new DateTimeOffset(Convert.ToDateTime(input));
             }
-            else {
-                try {
-                    if (input is string) {
-                        return DateTimeOffset.ParseExact(input as string, format, CultureInfo.CurrentCulture);
-                    }
-                    else {
-                        return new DateTimeOffset(Convert.ToDateTime(input));
-                    }
-                }
-                catch {
-                    return null;
-                }
+            catch
+            {
+                return null;
             }
-        }
-
-        public static double[] ToDoubleArray(object input)
-        {
-            if (input is PSObject) {
-                input = (input as PSObject).BaseObject;
-            }
-
-            if (input is double[]) {
-                return input as double[];
-            }
-
-            if (input is object[]) {
-                var array = input as object[];
-                var result = new double[array.Length];
-                for (var i = 0; i < array.Length; ++i) {
-                    result[i] = ToDouble(array[i]);
-                }
-                return result;
-            }
-
-            if (input is IEnumerable) {
-                var result = new List<double>();
-
-                foreach (var value in (input as IEnumerable)) {
-                    result.Add(ToDouble(value));
-                }
-
-                return result.ToArray();
-            }
-
-            return new double[] { Convert.ToDouble(input) };
         }
 
         public static double[][] ToDoubleJaggedArray(object input)
         {
-            if (input is PSObject) {
+            if (input is PSObject)
                 input = (input as PSObject).BaseObject;
-            }
 
-            if (input is double[][]) {
+            if (input is double[][])
                 return input as double[][];
-            }
 
-            if (input is object[,]) {
+            if (input is object[,])
+            {
                 var inputArray = input as object[,];
                 var result = new double[inputArray.GetLength(1)][];
-                for (var i = 0; i < inputArray.GetLength(1); ++i) {
+
+                for (var i = 0; i < inputArray.GetLength(1); ++i)
+                {
                     var subarray = new double[inputArray.GetLength(0)];
                     result[i] = subarray;
-                    for (var j = 0; j < inputArray.GetLength(0); ++j) {
+
+                    for (var j = 0; j < inputArray.GetLength(0); ++j)
                         subarray[i] = ToDouble(inputArray[i, j]);
-                    }
                 }
+
                 return result;
             }
-            else if (input is object[] && (input as object[]).Length > 0 && (input as object[])[0] is object[]) {
+            else if (input is object[] && (input as object[]).Length > 0 && (input as object[])[0] is object[])
+            {
                 var inputArray = input as object[];
                 var result = new double[inputArray.Length][];
-                for (var i = 0; i < inputArray.Length; ++i) {
-                    if (!(inputArray[i] is object[])) {
-                        throw new RuntimeException("Cannot convert an object to a jagged array");
-                    }
+
+                for (var i = 0; i < inputArray.Length; ++i)
+                {
+                    if (!(inputArray[i] is object[]))
+                        throw new ArgumentException("Cannot convert an object to a jagged array");
+
                     var inputSubarray = inputArray[i] as object[];
                     var subarray = new double[inputSubarray.Length];
                     result[i] = subarray;
-                    for (var j = 0; j < inputSubarray.Length; ++j) {
+
+                    for (var j = 0; j < inputSubarray.Length; ++j)
                         subarray[i] = ToDouble(inputSubarray[j]);
-                    }
                 }
+
                 return result;
             }
-            else if (input is DataFrame) {
+
+            if (input is DataFrame)
                 return (input as DataFrame).ToDoubleJaggedArray();
-            }
 
             return (double[][])input;
         }
 
         public static double[,] ToDouble2dArray(object input)
         {
-            if (input is PSObject) {
+            if (input is PSObject)
                 input = (input as PSObject).BaseObject;
-            }
 
-            if (input is double[,]) {
+            if (input is double[,])
                 return input as double[,];
-            }
 
-            if (input is object[,]) {
+            if (input is object[,])
+            {
                 var inputArray = input as object[,];
                 var result = new double[inputArray.GetLength(0), inputArray.GetLength(1)];
-                for (var i = 0; i < inputArray.GetLength(0); ++i) {
-                    for (var j = 0; i < inputArray.GetLength(1); ++j) {
+                for (var i = 0; i < inputArray.GetLength(0); ++i)
+                {
+                    for (var j = 0; i < inputArray.GetLength(1); ++j)
                         result[i, j] = ToDouble(inputArray[i, j]);
-                    }
                 }
                 return result;
             }
-            else if (input is object[] && (input as object[]).Length > 0 && (input as object[])[0] is object[]) {
+            else if (input is object[] && (input as object[]).Length > 0 && (input as object[])[0] is object[])
+            {
                 var inputArray = input as object[];
                 var columnCount = inputArray.Length;
                 var rowCount = (inputArray[0] as object[]).Length;
                 var result = new double[columnCount, rowCount];
-                for (var i = 0; i < columnCount; ++i) {
-                    if (!(inputArray[i] is object[])) {
-                        throw new RuntimeException("Cannot convert an object to a two-dimension array");
-                    }
+
+                for (var i = 0; i < columnCount; ++i)
+                {
+                    if (!(inputArray[i] is object[]))
+                        throw new ArgumentException("Cannot convert an object to a two-dimensional array");
+
                     var subarray = inputArray[i] as object[];
-                    for (var j = 0; j < subarray.Length; ++j) {
+                    for (var j = 0; j < subarray.Length; ++j)
                         result[i, j] = ToDouble(subarray[j]);
-                    }
                 }
+
                 return result;
             }
-            else if (input is DataFrame) {
+
+            if (input is DataFrame)
                 return (input as DataFrame).ToDoubleMatrix();
-            }
 
             return (double[,])input;
         }
 
         public static Matrix ToMatrix(object input, bool columnVector)
         {
-            Matrix result;
-
-            if (input is PSObject) {
+            if (input is PSObject)
                 input = (input as PSObject).BaseObject;
-            }
-            if (input is Horker.DataAnalysis.Matrix) {
-                result = input as Matrix;
-            }
-            else {
-                if (columnVector) {
-                    result = Matrix.Create(Converter.ToDoubleArray(input), int.MaxValue, 1);
-                }
-                else {
-                    result = Matrix.Create(Converter.ToDoubleArray(input), 1);
-                }
-            }
 
-            return result;
+            if (input is Horker.DataAnalysis.Matrix)
+                return input as Matrix;
+
+            if (columnVector)
+                return Matrix.Create(Converter.ToDoubleArray(input), int.MaxValue, 1);
+            else
+                return Matrix.Create(Converter.ToDoubleArray(input), 1);
         }
-
     }
 }

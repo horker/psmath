@@ -6,21 +6,12 @@ namespace Horker.DataAnalysis.ArrayMethods
 {
     internal class Helper
     {
-        internal static double[] GetDoubleArray(PSObject values, bool ensureCopy = false)
+        internal static double[] GetDoubleArray(PSObject values)
         {
             var array = values.BaseObject;
 
             if (array is double[])
-            {
-                if (ensureCopy)
-                {
-                    var source = array as double[];
-                    var result = new double[source.Length];
-                    Array.Copy(source, result, source.Length);
-                    return result;
-                }
                 return array as double[];
-            }
             else if (array is object[])
                 return (array as object[]).Select(x => Converter.ToDouble(x)).ToArray();
             else if (array is float[])
