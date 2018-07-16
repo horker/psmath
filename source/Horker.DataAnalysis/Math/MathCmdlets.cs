@@ -1120,18 +1120,7 @@ namespace Horker.DataAnalysis
     {
         protected override void Process(double[] values)
         {
-            var sorted = values.Sorted();
-
-            var result = new PSObject();
-            var props = result.Properties;
-
-            props.Add(new PSNoteProperty("Count", sorted.Length));
-            props.Add(new PSNoteProperty("Minimum", sorted[0]));
-            props.Add(new PSNoteProperty("LowerQuantile", sorted.Quantile(.25, true)));
-            props.Add(new PSNoteProperty("Median", sorted.Median()));
-            props.Add(new PSNoteProperty("Mean", sorted.Mean()));
-            props.Add(new PSNoteProperty("UpperQuantile", sorted.Quantile(.75, true)));
-            props.Add(new PSNoteProperty("Maximum", sorted[sorted.Length - 1]));
+            var result = new DataSummary(values);
 
             WriteObject(result);
         }

@@ -5,7 +5,7 @@ using System.Management.Automation;
 
 namespace Horker.DataAnalysis.PSObjects
 {
-    public class DataSummary
+    public class Information
     {
         public string Name;
         public int Total;
@@ -28,7 +28,7 @@ namespace Horker.DataAnalysis.PSObjects
         protected override void Process(IReadOnlyList<PSObject> data)
         {
             var propNames = new List<string>();
-            var summaries = new Dictionary<string, DataSummary>();
+            var summaries = new Dictionary<string, Information>();
             var elements = new Dictionary<string, List<object>>();
 
             foreach (var row in data)
@@ -38,7 +38,7 @@ namespace Horker.DataAnalysis.PSObjects
                     if (!summaries.ContainsKey(prop.Name))
                     {
                         propNames.Add(prop.Name);
-                        var s = new DataSummary();
+                        var s = new Information();
                         s.Name = prop.Name;
                         summaries.Add(prop.Name, s);
                         elements.Add(prop.Name, new List<object>());
