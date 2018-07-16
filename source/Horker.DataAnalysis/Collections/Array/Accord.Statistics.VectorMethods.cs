@@ -33,19 +33,19 @@ namespace Horker.DataAnalysis.ArrayMethods
            double toMax
         )
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return Accord.Math.Vector.Scale(array, fromMin, fromMax, toMin, toMax, null);
         }
 
         public static double[] Shuffled(PSObject values)
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return Accord.Math.Vector.Shuffled(array);
         }
 
         public static double[] Sorted(PSObject values, bool stable = false, bool asc = true)
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return Accord.Math.Vector.Sorted(array);
         }
 

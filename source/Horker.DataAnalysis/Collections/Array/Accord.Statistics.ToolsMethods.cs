@@ -12,7 +12,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             PSObject values
         )
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return Tools.Center(array, null);
         }
 
@@ -22,7 +22,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             bool adjustForTies = true
         )
         {
-            var array = Helper.GetDoubleArray(samples);
+            var array = Converter.ToDoubleArray(samples);
             bool hasTies;
             return Tools.Rank(array, out hasTies, alreadySorted, adjustForTies);
         }
@@ -32,7 +32,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             bool inPlace = false
         )
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return Tools.Standardize(array, inPlace);
         }
 
@@ -40,7 +40,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             PSObject ranks
         )
         {
-            var array = Helper.GetDoubleArray(ranks);
+            var array = Converter.ToDoubleArray(ranks);
             return Tools.Ties(array);
         }
     }

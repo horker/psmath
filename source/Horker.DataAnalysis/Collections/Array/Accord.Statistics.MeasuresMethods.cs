@@ -9,13 +9,13 @@ namespace Horker.DataAnalysis.ArrayMethods
     {
         public static double ContraHarmonicMean(PSObject values, int order = 1)
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return Measures.ContraHarmonicMean(array, order);
         }
 
         public static double Entropy(PSObject values)
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return Measures.Entropy(array);
         }
 
@@ -25,7 +25,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             double alpha = 0
         )
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return Measures.ExponentialWeightedMean(array, window, alpha);
         }
 
@@ -36,7 +36,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             bool unbiased = false
         )
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return Measures.ExponentialWeightedVariance(array, window, alpha, unbiased);
         }
 
@@ -45,7 +45,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             PSObject values
         )
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return Measures.GeometricMean(array);
         }
 
@@ -54,7 +54,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             bool unbiased = true
         )
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return Measures.Kurtosis(array, unbiased);
         }
 
@@ -62,7 +62,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             PSObject values
         )
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return Measures.LogGeometricMean(array);
         }
 
@@ -73,7 +73,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             bool inPlace = false
         )
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return Measures.LowerQuartile(array, alreadySorted, type, inPlace);
         }
 
@@ -81,7 +81,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             PSObject values
         )
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return Measures.Mean(array);
         }
 
@@ -92,7 +92,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             bool inPlace = false
         )
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return Measures.Median(array, alreadySorted, type, inPlace);
         }
 
@@ -102,7 +102,7 @@ namespace Horker.DataAnalysis.ArrayMethods
     bool alreadySorted = false
 )
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return Measures.Mode(array, inPlace, alreadySorted);
         }
 
@@ -114,7 +114,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             bool inPlace = false
         )
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return Measures.Quantile(array, probabilities, alreadySorted, type, inPlace);
         }
 
@@ -126,7 +126,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             bool inPlace = false
         )
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return Measures.Quantiles(array, probabilities, alreadySorted, type, inPlace);
         }
 
@@ -139,7 +139,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             bool inPlace = false
         )
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return Measures.Quartiles(array, out q1, out q3, alreadySorted, type, inPlace);
         }
 
@@ -148,7 +148,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             bool unbiased = true
         )
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return Measures.Skewness(array, unbiased);
         }
 
@@ -157,7 +157,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             bool unbiased = true
         )
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return Measures.StandardDeviation(array, unbiased);
         }
 
@@ -165,7 +165,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             PSObject values
         )
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return Measures.StandardError(array);
         }
 
@@ -176,7 +176,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             bool alreadySorted = false
         )
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return Measures.TruncatedMean(array, percent, inPlace, alreadySorted);
         }
 
@@ -187,7 +187,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             bool inPlace = false
         )
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return Measures.UpperQuartile(array, alreadySorted, type, false);
         }
 
@@ -196,7 +196,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             bool unbiased
         )
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return Measures.Variance(array, unbiased);
         }
     }

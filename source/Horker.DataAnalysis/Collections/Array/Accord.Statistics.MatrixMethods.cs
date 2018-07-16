@@ -13,7 +13,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             PSObject values
         )
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return Accord.Math.Matrix.ArgMin(array);
         }
 
@@ -21,7 +21,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             PSObject values
         )
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return Accord.Math.Matrix.ArgSort(array);
         }
 
@@ -30,7 +30,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             int count
         )
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return Accord.Math.Matrix.Bottom(array, count);
         }
 
@@ -39,8 +39,8 @@ namespace Horker.DataAnalysis.ArrayMethods
             PSObject sequence2
         )
         {
-            var s1 = Helper.GetDoubleArray(sequence1);
-            var s2 = Helper.GetDoubleArray(sequence2);
+            var s1 = Converter.ToDoubleArray(sequence1);
+            var s2 = Converter.ToDoubleArray(sequence2);
             return Matrix.Create(Accord.Math.Matrix.Cartesian(s1, s2));
         }
 
@@ -57,7 +57,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             params double[] b
         )
         {
-            var array = Helper.GetDoubleArray(a);
+            var array = Converter.ToDoubleArray(a);
             return Accord.Math.Matrix.Concatenate(b);
         }
 
@@ -76,8 +76,8 @@ namespace Horker.DataAnalysis.ArrayMethods
             PSObject b
         )
         {
-            var a1 = Helper.GetDoubleArray(a);
-            var a2 = Helper.GetDoubleArray(b);
+            var a1 = Converter.ToDoubleArray(a);
+            var a2 = Converter.ToDoubleArray(b);
             return Accord.Math.Matrix.Cross(a1, a2);
         }
 
@@ -85,7 +85,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             PSObject vector
         )
         {
-            var array = Helper.GetDoubleArray(vector);
+            var array = Converter.ToDoubleArray(vector);
             return Accord.Math.Matrix.CumulativeSum(array);
         }
 
@@ -95,7 +95,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             bool allowNulls = true
         )
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return Accord.Math.Matrix.Distinct(array, allowNulls);
         }
         */
@@ -104,7 +104,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             PSObject values
         )
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return Accord.Math.Matrix.DistinctCount(array);
         }
 
@@ -113,7 +113,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             int[] count
         )
         {
-            var array = Helper.GetDoubleArray(vector);
+            var array = Converter.ToDoubleArray(vector);
             return Accord.Math.Matrix.Expand(array, count);
         }
 
@@ -123,7 +123,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             bool firstOnly = false
         )
         {
-            var array = Helper.GetDoubleArray(data);
+            var array = Converter.ToDoubleArray(data);
             return Accord.Math.Matrix.Find(array, func, firstOnly);
         }
 
@@ -132,7 +132,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             int count
         )
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return Accord.Math.Matrix.First(array, count);
         }
 
@@ -142,7 +142,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             int endRow
         )
         {
-            var array = Helper.GetDoubleArray(source);
+            var array = Converter.ToDoubleArray(source);
             return Accord.Math.Matrix.Get(array, startRow, endRow);
         }
 
@@ -150,7 +150,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             PSObject matrix
         )
         {
-            var array = Helper.GetDoubleArray(matrix);
+            var array = Converter.ToDoubleArray(matrix);
             return Accord.Math.Matrix.HasInfinity(array);
         }
 
@@ -159,7 +159,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             PSObject matrix
         )
         {
-            var array = Helper.GetDoubleArray(matrix);
+            var array = Converter.ToDoubleArray(matrix);
             return Accord.Math.Matrix.HasNaN(array);
         }
 
@@ -176,7 +176,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             Accord.Math.Comparers.ComparerDirection direction = Accord.Math.Comparers.ComparerDirection.Ascending
         )
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return Accord.Math.Matrix.IsSorted(array, direction);
         }
 
@@ -186,8 +186,8 @@ namespace Horker.DataAnalysis.ArrayMethods
             PSObject b
         )
         {
-            var a1  = Helper.GetDoubleArray(a);
-            var a2  = Helper.GetDoubleArray(b);
+            var a1  = Converter.ToDoubleArray(a);
+            var a2  = Converter.ToDoubleArray(b);
             return Accord.Math.Matrix.Kronecker(a1, a2);
         }
 
@@ -205,7 +205,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             PSObject vector
         )
         {
-            var array = Helper.GetDoubleArray(vector);
+            var array = Converter.ToDoubleArray(vector);
             return Accord.Math.Matrix.Normalize(array);
         }
 
@@ -213,7 +213,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             PSObject vector
         )
         {
-            var array = Helper.GetDoubleArray(vector);
+            var array = Converter.ToDoubleArray(vector);
             return Accord.Math.Matrix.Null(array);
         }
 
@@ -222,8 +222,8 @@ namespace Horker.DataAnalysis.ArrayMethods
             PSObject b
         )
         {
-            var a1 = Helper.GetDoubleArray(a);
-            var a2 = Helper.GetDoubleArray(b);
+            var a1 = Converter.ToDoubleArray(a);
+            var a2 = Converter.ToDoubleArray(b);
             return new Matrix(Accord.Math.Matrix.Outer(a1, a2), true);
         }
 
@@ -231,7 +231,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             PSObject vector
         )
         {
-            var array = Helper.GetDoubleArray(vector);
+            var array = Converter.ToDoubleArray(vector);
             return Accord.Math.Matrix.Product(array);
         }
 
@@ -240,7 +240,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             int size
         )
         {
-            var array = Helper.GetDoubleArray(vector);
+            var array = Converter.ToDoubleArray(vector);
             return Accord.Math.Matrix.Split(array, size);
         }
 
@@ -250,8 +250,8 @@ namespace Horker.DataAnalysis.ArrayMethods
             PSObject b
         )
         {
-            var a1 = Helper.GetDoubleArray(a);
-            var a2 = Helper.GetDoubleArray(b);
+            var a1 = Converter.ToDoubleArray(a);
+            var a2 = Converter.ToDoubleArray(b);
             return Accord.Math.Matrix.Stack(a1, a2);
         }
 
@@ -262,7 +262,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             int groups
         )
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return Accord.Math.Matrix.Separate(array, labels, groups);
         }
         */
@@ -273,7 +273,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             int b
         )
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             Accord.Math.Matrix.Swap(array, a, b);
         }
 
@@ -282,7 +282,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             int count
         )
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return Accord.Math.Matrix.Top(array, count);
         }
 
@@ -290,7 +290,7 @@ namespace Horker.DataAnalysis.ArrayMethods
             PSObject values
         )
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return (double[])Accord.Math.Matrix.Trim(array);
         }
 

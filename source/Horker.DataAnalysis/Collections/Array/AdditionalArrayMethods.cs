@@ -30,7 +30,7 @@ namespace Horker.DataAnalysis.ArrayMethods
 
         public static double[] DropNaN(PSObject values)
         {
-            var array = Helper.GetDoubleArray(values);
+            var array = Converter.ToDoubleArray(values);
             return array.RemoveAll(double.NaN);
         }
 

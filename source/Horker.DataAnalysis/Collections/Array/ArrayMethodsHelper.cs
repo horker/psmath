@@ -6,6 +6,7 @@ namespace Horker.DataAnalysis.ArrayMethods
 {
     internal class Helper
     {
+        /*
         internal static double[] GetDoubleArray(PSObject values)
         {
             var array = values.BaseObject;
@@ -29,6 +30,7 @@ namespace Horker.DataAnalysis.ArrayMethods
 
             throw new ArgumentException("Failed to convert to double[]");
         }
+        */
 
         internal static object[] GetObjectArray(PSObject values)
         {

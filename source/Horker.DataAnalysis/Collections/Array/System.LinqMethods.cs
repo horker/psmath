@@ -378,7 +378,7 @@ namespace Horker.DataAnalysis.ArrayMethods
 
         public static double Sum(PSObject source, Func<double, int> selector = null)
         {
-            var array = Helper.GetDoubleArray(source);
+            var array = Converter.ToDoubleArray(source);
 
             if (selector == null)
                 return array.Sum();
