@@ -17,36 +17,20 @@ namespace Horker.DataAnalysis
             if (b >= a)
             {
                 if (inclusive)
-                {
                     for (var i = 0; a + step * i <= b; ++i)
-                    {
                         yield return a + step * i;
-                    }
-                }
                 else
-                {
                     for (var i = 0; a + step * i < b; ++i)
-                    {
                         yield return a + step * i;
-                    }
-                }
             }
             else
             {
                 if (inclusive)
-                {
                     for (var i = 0; a + step * i >= b; ++i)
-                    {
                         yield return a + step * i;
-                    }
-                }
                 else
-                {
                     for (var i = 0; a + step * i > b; ++i)
-                    {
                         yield return a + step * i;
-                    }
-                }
             }
         }
 
@@ -60,21 +44,12 @@ namespace Horker.DataAnalysis
             double step;
 
             if (inclusive)
-            {
                 step = (b - a) / (count - 1);
-                for (var i = 0; i < count; ++i)
-                {
-                    yield return a + step * i;
-                }
-            }
             else
-            {
                 step = (b - a) / count;
-                for (var i = 0; i < count; ++i)
-                {
-                    yield return a + step * i;
-                }
-            }
+
+            for (var i = 0; i < count; ++i)
+                yield return a + step * i;
         }
     }
 

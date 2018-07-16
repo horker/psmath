@@ -128,6 +128,14 @@ $METHOD_LIST = @(
       "Trim"
     )
   }
+
+  [PSCustomObject]@{
+    ClassInfo = [Horker.DataAnalysis.ArrayMethods.AdditionalMethods]
+    MethodNames = @(
+      "DropNa"
+      "DropNaN"
+    )
+  }
 )
 
 foreach ($l in $METHOD_LIST) {

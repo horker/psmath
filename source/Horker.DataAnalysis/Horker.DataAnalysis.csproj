@@ -67,6 +67,8 @@
     <Compile Include="Collections\Array\Accord.Statistics.MeasuresMethods.cs" />
     <Compile Include="Collections\Array\Accord.Statistics.ToolsMethods.cs" />
     <Compile Include="Collections\Array\Accord.Statistics.VectorMethods.cs" />
+    <Compile Include="Collections\Array\AdditionalArrayMethods.cs" />
+    <Compile Include="Collections\Array\ArrayMethodsHelper.cs" />
     <Compile Include="Collections\Slice\Get-Math.Slice.cs" />
     <Compile Include="Collections\Matrix\New-Math.Matrix.cs" />
     <Compile Include="Collections\Array\System.LinqMethods.cs" />

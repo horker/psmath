@@ -1,32 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Management.Automation;
 using Accord.Statistics;
 
 namespace Horker.DataAnalysis.ArrayMethods
 {
-    internal class Helper
-    {
-        internal static double[] GetDoubleArray(PSObject values, bool ensureCopy = false)
-        {
-            var array = values.BaseObject;
-
-            if (array is double[])
-            {
-                if (ensureCopy)
-                {
-                    var source = array as double[];
-                    var result = new double[source.Length];
-                    Array.Copy(source, result, source.Length);
-                    return result;
-                }
-                return array as double[];
-            }
-
-            return ((object[])array).Select(x => Converter.ToDouble(x)).ToArray();
-        }
-    }
 
     public class MeasuresMethods
     {
