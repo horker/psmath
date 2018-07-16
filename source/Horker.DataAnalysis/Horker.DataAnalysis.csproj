@@ -77,6 +77,8 @@
     <Compile Include="Collections\DataFrame\DataFrameGroup.cs" />
     <Compile Include="Collections\Matrix\Matrix.cs" />
     <Compile Include="Conversions\ConversionCmdlets.cs" />
+    <Compile Include="PSObjects\Get-Math.DataSummary.cs" />
+    <Compile Include="PSObjects\PSObjectsCmdletBase.cs" />
     <Compile Include="Statistics\Distributions\Distributions.cs" />
     <Compile Include="Statistics\Analyses\InvokeDescriptiveAnalysis.cs" />
     <Compile Include="Collections\Matrix\MatrixCmdlets.cs" />
