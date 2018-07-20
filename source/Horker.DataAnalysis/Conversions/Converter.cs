@@ -260,7 +260,7 @@ namespace Horker.DataAnalysis
                     result[i] = subarray;
 
                     for (var j = 0; j < inputSubarray.Length; ++j)
-                        subarray[i] = ToDouble(inputSubarray[j]);
+                        subarray[j] = ToDouble(inputSubarray[j]);
                 }
 
                 return result;

@@ -37,7 +37,7 @@ namespace Tests
                 var ci = new CmdletInfo("New-Math.Matrix", typeof(NewMathMatrix));
                 ps.AddCommand(ci);
                 ps.AddParameters(new Dictionary<string, object>() {
-                    { "RowCount", 2 },
+                    { "Rows", 2 },
                     { "Values", new double[] { 1, 2, 3, 4, 5 } }
                 });
                 var results = ps.Invoke();
@@ -52,7 +52,7 @@ namespace Tests
         }
 
         [TestMethod]
-        public void TestFromJagged()
+        public void TestFromJaggedOfDouble()
         {
             using (var ps = PowerShell.Create()) {
                 var ci = new CmdletInfo("New-Math.Matrix", typeof(NewMathMatrix));
@@ -69,6 +69,29 @@ namespace Tests
                 Assert.AreEqual(2, matrix.Rows);
                 Assert.AreEqual(3, matrix.Columns);
                 Assert.AreEqual(0, matrix[0, 2]);
+            }
+        }
+
+        [TestMethod]
+        public void TestFromJaggedOfObject()
+        {
+            using (var ps = PowerShell.Create()) {
+                var ci = new CmdletInfo("New-Math.Matrix", typeof(NewMathMatrix));
+                ps.AddCommand(ci);
+                ps.AddParameters(new Dictionary<string, object>() {
+                    { "FromJagged", true },
+                    { "Values", new object[][] { new object[] { 1, 2 }, new object[] { 3, 4, 5 } } }
+                });
+                var results = ps.Invoke();
+
+                Assert.AreEqual(1, results.Count);
+                var matrix = (Matrix)results[0].BaseObject;
+
+                Assert.AreEqual(2, matrix.Rows);
+                Assert.AreEqual(3, matrix.Columns);
+                Assert.AreEqual(1, matrix[0, 0]);
+                Assert.AreEqual(0, matrix[0, 2]);
+                Assert.AreEqual(5, matrix[1, 2]);
             }
         }
     }

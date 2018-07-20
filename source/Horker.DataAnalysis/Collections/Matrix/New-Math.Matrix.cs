@@ -45,75 +45,35 @@ namespace Horker.DataAnalysis
 
         protected override void EndProcessing()
         {
-            IReadOnlyList<object> array;
-            Matrix matrix = null;
+            object values;
 
             if (Values != null)
             {
-                if (_inputObjects.Count > 0)
+                if (_inputObjects.Count > 1 && !(_inputObjects.Count == 1 && _inputObjects[0] == null))
                 {
                     WriteError(new ErrorRecord(new ArgumentException("Both pipeline and -Value argumetns are given"), "", ErrorCategory.InvalidArgument, null));
                     return;
                 }
-
-                if (Values is IReadOnlyList<object>)
-                {
-                    array = (IReadOnlyList<object>)Values;
-                }
-                else
-                {
-                    array = new object[1] { Values };
-                }
+                values = Values;
             }
             else
             {
-                if (_inputObjects.Count == 0)
+                if (_inputObjects.Count == 0 || (_inputObjects.Count == 1 && _inputObjects[0] == null))
                 {
                     WriteError(new ErrorRecord(new ArgumentException("Values are required"), "", ErrorCategory.InvalidArgument, null));
                     return;
                 }
-                array = _inputObjects;
+                values = _inputObjects;
             }
 
+            Matrix matrix = null;
             if (FromJagged)
-            {
-                matrix = Matrix.Create(Converter.ToDoubleJaggedArray(array));
-            }
+                matrix = Matrix.Create(Converter.ToDoubleJaggedArray(values));
             else
-            {
-                if (array.Count == 1)
-                {
-                    if (array[0] is double[,])
-                    {
-                        matrix = new Matrix(array[0] as double[,]);
-                    }
-                    else if (array[0] is object[,] || array[0] is float[,])
-                    {
-                        var a = array[0] as object[,];
-                        var da = new double[a.GetLength(0), a.GetLength(1)];
-
-                        for (var column = 0; column < a.GetLength(1); ++column)
-                        {
-                            for (var row = 0; row < a.GetLength(0); ++row)
-                            {
-                                da[row, column] = Converter.ToDouble(a[row, column]);
-                            }
-                        }
-                        matrix = new Matrix(da);
-                    }
-                }
-            }
-
-            if (matrix == null)
-            {
-                var da = array.Select(x => Converter.ToDouble(x));
-                matrix = Matrix.Create(da.ToArray(), Rows, Columns);
-            }
+                matrix = Matrix.Create(Converter.ToDoubleArray(values), Rows, Columns);
 
             if (Transpose)
-            {
                 matrix = matrix.T;
-            }
 
             WriteObject(matrix);
         }
