@@ -138,31 +138,22 @@ namespace Horker.DataAnalysis
 
             int columnCount = 0;
             foreach (var j in jagged)
-            {
                 if (columnCount < j.Length)
-                {
                     columnCount = j.Length;
-                }
-            }
 
             var matrix = new Matrix(rowCount, columnCount);
 
             for (var row = 0; row < rowCount; ++row)
-            {
                 for (var column = 0; column < jagged[row].Length; ++column)
-                {
                     matrix[row, column] = jagged[row][column];
-                }
-            }
+
             return matrix;
         }
 
         public static Matrix Create(double[] array, int rowCount = int.MaxValue, int columnCount = int.MaxValue, bool transpose = false)
         {
             if (array.Length == 0)
-            {
                 array = new double[1];
-            }
 
             if (columnCount == int.MaxValue)
             {
@@ -175,9 +166,7 @@ namespace Horker.DataAnalysis
                 {
                     columnCount = array.Length / rowCount;
                     if (columnCount == 0 || array.Length % rowCount != 0)
-                    {
                         ++columnCount;
-                    }
                 }
             }
             else
@@ -186,9 +175,7 @@ namespace Horker.DataAnalysis
                 {
                     rowCount = array.Length / columnCount;
                     if (rowCount == 0 || array.Length % columnCount != 0)
-                    {
                         ++rowCount;
-                    }
                 }
             }
 
@@ -200,13 +187,10 @@ namespace Horker.DataAnalysis
                 {
                     int index;
                     if (transpose)
-                    {
                         index = (row * columnCount + column) % array.Length;
-                    }
                     else
-                    {
                         index = (column * rowCount + row) % array.Length;
-                    }
+
                     matrix[row, column] = array[index];
                 }
             }
@@ -217,22 +201,16 @@ namespace Horker.DataAnalysis
         public static Matrix Diagonal(double[] values, int rowCount = int.MaxValue, int columnCount = int.MaxValue)
         {
             if (rowCount == int.MaxValue)
-            {
                 rowCount = values.Length;
-            }
 
             if (columnCount == int.MaxValue)
-            {
                 columnCount = rowCount;
-            }
 
             var matrix = new Matrix(rowCount, columnCount);
             var limit = Math.Min(rowCount, columnCount);
 
             for (var i = 0; i < limit; ++i)
-            {
                 matrix[i, i] = values[i % values.Length];
-            }
 
             return matrix;
         }
@@ -245,23 +223,15 @@ namespace Horker.DataAnalysis
         public static Matrix WithValue(double value, int rowCount, int columnCount = int.MaxValue)
         {
             if (rowCount == int.MaxValue)
-            {
                 rowCount = 1;
-            }
 
             if (columnCount == int.MaxValue)
-            {
                 columnCount = rowCount;
-            }
 
             var matrix = new Matrix(rowCount, columnCount);
             for (var column = 0; column < columnCount; ++column)
-            {
                 for (var row = 0; row < rowCount; ++row)
-                {
                     matrix[row, column] = value;
-                }
-            }
 
             return matrix;
         }
@@ -274,32 +244,22 @@ namespace Horker.DataAnalysis
         public static Matrix AsVector(double[] array, int dimension)
         {
             if (dimension == 0)
-            {
                 return Create(array, int.MaxValue);
-            }
-            else
-            {
-                return Create(array, 1);
-            }
+
+            return Create(array, 1);
         }
 
         public static Matrix Create(PSObject[] objects)
         {
             var names = new List<string>();
             foreach (var p in objects[0].Properties)
-            {
                 names.Add(p.Name);
-            }
 
             var result = new double[objects.Length, names.Count];
 
             for (var row = 0; row < objects.Length; ++row)
-            {
                 for (var column = 0; column < names.Count; ++column)
-                {
                     result[row, column] = Converter.ToDouble(objects[row].Properties[names[column]].Value);
-                }
-            }
 
             return new Matrix(result, true);
         }
@@ -331,9 +291,7 @@ namespace Horker.DataAnalysis
         {
             var row = new double[Columns];
             for (var i = 0; i < Columns; ++i)
-            {
                 row[i] = _values[rowIndex, i];
-            }
 
             return row;
         }
@@ -343,12 +301,8 @@ namespace Horker.DataAnalysis
             var matrix = new double[rowIndexes.Length, Columns];
 
             for (var column = 0; column < Columns; ++column)
-            {
                 for (var row = 0; row < rowIndexes.Length; ++row)
-                {
                     matrix[row, column] = _values[rowIndexes[row], column];
-                }
-            }
 
             return matrix;
         }
@@ -357,9 +311,7 @@ namespace Horker.DataAnalysis
         {
             var column = new double[Rows];
             for (var i = 0; i < Rows; ++i)
-            {
                 column[i] = _values[i, columnIndex];
-            }
 
             return column;
         }
@@ -369,12 +321,8 @@ namespace Horker.DataAnalysis
             var matrix = new double[Rows, columnIndexes.Length];
 
             for (var column = 0; column < columnIndexes.Length; ++column)
-            {
                 for (var row = 0; row < Rows; ++row)
-                {
                     matrix[row, column] = _values[row, columnIndexes[column]];
-                }
-            }
 
             return matrix;
         }
@@ -386,14 +334,10 @@ namespace Horker.DataAnalysis
         public override bool Equals(object other)
         {
             if (other is double[])
-            {
                 return Accord.Math.Matrix.IsEqual(_values, other as double[]);
-            }
 
             if (other is Matrix)
-            {
                 return Accord.Math.Matrix.IsEqual(_values, other as Matrix);
-            }
 
             return false;
         }
@@ -402,12 +346,8 @@ namespace Horker.DataAnalysis
         {
             int hash = 123456789;
             for (var row = 0; row < Rows; ++row)
-            {
                 for (var column = 0; column < Columns; ++column)
-                {
                     hash ^= (int)this[row, column];
-                }
-            }
 
             return hash;
         }
@@ -430,9 +370,7 @@ namespace Horker.DataAnalysis
                     var s = this[row, column].ToString("0.#####");
                     elements[row, column] = s;
                     if (maxLength < s.Length)
-                    {
                         maxLength = s.Length;
-                    }
                 }
             }
 
@@ -444,13 +382,10 @@ namespace Horker.DataAnalysis
             for (var row = 0; row < Rows; ++row)
             {
                 for (var column = 0; column < Columns; ++column)
-                {
                     builder.Append(elements[row, column].PadLeft(maxLength + 1));
-                }
+
                 if (row < Rows - 1)
-                {
                     builder.Append(delim);
-                }
             }
 
             return builder.ToString();
@@ -480,22 +415,15 @@ namespace Horker.DataAnalysis
         public double[] ToFlatArray()
         {
             if (Rows == 1)
-            {
                 return GetRow(0);
-            }
-            else if (Columns == 1)
-            {
+
+            if (Columns == 1)
                 return GetColumn(0);
-            }
 
             var result = new double[Rows * Columns];
             for (var column = 0; column < Columns; ++column)
-            {
                 for (var row = 0; row < Rows; ++row)
-                {
                     result[row + Rows * column] = this[row, column];
-                }
-            }
 
             return result;
         }
@@ -617,14 +545,10 @@ namespace Horker.DataAnalysis
         internal static Matrix AdjustRow(Matrix matrix, int rowCount)
         {
             if (matrix.Rows == rowCount)
-            {
                 return matrix;
-            }
 
             if (matrix.Rows != 1)
-            {
                 throw new ArgumentException("Matrix sizes are inconsistent");
-            }
 
             return Matrix.Create(matrix.GetRow(0), rowCount, matrix.Columns, true);
         }
@@ -637,14 +561,10 @@ namespace Horker.DataAnalysis
         internal static Matrix AdjustColumn(Matrix matrix, int columnCount)
         {
             if (matrix.Columns == columnCount)
-            {
                 return matrix;
-            }
 
             if (matrix.Columns != 1)
-            {
                 throw new ArgumentException("Matrix sizes are inconsistent");
-            }
 
             return Matrix.Create(matrix.GetColumn(0), matrix.Rows, columnCount, false);
         }
@@ -659,21 +579,15 @@ namespace Horker.DataAnalysis
             if (matrix.Rows == rowCount)
             {
                 if (matrix.Columns == columnCount)
-                {
                     return matrix;
-                }
 
                 if (matrix.Columns == 1)
-                {
                     return Matrix.Create(matrix.GetColumn(0), rowCount, columnCount, false);
-                }
             }
             else
             {
                 if (matrix.Rows == 1 && (matrix.Columns == columnCount || matrix.Columns == 1))
-                {
                     return Matrix.Create(matrix.GetRow(0), rowCount, columnCount, true);
-                }
             }
 
             throw new ArgumentException("Matrix sizes are inconsistent");
@@ -687,14 +601,10 @@ namespace Horker.DataAnalysis
         internal static double[] EnsureSequence(Matrix matrix)
         {
             if (matrix.Rows == 1)
-            {
                 return matrix.GetRow(0);
-            }
 
             if (matrix.Columns == 1)
-            {
                 return matrix.GetColumn(0);
-            }
 
             throw new ArgumentException("[n x 1] or [1 x n] matrix is required");
         }
@@ -716,6 +626,11 @@ namespace Horker.DataAnalysis
         public Matrix Apply(Func<double, double> func)
         {
             return _values.Apply(func);
+        }
+
+        public Matrix ApplyInPlace(Func<double, double> func)
+        {
+            return _values.Apply(func, _values);
         }
 
         public Tuple<int, int> ArgMax()
@@ -876,22 +791,14 @@ namespace Horker.DataAnalysis
             {
                 case MatrixType.LowerTriangular:
                     for (int i = 0; i < Rows; i++)
-                    {
                         for (int j = 0; j <= i; j++)
-                        {
                             result[i, j] = result[j, i] = this[i, j];
-                        }
-                    }
                     break;
 
                 case MatrixType.UpperTriangular:
                     for (int i = 0; i < Rows; i++)
-                    {
                         for (int j = i; j < Columns; j++)
-                        {
                             result[i, j] = result[j, i] = this[i, j];
-                        }
-                    }
                     break;
 
                 default:
@@ -1184,9 +1091,7 @@ namespace Horker.DataAnalysis
         public Matrix Combinations(int k = -1)
         {
             if (k == -1)
-            {
                 k = _values.Length;
-            }
 
             var seq = EnsureSequence(_values);
             var rowCount = (int)Special.Binomial(seq.Length, k);
@@ -1196,9 +1101,7 @@ namespace Horker.DataAnalysis
             foreach (var set in Combinatorics.Combinations(seq, k))
             {
                 for (var column = 0; column < k; ++column)
-                {
                     result[row, column] = set[column];
-                }
                 ++row;
             }
 
@@ -1215,9 +1118,7 @@ namespace Horker.DataAnalysis
             foreach (var set in Combinatorics.Permutations(seq))
             {
                 for (var column = 0; column < seq.Length; ++column)
-                {
                     result[row, column] = set[column];
-                }
                 ++row;
             }
 
@@ -1238,9 +1139,7 @@ namespace Horker.DataAnalysis
             foreach (int[] seq in Combinatorics.Sequences(symbols, false))
             {
                 for (var column = 0; column < symbols.Length; ++column)
-                {
                     result[row, column] = seq[column];
-                }
                 ++row;
             }
 
@@ -1378,7 +1277,7 @@ namespace Horker.DataAnalysis
             double[,] trans;
 
             var result = Accord.Statistics.Tools.Whitening(_values, out trans);
-            transformMatrix = trans;
+            transformMatrix = new Matrix(trans, true);
 
             return result;
         }
