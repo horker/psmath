@@ -2,7 +2,7 @@
 using System.Text;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Horker.DataAnalysis;
+using Horker.Math;
 using System.Management.Automation;
 
 namespace Tests

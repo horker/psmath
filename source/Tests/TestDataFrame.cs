@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Horker.DataAnalysis;
+using Horker.Math;
 using System.Management.Automation;
 using System.Collections.Generic;
 

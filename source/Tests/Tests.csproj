@@ -71,9 +71,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Horker.DataAnalysis\Horker.DataAnalysis.csproj">
+    <ProjectReference Include="..\Horker.Math\Horker.Math.csproj">
       <Project>{f4c2900e-adfe-4612-a40c-19393fc2ceff}</Project>
-      <Name>Horker.DataAnalysis</Name>
+      <Name>Horker.Math</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />

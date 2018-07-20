@@ -4,24 +4,24 @@ Set-StrictMode -Version 4
 
 ############################################################
 
-$SOURCE_PATH = "$PSScriptRoot\source\Horker.DataAnalysis"
+$SOURCE_PATH = "$PSScriptRoot\source\Horker.Math"
 $SCRIPT_PATH = "$PSScriptRoot\scripts"
 
-$MODULE_PATH = "$PSScriptRoot\HorkerDataAnalysis"
-$MODULE_PATH_DEBUG = "$PSScriptRoot\debug\HorkerDataAnalysis"
+$MODULE_PATH = "$PSScriptRoot\HorkerMath"
+$MODULE_PATH_DEBUG = "$PSScriptRoot\debug\HorkerMath"
 
-$SOLUTION_FILE = "$PSScriptRoot\source\Horker.DataAnalysis.sln"
+$SOLUTION_FILE = "$PSScriptRoot\source\Horker.Math.sln"
 
 $OBJECT_FILES = @(
   "Accord.dll"
   "Accord.Math.Core.dll"
   "Accord.Math.dll"
   "Accord.Statistics.dll"
-  "Horker.DataAnalysis.dll"
-  "Horker.DataAnalysis.pdb"
+  "Horker.Math.dll"
+  "Horker.Math.pdb"
 )
 
-#$HELP_INPUT =  "$SOURCE_PATH\bin\Release\Horker.DataAnalysis.dll"
+#$HELP_INPUT =  "$SOURCE_PATH\bin\Release\Horker.Math.dll"
 #$HELP_INTERM = "$SOURCE_PATH\bin\Release\Horker.Data.dll-Help.xml"
 #$HELP_OUTPUT = "$MODULE_PATH\Horker.Data.dll-Help.xml"
 #$HELPGEN = "$PSScriptRoot\vendor\XmlDoc2CmdletDoc.0.2.10\tools\XmlDoc2CmdletDoc.exe"
