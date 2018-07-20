@@ -23,9 +23,6 @@ namespace Horker.DataAnalysis
         private Dictionary<string, Vector> _columns;
         private PSObject _link;
 
-        private WeakReference _arrayCache;
-        private WeakReference _jaggedArrayCache;
-
         #region Constructors
 
         public DataFrame()
@@ -304,15 +301,6 @@ namespace Horker.DataAnalysis
 
         public double[][] ToDoubleJaggedArray()
         {
-            if (_jaggedArrayCache != null) {
-                if (_jaggedArrayCache.IsAlive && _jaggedArrayCache.Target != null) {
-                    return (double[][])_jaggedArrayCache.Target;
-                }
-            }
-            else {
-                _jaggedArrayCache = new WeakReference(null);
-            }
-
             var data = new double[this.Count][];
             for (var i = 0; i < data.Length; ++i) {
                 data[i] = new double[_names.Count];
@@ -327,22 +315,11 @@ namespace Horker.DataAnalysis
                 ++columnCount;
             }
 
-            _jaggedArrayCache.Target = data;
-
             return data;
         }
 
         public double[,] ToDoubleMatrix()
         {
-            if (_arrayCache != null) {
-                if (_arrayCache.IsAlive && _arrayCache.Target != null) {
-                    return (double[,])_arrayCache.Target;
-                }
-            }
-            else {
-                _arrayCache = new WeakReference(null);
-            }
-
             var data = new double[RowCount, ColumnCount];
             for (var column = 0; column < ColumnCount; ++column) {
                 var v = GetColumn(column);
@@ -350,8 +327,6 @@ namespace Horker.DataAnalysis
                     data[row, column] = Converter.ToDouble(v[row]);
                 }
             }
-
-            _arrayCache.Target = data;
 
             return data;
         }
@@ -402,8 +377,6 @@ namespace Horker.DataAnalysis
 
         public void ColumnToDummyValues(string columnName, CodificationType codificationType = CodificationType.OneHotDropFirst)
         {
-            InvalidateCache();
-
             var baseName = columnName;
             if (codificationType != CodificationType.Multilevel) {
                 baseName += "_";
@@ -419,16 +392,6 @@ namespace Horker.DataAnalysis
 
         #region Data manipulations
 
-        public void InvalidateCache()
-        {
-            if (_jaggedArrayCache != null) {
-                _jaggedArrayCache.Target = null;
-            }
-            if (_arrayCache != null) {
-                _arrayCache.Target = null;
-            }
-        }
-
         public bool HasColumn(string name)
         {
             // Use this method to find if a column name exists in the object
@@ -438,7 +401,6 @@ namespace Horker.DataAnalysis
 
         public void Add(string name, object value)
         {
-            InvalidateCache();
             _columns[name].Add(value);
         }
 
@@ -483,8 +445,6 @@ namespace Horker.DataAnalysis
 
         public void AddRow(PSObject obj)
         {
-            InvalidateCache();
-
             var names = new HashSet<string>(new StringKeyComparer());
 
             var count = this.Count;
@@ -519,7 +479,6 @@ namespace Horker.DataAnalysis
                 AddColumn(name, values);
             }
             else {
-                InvalidateCache();
                 _columns[name].AddRange(values);
             }
         }
@@ -530,7 +489,6 @@ namespace Horker.DataAnalysis
                 AddColumn(name, values);
             }
             else {
-                InvalidateCache();
                 _columns[name].AddRange(values);
             }
         }
@@ -540,8 +498,6 @@ namespace Horker.DataAnalysis
             if (_columns.ContainsKey(name)) {
                 throw new RuntimeException("Column already exists");
             }
-
-            InvalidateCache();
 
             _names.Add(name);
             _columns[name] = data;
@@ -583,7 +539,6 @@ namespace Horker.DataAnalysis
                 throw new RuntimeException("No such a column");
             }
 
-            InvalidateCache();
             _columns.Remove(name);
             _names.Remove(name);
             _link.Properties.Remove(name);
@@ -650,7 +605,6 @@ namespace Horker.DataAnalysis
 
         public void Clear()
         {
-            InvalidateCache();
             _names.Clear();
             _columns.Clear();
         }
