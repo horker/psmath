@@ -564,6 +564,37 @@ namespace Horker.DataAnalysis
             return new Matrix(values);
         }
 
+        public static implicit operator Matrix(object[,] values)
+        {
+            var matrix = new double[values.GetLength(0), values.GetLength(1)];
+
+            for (var column = 0; column < values.GetLength(1); ++column)
+                for (var row = 0; row < values.GetLength(0); ++row)
+                    matrix[row, column] = Converter.ToDouble(values[row, column]);
+
+            return new Matrix(matrix, true);
+        }
+
+        public static implicit operator Matrix(double[] values)
+        {
+            var matrix = new double[values.Length, 1];
+
+            for (var row = 0; row < values.GetLength(0); ++row)
+                matrix[row, 0] = values[row];
+
+            return new Matrix(matrix, true);
+        }
+
+        public static implicit operator Matrix(object[] values)
+        {
+            var matrix = new double[values.Length, 1];
+
+            for (var row = 0; row < values.GetLength(0); ++row)
+                matrix[row, 0] = Converter.ToDouble(values[row]);
+
+            return new Matrix(matrix, true);
+        }
+
         public static implicit operator Matrix(double[][] jagged)
         {
             return Matrix.Create(jagged);
