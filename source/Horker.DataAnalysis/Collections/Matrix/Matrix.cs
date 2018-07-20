@@ -523,6 +523,16 @@ namespace Horker.DataAnalysis
             return new Matrix(matrix, true);
         }
 
+        public static implicit operator Matrix(int value)
+        {
+            return new Matrix(new double[1, 1] { { value } }, true);
+        }
+
+        public static implicit operator Matrix(double value)
+        {
+            return new Matrix(new double[1, 1] { { value } }, true);
+        }
+
         public static implicit operator Matrix(double[][] jagged)
         {
             return Matrix.Create(jagged);
