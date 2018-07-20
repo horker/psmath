@@ -61,7 +61,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MatrixCmdletsTest.cs" />
     <Compile Include="NewMathMatrixTest.cs" />
     <Compile Include="NewMathSequenceTest.cs" />
     <Compile Include="TestDataFrame.cs" />
