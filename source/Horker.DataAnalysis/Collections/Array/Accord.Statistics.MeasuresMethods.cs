@@ -51,7 +51,7 @@ namespace Horker.DataAnalysis.ArrayMethods
 
         public static double Kurtosis(
             PSObject values,
-            bool unbiased = true
+            bool unbiased = false
         )
         {
             var array = Converter.ToDoubleArray(values);
@@ -145,7 +145,7 @@ namespace Horker.DataAnalysis.ArrayMethods
 
         public static double Skewness(
             PSObject values,
-            bool unbiased = true
+            bool unbiased = false
         )
         {
             var array = Converter.ToDoubleArray(values);
@@ -154,11 +154,19 @@ namespace Horker.DataAnalysis.ArrayMethods
 
         public static double StandardDeviation(
             PSObject values,
-            bool unbiased = true
+            bool unbiased = false
         )
         {
             var array = Converter.ToDoubleArray(values);
             return Measures.StandardDeviation(array, unbiased);
+        }
+
+        public static double Stdev(
+            PSObject values,
+            bool unbiased = false
+        )
+        {
+            return StandardDeviation(values, unbiased);
         }
 
         public static double StandardError(
@@ -193,11 +201,19 @@ namespace Horker.DataAnalysis.ArrayMethods
 
         public static double Variance(
             PSObject values,
-            bool unbiased
+            bool unbiased = false
         )
         {
             var array = Converter.ToDoubleArray(values);
             return Measures.Variance(array, unbiased);
+        }
+
+        public static double Var(
+            PSObject values,
+            bool unbiased = false
+        )
+        {
+            return Variance(values, unbiased);
         }
     }
 }

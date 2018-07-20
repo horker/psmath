@@ -71,7 +71,7 @@ namespace Horker.DataAnalysis
                 return (input as IEnumerable<double>).ToArray();
 
             if (input is IEnumerable<object>)
-                return (input as IEnumerable<double>).Select(x => Converter.ToDouble(x)).ToArray();
+                return (input as IEnumerable<object>).Select(x => Converter.ToDouble(x)).ToArray();
 
             if (input is float[])
                 return (input as float[]).Select(x => (double)x).ToArray();

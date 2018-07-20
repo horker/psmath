@@ -31,6 +31,28 @@ namespace Tests
         }
 
         [TestMethod]
+        public void TestCreatePipeline()
+        {
+            using (var ps = PowerShell.Create()) {
+                ps.AddScript("1,2,3");
+                var ci = new CmdletInfo("New-Math.Matrix", typeof(NewMathMatrix));
+                ps.AddCommand(ci);
+                ps.AddParameters(new Dictionary<string, object>() {
+                    { "Rows", 2 },
+                    { "Columns", 3 }
+                });
+                var results = ps.Invoke();
+
+                Assert.AreEqual(1, results.Count);
+                var matrix = (Matrix)results[0].BaseObject;
+
+                Assert.AreEqual(2, matrix.Rows);
+                Assert.AreEqual(3, matrix.Columns);
+                Assert.AreEqual(2, matrix[0, 2]);
+            }
+        }
+
+        [TestMethod]
         public void TestAutosizing()
         {
             using (var ps = PowerShell.Create()) {

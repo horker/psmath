@@ -68,10 +68,12 @@ $METHOD_LIST = @(
       "Quartiles"
       "Skewness"
       "StandardDeviation"
+      "Stdev"
       "StandardError"
       "TruncatedMean"
       "UpperQuartile"
       "Variance"
+      "Var"
     )
   }
 

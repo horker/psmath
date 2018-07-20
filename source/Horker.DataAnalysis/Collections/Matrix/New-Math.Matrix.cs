@@ -37,10 +37,7 @@ namespace Horker.DataAnalysis
 
         protected override void ProcessRecord()
         {
-            if (InputObject != null)
-            {
-                _inputObjects.Add(InputObject);
-            }
+            _inputObjects.Add(InputObject);
         }
 
         protected override void EndProcessing()
@@ -49,7 +46,7 @@ namespace Horker.DataAnalysis
 
             if (Values != null)
             {
-                if (_inputObjects.Count > 1 && !(_inputObjects.Count == 1 && _inputObjects[0] == null))
+                if (_inputObjects.Count > 1 || (_inputObjects.Count == 1 && _inputObjects[0] != null))
                 {
                     WriteError(new ErrorRecord(new ArgumentException("Both pipeline and -Value argumetns are given"), "", ErrorCategory.InvalidArgument, null));
                     return;
