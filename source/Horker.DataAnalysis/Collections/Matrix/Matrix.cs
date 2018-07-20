@@ -510,8 +510,11 @@ namespace Horker.DataAnalysis
             return _values.ToJagged(transpose);
         }
 
-        public IEnumerable<PSObject> ToPSObject(bool transpose = false)
+        public IEnumerable<PSObject> ToPSObject(IReadOnlyList<object> propNames = null, bool transpose = false)
         {
+            if (propNames == null)
+                propNames = new string[0] {};
+
             if (!transpose)
             {
                 for (var row = 0; row < RowCount; ++row)
@@ -519,7 +522,13 @@ namespace Horker.DataAnalysis
                     var obj = new PSObject();
                     for (var column = 0; column < ColumnCount; ++column)
                     {
-                        obj.Properties.Add(new PSNoteProperty("c" + column, this[row, column]));
+                        string name;
+                        if (column < propNames.Count)
+                            name = propNames[column].ToString();
+                        else
+                            name = "c" + column;
+
+                        obj.Properties.Add(new PSNoteProperty(name, this[row, column]));
                     }
                     yield return obj;
                 }
@@ -531,7 +540,13 @@ namespace Horker.DataAnalysis
                     var obj = new PSObject();
                     for (var row = 0; row < RowCount; ++row)
                     {
-                        obj.Properties.Add(new PSNoteProperty("c" + row, this[row, column]));
+                        string name;
+                        if (row < propNames.Count)
+                            name = propNames[row].ToString();
+                        else
+                            name = "c" + row;
+
+                        obj.Properties.Add(new PSNoteProperty(name, this[row, column]));
                     }
                     yield return obj;
                 }
