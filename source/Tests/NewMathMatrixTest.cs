@@ -24,8 +24,8 @@ namespace Tests
                 Assert.AreEqual(1, results.Count);
                 var matrix = (Matrix)results[0].BaseObject;
 
-                Assert.AreEqual(2, matrix.RowCount);
-                Assert.AreEqual(3, matrix.ColumnCount);
+                Assert.AreEqual(2, matrix.Rows);
+                Assert.AreEqual(3, matrix.Columns);
                 Assert.AreEqual(2, matrix[0, 2]);
             }
         }
@@ -45,8 +45,8 @@ namespace Tests
                 Assert.AreEqual(1, results.Count);
                 var matrix = (Matrix)results[0].BaseObject;
 
-                Assert.AreEqual(2, matrix.RowCount);
-                Assert.AreEqual(3, matrix.ColumnCount);
+                Assert.AreEqual(2, matrix.Rows);
+                Assert.AreEqual(3, matrix.Columns);
                 Assert.AreEqual(5, matrix[0, 2]);
             }
         }
@@ -66,8 +66,8 @@ namespace Tests
                 Assert.AreEqual(1, results.Count);
                 var matrix = (Matrix)results[0].BaseObject;
 
-                Assert.AreEqual(2, matrix.RowCount);
-                Assert.AreEqual(3, matrix.ColumnCount);
+                Assert.AreEqual(2, matrix.Rows);
+                Assert.AreEqual(3, matrix.Columns);
                 Assert.AreEqual(0, matrix[0, 2]);
             }
         }

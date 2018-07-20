@@ -13,31 +13,31 @@ namespace Horker.DataAnalysis
     {
         public Matrix AdjustRow(Matrix matrix, int rowCount)
         {
-            if (matrix.RowCount == rowCount) {
+            if (matrix.Rows == rowCount) {
                 return matrix;
             }
 
-            if (matrix.RowCount != 1) {
+            if (matrix.Rows != 1) {
                 throw new ArgumentException("Matrix sizes are inconsistent");
             }
 
-            return Matrix.Create(matrix.Row(0), rowCount, matrix.ColumnCount, true);
+            return Matrix.Create(matrix.GetRow(0), rowCount, matrix.Columns, true);
         }
 
         public Matrix AdjustRowColumn(Matrix matrix, int rowCount, int columnCount)
         {
-            if (matrix.RowCount == rowCount) {
-                if (matrix.ColumnCount == columnCount) {
+            if (matrix.Rows == rowCount) {
+                if (matrix.Columns == columnCount) {
                     return matrix;
                 }
 
-                if (matrix.ColumnCount == 1) {
-                    return Matrix.Create(matrix.Column(0), rowCount, columnCount, false);
+                if (matrix.Columns == 1) {
+                    return Matrix.Create(matrix.GetColumn(0), rowCount, columnCount, false);
                 }
             }
             else {
-                if (matrix.RowCount == 1 && (matrix.ColumnCount == columnCount || matrix.ColumnCount == 1)) {
-                    return Matrix.Create(matrix.Row(0), rowCount, columnCount, true);
+                if (matrix.Rows == 1 && (matrix.Columns == columnCount || matrix.Columns == 1)) {
+                    return Matrix.Create(matrix.GetRow(0), rowCount, columnCount, true);
                 }
             }
 
@@ -116,7 +116,7 @@ namespace Horker.DataAnalysis
         {
             Matrix lhs = Converter.ToMatrix(Lhs, true);
             Matrix rhs = Converter.ToMatrix(Rhs, true);
-            rhs = AdjustRowColumn(rhs, lhs.RowCount, lhs.ColumnCount);
+            rhs = AdjustRowColumn(rhs, lhs.Rows, lhs.Columns);
 
             var result = Process(lhs, rhs);
 
@@ -135,7 +135,7 @@ namespace Horker.DataAnalysis
         {
             Matrix lhs = Converter.ToMatrix(Lhs, false);
             Matrix rhs = Converter.ToMatrix(Rhs, true);
-            rhs = AdjustRow(rhs, lhs.ColumnCount);
+            rhs = AdjustRow(rhs, lhs.Columns);
 
             var result = Process(lhs, rhs);
 
@@ -207,7 +207,7 @@ namespace Horker.DataAnalysis
         public double RowMaximum;
 
         [Parameter(Position = 2, Mandatory = true)]
-        public int RowCount;
+        public int Rows;
 
         [Parameter(Position = 3, Mandatory = true)]
         public double ColumnMinimum;
@@ -216,13 +216,13 @@ namespace Horker.DataAnalysis
         public double ColumnMaximum;
 
         [Parameter(Position = 5, Mandatory = true)]
-        public int ColumnCount;
+        public int Columns;
 
         protected override void EndProcessing()
         {
             var result = Accord.Math.Matrix.Mesh(
-                new Accord.DoubleRange(RowMinimum, RowMaximum), RowCount,
-                new Accord.DoubleRange(ColumnMinimum, ColumnMaximum), ColumnCount
+                new Accord.DoubleRange(RowMinimum, RowMaximum), Rows,
+                new Accord.DoubleRange(ColumnMinimum, ColumnMaximum), Columns
             );
             WriteObject(Matrix.Create(result));
         }
@@ -270,14 +270,14 @@ namespace Horker.DataAnalysis
     public class NewMatrixDiagonal : AggregateFunctionCmdletBase
     {
         [Parameter(Position = 1, Mandatory = true)]
-        public int RowCount = int.MaxValue;
+        public int Rows = int.MaxValue;
 
         [Parameter(Position = 2, Mandatory = false)]
-        public int ColumnCount = int.MaxValue;
+        public int Columns = int.MaxValue;
 
         protected override void Process(double[] values)
         {
-            WriteObject(Matrix.Diagonal(values, RowCount, ColumnCount));
+            WriteObject(Matrix.Diagonal(values, Rows, Columns));
         }
     }
 

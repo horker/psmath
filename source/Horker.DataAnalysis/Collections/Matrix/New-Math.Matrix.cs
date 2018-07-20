@@ -17,10 +17,10 @@ namespace Horker.DataAnalysis
         public object Values;
 
         [Parameter(Position = 1, Mandatory = false)]
-        public int RowCount = int.MaxValue;
+        public int Rows = int.MaxValue;
 
         [Parameter(Position = 2, Mandatory = false)]
-        public int ColumnCount = int.MaxValue;
+        public int Columns = int.MaxValue;
 
         [Parameter(Position = 3, Mandatory = false)]
         public SwitchParameter Transpose = false;
@@ -107,7 +107,7 @@ namespace Horker.DataAnalysis
             if (matrix == null)
             {
                 var da = array.Select(x => Converter.ToDouble(x));
-                matrix = Matrix.Create(da.ToArray(), RowCount, ColumnCount);
+                matrix = Matrix.Create(da.ToArray(), Rows, Columns);
             }
 
             if (Transpose)
