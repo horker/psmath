@@ -21,28 +21,28 @@ namespace Horker.DataAnalysis
         Boolean
     }
 
-    public class Vector : List<object>
+    public class DataFrameColumn : List<object>
     {
         private WeakReference _arrayCache;
 
         #region Constructors
 
-        public Vector()
+        public DataFrameColumn()
             : base()
         {
         }
 
-        public Vector(int capacity)
+        public DataFrameColumn(int capacity)
             : base(capacity)
         {
         }
 
-        public Vector(Vector v)
+        public DataFrameColumn(DataFrameColumn v)
             : base(v)
         {
         }
 
-        public Vector(IEnumerable data)
+        public DataFrameColumn(IEnumerable data)
             : base()
         {
             foreach (var d in data) {
@@ -54,27 +54,27 @@ namespace Horker.DataAnalysis
 
         #region Factory methods
 
-        public static Vector Create<T>(IEnumerable<T> data)
+        public static DataFrameColumn Create<T>(IEnumerable<T> data)
         {
-            var result = new Vector(data.Count());
+            var result = new DataFrameColumn(data.Count());
             foreach (var d in data) {
                 result.Add(d);
             }
             return result;
         }
 
-        public static Vector Create<T>(T[] data)
+        public static DataFrameColumn Create<T>(T[] data)
         {
-            var result = new Vector(data.Count());
+            var result = new DataFrameColumn(data.Count());
             foreach (var d in data) {
                 result.Add(d);
             }
             return result;
         }
 
-        public static Vector GetDoubleRange(double a, double b, double step = 1.0, bool inclusive = true)
+        public static DataFrameColumn GetDoubleRange(double a, double b, double step = 1.0, bool inclusive = true)
         {
-            var result = new Vector();
+            var result = new DataFrameColumn();
 
             if (inclusive) {
                 if (a <= b) {
@@ -116,13 +116,13 @@ namespace Horker.DataAnalysis
             return result;
         }
 
-        public static Vector GetDoubleInterval(double a, double b, int n, bool inclusive = true)
+        public static DataFrameColumn GetDoubleInterval(double a, double b, int n, bool inclusive = true)
         {
             if (a >= b || n <= 0) {
                 throw new RuntimeException("Range definition inconsistent");
             }
 
-            var result = new Vector(n);
+            var result = new DataFrameColumn(n);
 
             Double step;
 
@@ -142,9 +142,9 @@ namespace Horker.DataAnalysis
             return result;
         }
 
-        public static Vector WithValue(double value, int size)
+        public static DataFrameColumn WithValue(double value, int size)
         {
-            var result = new Vector(size);
+            var result = new DataFrameColumn(size);
 
             for (int i = 0; i < size; ++i) {
                 result.Add(value);
@@ -153,7 +153,7 @@ namespace Horker.DataAnalysis
             return result;
         }
 
-        public static Vector Zero(int size)
+        public static DataFrameColumn Zero(int size)
         {
             return WithValue(0, size);
         }

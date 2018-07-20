@@ -10,12 +10,12 @@ using System.Management.Automation;
 namespace Tests
 {
     [TestClass]
-    public class TestVector
+    public class TestDataFrameColumn
     {
         [TestMethod]
         public void TestCodify()
         {
-            var v = new Vector {
+            var v = new DataFrameColumn {
                 "a",
                 "b",
                 "a",

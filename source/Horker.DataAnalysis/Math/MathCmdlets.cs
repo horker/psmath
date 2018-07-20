@@ -490,7 +490,7 @@ namespace Horker.DataAnalysis
                 foreach (int[] seq in Combinatorics.Sequences(Symbols, true)) {
                     if (first) {
                         for (var column = 0; column < seq.Length; ++column) {
-                            df.DefineNewColumn("c" + column, new Vector());
+                            df.DefineNewColumn("c" + column, new DataFrameColumn());
                         }
                         first = false;
                     }
@@ -503,7 +503,7 @@ namespace Horker.DataAnalysis
             else {
                 int column = 0;
                 foreach (int[] seq in Combinatorics.Sequences(Symbols, true)) {
-                    df.DefineNewColumn("c" + column, new Vector(seq));
+                    df.DefineNewColumn("c" + column, new DataFrameColumn(seq));
                     ++column;
                 }
             }

@@ -20,7 +20,7 @@ namespace Horker.DataAnalysis
     public class DataFrame : IEnumerable<PSObject>
     {
         private List<string> _names;
-        private Dictionary<string, Vector> _columns;
+        private Dictionary<string, DataFrameColumn> _columns;
         private PSObject _link;
 
         #region Constructors
@@ -28,7 +28,7 @@ namespace Horker.DataAnalysis
         public DataFrame()
         {
             _names = new List<string>();
-            _columns = new Dictionary<string, Vector>(new StringKeyComparer());
+            _columns = new Dictionary<string, DataFrameColumn>(new StringKeyComparer());
             _link = new PSObject(this);
         }
 
@@ -57,9 +57,9 @@ namespace Horker.DataAnalysis
                 }
             }
 
-            var data = new Vector[columnCount];
+            var data = new DataFrameColumn[columnCount];
             for (var column = 0; column < columnCount; ++column) {
-                data[column] = new Vector(rowCount);
+                data[column] = new DataFrameColumn(rowCount);
             }
 
             for (var row = 0; row < rowCount; ++row) {
@@ -103,9 +103,9 @@ namespace Horker.DataAnalysis
                 }
             }
 
-            var data = new Vector[columnCount];
+            var data = new DataFrameColumn[columnCount];
             for (int column = 0; column < columnCount; ++column) {
-                data[column] = new Vector(rowCount);
+                data[column] = new DataFrameColumn(rowCount);
             }
 
             for (int column = 0; column < columnCount; ++column) {
@@ -137,7 +137,7 @@ namespace Horker.DataAnalysis
             int columnCount = matrix.GetLength(1);
 
             for (var column = 0; column < columnCount; ++column) {
-                var v = new Vector(rowCount);
+                var v = new DataFrameColumn(rowCount);
                 for (var row = 0; row < rowCount; ++row) {
                     v.Add(matrix[row, column]);
                 }
@@ -152,7 +152,7 @@ namespace Horker.DataAnalysis
             var df = new DataFrame();
 
             for (var i = 0; i < ColumnCount; ++i) {
-                df.DefineNewColumn(ColumnNames[i], new Vector(GetColumn(i)));
+                df.DefineNewColumn(ColumnNames[i], new DataFrameColumn(GetColumn(i)));
             }
 
             return df;
@@ -191,7 +191,7 @@ namespace Horker.DataAnalysis
 
         public List<String> ColumnNames => _names;
 
-        public Vector this[string name] {
+        public DataFrameColumn this[string name] {
             get => GetColumn(name);
             set => SetColumn(name, value);
         }
@@ -420,11 +420,11 @@ namespace Horker.DataAnalysis
             return obj;
         }
 
-        public Vector GetColumn(string name)
+        public DataFrameColumn GetColumn(string name)
         {
             if (name.ToLower() == "__line__") {
                 var count = this.Count;
-                var column = new Vector(Count);
+                var column = new DataFrameColumn(Count);
                 for (var i = 0; i < count; ++i) {
                     column.Add(i);
                 }
@@ -433,7 +433,7 @@ namespace Horker.DataAnalysis
             return _columns[name];
         }
 
-        public Vector GetColumn(int index)
+        public DataFrameColumn GetColumn(int index)
         {
             return _columns[_names[index]];
         }
@@ -454,7 +454,7 @@ namespace Horker.DataAnalysis
                     _columns[p.Name].Add(p.Value);
                 }
                 else {
-                    var l = new Vector();
+                    var l = new DataFrameColumn();
 
                     for (var i = 0; i < count; ++i) {
                         l.Add(null);
@@ -493,7 +493,7 @@ namespace Horker.DataAnalysis
             }
         }
 
-        public void DefineNewColumn(string name, Vector data)
+        public void DefineNewColumn(string name, DataFrameColumn data)
         {
             if (_columns.ContainsKey(name)) {
                 throw new RuntimeException("Column already exists");
@@ -506,30 +506,30 @@ namespace Horker.DataAnalysis
 
         public void AddColumn<T>(string name, IEnumerable<T> values)
         {
-            DefineNewColumn(name, Vector.Create(values));
+            DefineNewColumn(name, DataFrameColumn.Create(values));
         }
 
         public void AddColumn<T>(string name, T[] values)
         {
-            DefineNewColumn(name, Vector.Create(values));
+            DefineNewColumn(name, DataFrameColumn.Create(values));
         }
 
         public void InsertColumn<T>(int index, string name, IEnumerable<T> values)
         {
-            DefineNewColumn(name, Vector.Create(values));
+            DefineNewColumn(name, DataFrameColumn.Create(values));
             MoveColumn(name, index);
         }
 
         public void InsertColumn<T>(string before, string name, T[] values)
         {
-            DefineNewColumn(name, Vector.Create(values));
+            DefineNewColumn(name, DataFrameColumn.Create(values));
             MoveColumn(name, before);
         }
 
         public void Aggregate(DataFrame df)
         {
             for (var i = 0; i < df.ColumnCount; ++i) {
-                DefineNewColumn(df.ColumnNames[i], new Vector(df.GetColumn(i)));
+                DefineNewColumn(df.ColumnNames[i], new DataFrameColumn(df.GetColumn(i)));
             }
         }
 
@@ -645,7 +645,7 @@ namespace Horker.DataAnalysis
 
             for (var column = 0; column < ColumnCount; ++column) {
                 var v = GetColumn(column);
-                var newVec = new Vector(v.Count);
+                var newVec = new DataFrameColumn(v.Count);
                 for (var row = 0; row < RowCount; ++row) {
                     newVec.Add(f.Invoke(v[row]));
                 }
@@ -661,7 +661,7 @@ namespace Horker.DataAnalysis
 
             for (var column = 0; column < ColumnCount; ++column) {
                 var v = GetColumn(column);
-                var newVec = new Vector(v.Count);
+                var newVec = new DataFrameColumn(v.Count);
                 for (var row = 0; row < RowCount; ++row) {
                     newVec.Add(f.Invoke(v[row], arg1));
                 }
@@ -677,7 +677,7 @@ namespace Horker.DataAnalysis
 
             for (var column = 0; column < ColumnCount; ++column) {
                 var v = GetColumn(column);
-                var newVec = new Vector(v.Count);
+                var newVec = new DataFrameColumn(v.Count);
                 for (var row = 0; row < RowCount; ++row) {
                     var va = new List<PSVariable>() { new PSVariable("_") };
                     va[0].Value = v[row];
@@ -732,7 +732,7 @@ namespace Horker.DataAnalysis
             for (var column = 0; column < ColumnCount; ++column) {
                 var v = GetColumn(column);
                 var v2 = b.GetColumn(column);
-                var newVec = new Vector(v.Count);
+                var newVec = new DataFrameColumn(v.Count);
                 for (var row = 0; row < RowCount; ++row) {
                     newVec.Add(f.Invoke(v[row], v2[row]));
                 }
@@ -753,7 +753,7 @@ namespace Horker.DataAnalysis
             for (var column = 0; column < ColumnCount; ++column) {
                 var v = GetColumn(column);
                 var v2 = b.GetColumn(column);
-                var newVec = new Vector(v.Count);
+                var newVec = new DataFrameColumn(v.Count);
                 for (var row = 0; row < RowCount; ++row) {
                     var va = new List<PSVariable>() { new PSVariable("a"), new PSVariable("b") };
                     va[0].Value = v[row];

@@ -69,6 +69,7 @@
     <Compile Include="Collections\Array\Accord.Statistics.VectorMethods.cs" />
     <Compile Include="Collections\Array\AdditionalArrayMethods.cs" />
     <Compile Include="Collections\Array\ArrayMethodsHelper.cs" />
+    <Compile Include="Collections\DataFrame\DataFrameColumn.cs" />
     <Compile Include="Collections\Slice\Get-Math.Slice.cs" />
     <Compile Include="Collections\Matrix\New-Math.Matrix.cs" />
     <Compile Include="Collections\Array\System.LinqMethods.cs" />
@@ -97,7 +98,6 @@
     <Compile Include="Statistics\Regressions\Expression.cs" />
     <Compile Include="Statistics\Tests\InvokeBinomialTest.cs" />
     <Compile Include="Statistics\Tests\InvokeChiSquareTest.cs" />
-    <Compile Include="Collections\DataFrame\Vector.cs" />
     <Compile Include="Statistics\Tests\InvokeFisherExactTest.cs" />
     <Compile Include="Statistics\Tests\InvokeFTest.cs" />
     <Compile Include="Statistics\Tests\InvokeKolmogorovSmirnovTest.cs" />
