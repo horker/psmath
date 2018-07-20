@@ -219,9 +219,9 @@ namespace Horker.DataAnalysis
             double start, stop;
             int count;
 
-            if (!Stop.HasValue)
+            if (!Count.HasValue)
             {
-                if (!Count.HasValue)
+                if (!Stop.HasValue)
                 {
                     start = 0;
                     stop = Start;
