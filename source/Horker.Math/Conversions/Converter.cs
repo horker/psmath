@@ -14,9 +14,9 @@ namespace Horker.Math
 
         // ref.
         // Currency Symbols
-        // http://www.unicode.org/chars/PDF/U20A0.pdf
+        // http://www.unicode.org/charts/PDF/U20A0.pdf
         // Halfwidth and fullwidth form
-        // http://www.unicode.org/chars/PDF/UFF00.pdf
+        // http://www.unicode.org/charts/PDF/UFF00.pdf
         //
         // Note: The backslash is displayed as currency sign in several environments.
         static private Regex _currencyRe = new Regex("[\u20a0-\u20cf\u0024\u00a2\u00a3\u00a4\u00a5\u0192\u058f\u060b\u09f2\u09f3\u0af1\u0bf9\u0e3f\u17db\u2133\u5143\u5186\u5706\u5713\ufdfc\uff04\uffe0\uffe1\uffe5\uffe6\\\\]");
