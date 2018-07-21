@@ -160,41 +160,27 @@ namespace Horker.Math
         public double? Stop = null;
 
         [Parameter(Position = 2, Mandatory = false)]
-        public double? Step = null;
-
-        [Parameter(Position = 3, Mandatory = false)]
-        public int Count = int.MaxValue;
+        public double Step = 1.0;
 
         [Parameter(Position = 4, Mandatory = false)]
         public SwitchParameter Inclusive = false;
 
         protected override IEnumerable<double> GetSequence()
         {
-            double start, stop, step;
+            double start, stop;
 
-            if (!Step.HasValue)
+            if (!Stop.HasValue)
             {
-                if (!Stop.HasValue)
-                {
-                    start = 0;
-                    stop = Start;
-                    step = 1;
-                }
-                else
-                {
-                    start = 0;
-                    stop = Start;
-                    step = Stop.Value;
-                }
+                start = 0;
+                stop = Start;
             }
             else
             {
                 start = Start;
                 stop = Stop.Value;
-                step = Step.Value;
             }
 
-            return SequenceHelper.GetRange(start, stop, step, Inclusive);
+            return SequenceHelper.GetRange(start, stop, Step, Inclusive);
         }
     }
 
@@ -209,7 +195,7 @@ namespace Horker.Math
         public double? Stop = null;
 
         [Parameter(Position = 2, Mandatory = false)]
-        public int? Count = null;
+        public int Count = 100;
 
         [Parameter(Position = 3, Mandatory = false)]
         public SwitchParameter Inclusive = false;
@@ -217,31 +203,19 @@ namespace Horker.Math
         protected override IEnumerable<double> GetSequence()
         {
             double start, stop;
-            int count;
 
-            if (!Count.HasValue)
+            if (!Stop.HasValue)
             {
-                if (!Stop.HasValue)
-                {
-                    start = 0;
-                    stop = Start;
-                    count = 100;
-                }
-                else
-                {
-                    start = 0;
-                    stop = Start;
-                    count = (int)Stop.Value;
-                }
+                start = 0;
+                stop = Start;
             }
             else
             {
                 start = Start;
                 stop = Stop.Value;
-                count = Count.Value;
             }
 
-            return SequenceHelper.GetInterval(start, stop, count, Inclusive);
+            return SequenceHelper.GetInterval(start, stop, Count, Inclusive);
         }
     }
 
