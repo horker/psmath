@@ -51,6 +51,8 @@ namespace Horker.Math.ArrayMethods
             return array.Contains(value, comparer);
         }
 
+        /*
+        // Conflict with Count property
         public static int Count(PSObject source, Func<object, bool> predicate = null)
         {
             var array = Helper.GetObjectArray(source);
@@ -60,6 +62,7 @@ namespace Horker.Math.ArrayMethods
 
             return array.Count(predicate);
         }
+        */
 
         public static object[] DefaultIfEmpty(PSObject source, object defaultValue = null)
         {

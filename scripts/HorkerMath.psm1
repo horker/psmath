@@ -10,7 +10,6 @@ $METHOD_LIST = @(
       "AsEnumerable"
       "Concat"
       "Contains"
-      "Count"
       "DefaultIfEmpty"
       "Distinct"
       "ElementAt"
