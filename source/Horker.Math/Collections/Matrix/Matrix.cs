@@ -544,12 +544,12 @@ namespace Horker.Math
 
         public Matrix T
         {
-            get => _values.Transpose();
+            get => Transpose();
         }
 
         public Matrix Inv
         {
-            get => _values.Inverse();
+            get => Inverse();
         }
 
         internal static Matrix AdjustRow(Matrix matrix, int rowCount)
@@ -840,7 +840,7 @@ namespace Horker.Math
 
         public Matrix Inverse()
         {
-            return _values.Inverse();
+            return new Matrix(_values.Inverse(), true);
         }
 
         public bool IsDiagonal()
