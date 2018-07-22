@@ -7,8 +7,8 @@ Set-StrictMode -Version 4
 $SOURCE_PATH = "$PSScriptRoot\source\Horker.Math"
 $SCRIPT_PATH = "$PSScriptRoot\scripts"
 
-$MODULE_PATH = "$PSScriptRoot\HorkerMath"
-$MODULE_PATH_DEBUG = "$PSScriptRoot\debug\HorkerMath"
+$MODULE_PATH = "$PSScriptRoot\psmath"
+$MODULE_PATH_DEBUG = "$PSScriptRoot\debug\psmath"
 
 $SOLUTION_FILE = "$PSScriptRoot\source\Horker.Math.sln"
 
