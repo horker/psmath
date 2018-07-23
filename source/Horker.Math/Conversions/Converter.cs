@@ -65,15 +65,17 @@ namespace Horker.Math
                 return input as double[];
 
             if (input is object[])
-                return (input as object[]).Select(x => Converter.ToDouble(x)).ToArray();
+                return (input as object[]).Select(x => ToDouble(x)).ToArray();
 
             if (input is IEnumerable<double>)
                 return (input as IEnumerable<double>).ToArray();
 
             if (input is IEnumerable<object>)
-                return (input as IEnumerable<object>).Select(x => Converter.ToDouble(x)).ToArray();
+                return (input as IEnumerable<object>).Select(x => ToDouble(x)).ToArray();
 
-            if (input is float[])
+            // Other numeric types
+
+            if (input is Single[])
                 return (input as float[]).Select(x => (double)x).ToArray();
 
             if (input is Int64[])
@@ -91,6 +93,26 @@ namespace Horker.Math
             if (input is SByte[])
                 return (input as SByte[]).Select(x => (double)x).ToArray();
 
+            if (input is IEnumerable<Single>)
+                return (input as IEnumerable<float>).Select(x => (double)x).ToArray();
+
+            if (input is IEnumerable<Int64>)
+                return (input as IEnumerable<float>).Select(x => (double)x).ToArray();
+
+            if (input is IEnumerable<Int32>)
+                return (input as IEnumerable<float>).Select(x => (double)x).ToArray();
+
+            if (input is IEnumerable<Int16>)
+                return (input as IEnumerable<float>).Select(x => (double)x).ToArray();
+
+            if (input is IEnumerable<Byte>)
+                return (input as IEnumerable<float>).Select(x => (double)x).ToArray();
+
+            if (input is IEnumerable<SByte>)
+                return (input as IEnumerable<float>).Select(x => (double)x).ToArray();
+
+            // Non-generic enumerable
+
             if (input is IEnumerable)
             {
                 var result = new List<double>();
@@ -102,6 +124,7 @@ namespace Horker.Math
             }
 
             // Scalar value
+
             return new double[] { Converter.ToDouble(input) };
         }
 
