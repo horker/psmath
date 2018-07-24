@@ -135,12 +135,11 @@ namespace Horker.Math.ArrayMethods
             out double q1,
             out double q3,
             bool alreadySorted = false,
-            QuantileMethod type = QuantileMethod.Default,
-            bool inPlace = false
+            QuantileMethod type = QuantileMethod.Default
         )
         {
             var array = Converter.ToDoubleArray(values);
-            return Measures.Quartiles(array, out q1, out q3, alreadySorted, type, inPlace);
+            return Measures.Quartiles(array, out q1, out q3, alreadySorted, type, false);
         }
 
         public static double Skewness(
@@ -161,7 +160,7 @@ namespace Horker.Math.ArrayMethods
             return Measures.StandardDeviation(array, unbiased);
         }
 
-        public static double Stdev(
+        public static double StdDev(
             PSObject values,
             bool unbiased = false
         )

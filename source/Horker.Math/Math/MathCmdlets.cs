@@ -980,7 +980,7 @@ namespace Horker.Math
     }
 
     [Cmdlet("Get", "Math.StandardDeviation")]
-    [Alias("math.stdev")]
+    [Alias("math.stddev")]
     public class GetMathStandardDevidation : AggregateFunctionCmdletBase
     {
         [Parameter(Position = 1, Mandatory = false)]
