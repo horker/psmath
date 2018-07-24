@@ -107,6 +107,7 @@ namespace Horker.Math
     #region Accord.Math.Random
 
     [Cmdlet("Get", "Math.RandomSeed")]
+    [Alias("math.seed")]
     public class GetMathRandomSeed : PSCmdlet
     {
         protected override void EndProcessing()
@@ -116,7 +117,7 @@ namespace Horker.Math
     }
 
     [Cmdlet("Set", "Math.RandomSeed")]
-    [Alias("math.randomseed")]
+    [Alias("math.setseed")]
     public class SetMathRandomSeed : PSCmdlet
     {
         [AllowNull()]
@@ -126,6 +127,45 @@ namespace Horker.Math
         protected override void EndProcessing()
         {
             Generator.Seed = Seed;
+        }
+    }
+
+    [Cmdlet("Get", "Math.Random")]
+    [Alias("math.rand")]
+    public class GetMathRandom : PSCmdlet
+    {
+        [Parameter(Position = 0, Mandatory = false)]
+        public double? Lower;
+
+        [Parameter(Position = 1, Mandatory = false)]
+        public double? Upper;
+
+        [Parameter(Position = 2, Mandatory = false)]
+        public int Count = 1;
+
+        protected override void EndProcessing()
+        {
+            var r = Generator.Random;
+
+            if (!Upper.HasValue)
+            {
+                if (!Lower.HasValue)
+                {
+                    for (var i = 0; i < Count; ++i)
+                        WriteObject(r.NextDouble());
+                }
+                else
+                {
+                    for (var i = 0; i < Count; ++i)
+                        WriteObject(r.NextDouble() * Lower.Value);
+                }
+            }
+            else
+            {
+                var range = Upper.Value - Lower.Value;
+                for (var i = 0; i < Count; ++i)
+                    WriteObject(r.NextDouble() * range + Lower.Value);
+            }
         }
     }
 
