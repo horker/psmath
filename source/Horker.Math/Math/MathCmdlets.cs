@@ -955,7 +955,7 @@ namespace Horker.Math
 
     [Cmdlet("Get", "Math.Sample")]
     [Alias("math.sample")]
-    public class GetMathSample : AggregateFunctionCmdletBase
+    public class GetMathSample : ObjectListCmdletBase
     {
         [Parameter(Position = 1, Mandatory = true)]
         public int Size;
@@ -963,51 +963,23 @@ namespace Horker.Math
         [Parameter(Position = 2, Mandatory = false)]
         public SwitchParameter Replacement;
 
-        protected override void Process(double[] values)
+        protected override void Process(IReadOnlyList<object> values)
         {
             // ref. https://en.wikipedia.org/wiki/Fisher-Yates_shuffle
 
-            int count = values.Length;
-
-            if (Replacement) {
-                for (var i = 0; i < Size; ++i) {
-                    var j = Generator.Random.Next(count);
+            if (Replacement)
+            {
+                for (var i = 0; i < Size; ++i)
+                {
+                    var j = Generator.Random.Next(values.Count);
                     WriteObject(values[j]);
                 }
             }
-            else {
-                if (Size > count) {
-                    WriteError(new ErrorRecord(new ArgumentException("Sample size too large"), "", ErrorCategory.InvalidArgument, null));
-                }
-
-                if (count / Size >= 5) {
-                    var samples = new HashSet<double>();
-                    for (var i = Size; i > 0;) {
-                        var j = Generator.Random.Next(count);
-                        if (samples.Contains(j)) {
-                            continue;
-                        }
-
-                        samples.Add(j);
-                        --i;
-
-                        WriteObject(values[j]);
-                    }
-                }
-                else {
-                    var table = new double[count];
-                    for (var i = 0; i < count; ++i) {
-                        var j = Generator.Random.Next(i + 1);
-                        if (j != i) {
-                            table[i] = table[j];
-                        }
-                        table[j] = values[i];
-                    }
-
-                    for (var i = 0; i < Size; ++i) {
-                        WriteObject(table[i]);
-                    }
-                }
+            else
+            {
+                var samples = Vector.Sample(Size, values.Count);
+                for (var i = 0; i < Size; ++i)
+                    WriteObject(values[samples[i]]);
             }
         }
     }
@@ -1032,15 +1004,15 @@ namespace Horker.Math
 
     [Cmdlet("Get", "Math.Shuffle")]
     [Alias("math.shuffle")]
-    public class GetMathShuffle : AggregateFunctionCmdletBase
+    public class GetMathShuffle : ObjectListCmdletBase
     {
-        protected override void Process(double[] values)
+        protected override void Process(IReadOnlyList<object> values)
         {
             // ref. https://en.wikipedia.org/wiki/Fisher-Yates_shuffle
 
-            int count = values.Length;
+            int count = values.Count;
 
-            var table = new double[count];
+            var table = new object[count];
             for (var i = 0; i < count; ++i) {
                 var j = Generator.Random.Next(i + 1);
                 if (j != i) {
