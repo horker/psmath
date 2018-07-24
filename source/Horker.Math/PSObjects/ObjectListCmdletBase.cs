@@ -2,21 +2,23 @@
 using System.Collections.Generic;
 using System.Management.Automation;
 
-namespace Horker.Math.PSObjects
+namespace Horker.Math
 {
-    public abstract class PSObjectsCmdletBase : PSCmdlet
+    public abstract class ObjectListCmdletBase : PSCmdlet
     {
         [Parameter(ValueFromPipeline = true, Mandatory = false)]
-        public PSObject InputObject;
+        public object InputObject;
 
         [Parameter(Position = 0, Mandatory = false)]
-        public PSObject[] Data;
+        public object[] Data;
 
-        private List<PSObject> _inputObjects;
+        private List<object> _inputObjects;
+
+        protected abstract void Process(IReadOnlyList<object> data);
 
         protected override void BeginProcessing()
         {
-            _inputObjects = new List<PSObject>();
+            _inputObjects = new List<object>();
         }
 
         protected override void ProcessRecord()
@@ -24,11 +26,9 @@ namespace Horker.Math.PSObjects
             _inputObjects.Add(InputObject);
         }
 
-        protected abstract void Process(IReadOnlyList<PSObject> data);
-
         protected override void EndProcessing()
         {
-            IReadOnlyList<PSObject> data;
+            IReadOnlyList<object> data;
 
             if (_inputObjects.Count == 0 || (_inputObjects.Count == 1 && _inputObjects[0] == null))
             {

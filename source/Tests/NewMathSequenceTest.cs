@@ -17,7 +17,7 @@ namespace Tests
             {
                 var ci = new CmdletInfo("New-Math.Sequence", typeof(NewMathSequence));
                 ps.AddCommand(ci);
-                ps.AddParameters(new object[] { 10, 3 });
+                ps.AddParameters(new object[] { 0, 10, 3 });
                 var results = ps.Invoke();
 
                 Assert.AreEqual(4, results.Count);

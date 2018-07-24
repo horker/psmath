@@ -9,52 +9,13 @@ namespace Horker.Math.PSObjects
 {
     [Cmdlet("New", "PSObject.OneHot")]
     [Alias("pso.onehot")]
-    public class NewPSObjectOneHot : PSCmdlet
+    public class NewPSObjectOneHot : ObjectListCmdletBase
     {
-        [Parameter(ValueFromPipeline = true, Mandatory = false)]
-        public object InputObject;
-
-        [Parameter(Position = 0, Mandatory = false)]
-        public object[] Data;
-
         [Parameter(Position = 1, Mandatory = false)]
         public string[] Categories;
 
-        private List<object> _inputObjects;
-
-        protected override void BeginProcessing()
+        protected override void Process(IReadOnlyList<object> data)
         {
-            _inputObjects = new List<object>();
-        }
-
-        protected override void ProcessRecord()
-        {
-            _inputObjects.Add(InputObject);
-        }
-
-        protected override void EndProcessing()
-        {
-            IReadOnlyList<object> data;
-
-            if (_inputObjects.Count == 0 || (_inputObjects.Count == 1 && _inputObjects[0] == null))
-            {
-                if (Data == null || Data.Length == 0)
-                {
-                    WriteError(new ErrorRecord(new ArgumentException("No input specified"), "", ErrorCategory.InvalidArgument, null));
-                    return;
-                }
-                data = Data;
-            }
-            else
-            {
-                if (Data != null && Data.Length > 0)
-                {
-                    WriteError(new ErrorRecord(new ArgumentException("Both pipeline and -Data arguments specified"), "", ErrorCategory.InvalidArgument, null));
-                    return;
-                }
-                data = _inputObjects;
-            }
-
             string[] categories = Categories;
 
             if (Categories == null || Categories.Length == 0)

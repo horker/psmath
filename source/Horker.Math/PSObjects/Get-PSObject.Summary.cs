@@ -9,7 +9,7 @@ namespace Horker.Math.PSObjects
 {
     [Cmdlet("Get", "PSObjects.Summary")]
     [Alias("pso.summary")]
-    public class GetPSObjectsSummary : PSObjectsCmdletBase
+    public class GetPSObjectsSummary : PSObjectListCmdletBase
     {
         protected override void Process(IReadOnlyList<PSObject> data)
         {

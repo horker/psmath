@@ -82,7 +82,8 @@
     <Compile Include="PSObjects\Get-PSObject.Information.cs" />
     <Compile Include="PSObjects\Get-PSObject.Summary.cs" />
     <Compile Include="PSObjects\New-PSObject.OneHot.cs" />
-    <Compile Include="PSObjects\PSObjectsCmdletBase.cs" />
+    <Compile Include="PSObjects\ObjectListCmdletBase.cs" />
+    <Compile Include="PSObjects\PSObjectListCmdletBase.cs" />
     <Compile Include="Statistics\Distributions\Distributions.cs" />
     <Compile Include="Statistics\Analyses\InvokeDescriptiveAnalysis.cs" />
     <Compile Include="Collections\Matrix\MatrixCmdlets.cs" />
