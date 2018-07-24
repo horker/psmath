@@ -155,7 +155,7 @@ namespace Horker.Math
     }
 
     [Cmdlet("New", "ChiSquareDistribution")]
-    [Alias("st.chisquire")]
+    [Alias("st.chisq")]
     public class NewChiSquareDistribution : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = true)]
@@ -209,7 +209,7 @@ namespace Horker.Math
     }
 
     [Cmdlet("New", "ExponentialDistribution")]
-    [Alias("st.exponential")]
+    [Alias("st.exp")]
     public class NewExponentialDistribution : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = false)]
@@ -332,7 +332,7 @@ namespace Horker.Math
     }
 
     [Cmdlet("New", "NegativeBinomialDistribution")]
-    [Alias("st.negbinomial")]
+    [Alias("st.negbinom")]
     public class NewNegativeBinomialDistribution : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = false)]
@@ -399,7 +399,7 @@ namespace Horker.Math
     }
 
     [Cmdlet("New", "UniformContinuousDistribution")]
-    [Alias("st.uniform")]
+    [Alias("st.unif")]
     public class NewUniformContinuousDistribution : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = false)]
@@ -417,7 +417,7 @@ namespace Horker.Math
     }
 
     [Cmdlet("New", "UniformDiscreteDistribution")]
-    [Alias("st.uniformd")]
+    [Alias("st.unifd")]
     public class NewUniformDiscreteDistribution : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = false)]
