@@ -9,6 +9,50 @@ namespace Horker.Math.ArrayMethods
 {
     public class AdditionalMethods
     {
+        internal static object[][] SplitInternal(IReadOnlyList<object> values, double[] rates)
+        {
+            var results = new List<object[]>();
+
+            int total = values.Count;
+
+            int start = 0;
+            foreach (var r in rates)
+            {
+                var size = (int)System.Math.Round(r >= 1 ? r : total * r);
+                if (size > total - start)
+                    size = total - start;
+
+                var result = new object[size];
+                for (var i = 0; i < size; ++i)
+                    result[i] = values[start + i];
+                results.Add(result);
+
+                start += size;
+                if (start >= total)
+                    break;
+            }
+
+            if (start < total)
+            {
+                var size = total - start;
+                var result = new object[size];
+                for (var i = 0; i < size; ++i)
+                    result[i] = values[start + i];
+                results.Add(result);
+            }
+
+            return results.ToArray();
+        }
+
+        public static object[][] Split(PSObject values, double[] rates)
+        {
+            var results = new List<object[]>();
+
+            var array = Helper.GetObjectArray(values);
+
+            return SplitInternal(array, rates);
+        }
+
         public static object[] DropNa(PSObject values)
         {
             var array = Helper.GetObjectArray(values);

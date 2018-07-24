@@ -20,7 +20,7 @@ namespace Horker.Math.PSObjects
 
     [Cmdlet("Get", "PSObjects.Information")]
     [Alias("pso.info")]
-    public class GetPSObjectsInformation : PSObjectListCmdletBase
+    public class GetPSObjectsInformation : ObjectListCmdletBase<PSObject>
     {
         [Parameter(Position = 1, Mandatory = false)]
         public SwitchParameter NoTypeInference;

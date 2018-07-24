@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Management.Automation;
 using Accord.Math;
 using Accord.Statistics;
@@ -514,7 +512,7 @@ namespace Horker.Math
 
     #endregion
 
-    #region Statistical values
+    #region Math.Measures
 
     [Cmdlet("Get", "Math.ContraHarmonicMean")]
     [Alias("math.contraharmonicmean")]
@@ -955,7 +953,7 @@ namespace Horker.Math
 
     [Cmdlet("Get", "Math.Sample")]
     [Alias("math.sample")]
-    public class GetMathSample : ObjectListCmdletBase
+    public class GetMathSample : ObjectListCmdletBase<object>
     {
         [Parameter(Position = 1, Mandatory = true)]
         public int Size;
@@ -1004,7 +1002,7 @@ namespace Horker.Math
 
     [Cmdlet("Get", "Math.Shuffle")]
     [Alias("math.shuffle")]
-    public class GetMathShuffle : ObjectListCmdletBase
+    public class GetMathShuffle : ObjectListCmdletBase<object>
     {
         protected override void Process(IReadOnlyList<object> values)
         {
@@ -1340,6 +1338,26 @@ namespace Horker.Math
             {
                 WriteObject(value);
             }
+        }
+    }
+
+    #endregion
+
+    #region Additional
+
+    [Cmdlet("New", "Math.Split")]
+    [Alias("math.split")]
+    public class NewMathSplit : ObjectListCmdletBase<object>
+    {
+        [Parameter(Position = 1, Mandatory = true)]
+        public double[] Rates;
+
+        protected override void Process(IReadOnlyList<object> values)
+        {
+            var results = ArrayMethods.AdditionalMethods.SplitInternal(values, Rates);
+
+            foreach (var r in results)
+                WriteObject(r);
         }
     }
 

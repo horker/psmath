@@ -122,7 +122,6 @@ $METHOD_LIST = @(
       "Null"
       "Outer"
       "Product"
-      "Split"
       "Stack"
       "Swap"
       "Top"
@@ -133,6 +132,7 @@ $METHOD_LIST = @(
   [PSCustomObject]@{
     ClassInfo = [Horker.Math.ArrayMethods.AdditionalMethods]
     MethodNames = @(
+      "Split"
       "DropNa"
       "DropNaN"
     )

@@ -235,6 +235,7 @@ namespace Horker.Math.ArrayMethods
             return Accord.Math.Matrix.Product(array);
         }
 
+        /*
         public static double[][] Split(
             PSObject vector,
             int size
@@ -243,7 +244,7 @@ namespace Horker.Math.ArrayMethods
             var array = Converter.ToDoubleArray(vector);
             return Accord.Math.Matrix.Split(array, size);
         }
-
+        */
 
         public static Matrix Stack(
             PSObject a,

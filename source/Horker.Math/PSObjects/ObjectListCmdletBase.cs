@@ -4,21 +4,21 @@ using System.Management.Automation;
 
 namespace Horker.Math
 {
-    public abstract class ObjectListCmdletBase : PSCmdlet
+    public abstract class ObjectListCmdletBase<T> : PSCmdlet
     {
         [Parameter(ValueFromPipeline = true, Mandatory = false)]
-        public object InputObject;
+        public T InputObject;
 
         [Parameter(Position = 0, Mandatory = false)]
-        public object[] Data;
+        public T[] Data;
 
-        private List<object> _inputObjects;
+        private List<T> _inputObjects;
 
-        protected abstract void Process(IReadOnlyList<object> data);
+        protected abstract void Process(IReadOnlyList<T> data);
 
         protected override void BeginProcessing()
         {
-            _inputObjects = new List<object>();
+            _inputObjects = new List<T>();
         }
 
         protected override void ProcessRecord()
@@ -28,7 +28,7 @@ namespace Horker.Math
 
         protected override void EndProcessing()
         {
-            IReadOnlyList<object> data;
+            IReadOnlyList<T> data;
 
             if (_inputObjects.Count == 0 || (_inputObjects.Count == 1 && _inputObjects[0] == null))
             {

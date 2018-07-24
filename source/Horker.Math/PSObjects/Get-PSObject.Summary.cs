@@ -2,14 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Horker.Math.PSObjects
 {
     [Cmdlet("Get", "PSObjects.Summary")]
     [Alias("pso.summary")]
-    public class GetPSObjectsSummary : PSObjectListCmdletBase
+    public class GetPSObjectsSummary : ObjectListCmdletBase<PSObject>
     {
         protected override void Process(IReadOnlyList<PSObject> data)
         {

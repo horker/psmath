@@ -8,6 +8,9 @@ namespace Horker.Math
     class DistributionHelper
     {
         private static string[][] Aliases = {
+            // Generator
+            new string[] {"gen",    "if ($args.Length -eq 0) { $this.Generate(1) } else { $this.Generate($args[0]) }" },
+
             // Cumultive distribution function
             new string[] {"Cdf",    "$this.DistributionFunction($args[0])" },
 
@@ -116,7 +119,7 @@ namespace Horker.Math
     }
 
     [Cmdlet("New", "BinomialDistribution")]
-    [Alias("st.binomial")]
+    [Alias("st.binom")]
     public class NewBinomialDistribution : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = true)]
@@ -311,7 +314,7 @@ namespace Horker.Math
     }
 
     [Cmdlet("New", "LognormalDistribution")]
-    [Alias("st.lognormal")]
+    [Alias("st.lognorm")]
     public class NewLognormalDistribution : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = false)]
@@ -347,7 +350,7 @@ namespace Horker.Math
     }
 
     [Cmdlet("New", "NormalDistribution")]
-    [Alias("st.normal")]
+    [Alias("st.norm")]
     public class NewNormalDistribution : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = false)]

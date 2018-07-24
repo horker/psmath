@@ -9,7 +9,7 @@ namespace Horker.Math.PSObjects
 {
     [Cmdlet("New", "PSObject.OneHot")]
     [Alias("pso.onehot")]
-    public class NewPSObjectOneHot : ObjectListCmdletBase
+    public class NewPSObjectOneHot : ObjectListCmdletBase<object>
     {
         [Parameter(Position = 1, Mandatory = false)]
         public string[] Categories;
