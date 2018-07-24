@@ -507,51 +507,6 @@ namespace Horker.Math
 
     #endregion
 
-    #region Accord.Math.Combinatorics
-
-    [Cmdlet("Get", "Math.TruthTable")]
-    [Alias("math.truthtable")]
-    public class GetMathTruthTable : PSCmdlet
-    {
-        [Parameter(Position = 0, Mandatory = true)]
-        public int[] Symbols;
-
-        [Parameter(Mandatory = false)]
-        public SwitchParameter Transpose = false;
-
-        protected override void EndProcessing()
-        {
-            var df = new DataFrame();
-
-            if (Transpose) {
-                bool first = true;
-                foreach (int[] seq in Combinatorics.Sequences(Symbols, true)) {
-                    if (first) {
-                        for (var column = 0; column < seq.Length; ++column) {
-                            df.DefineNewColumn("c" + column, new DataFrameColumn());
-                        }
-                        first = false;
-                    }
-
-                    for (var column = 0; column < seq.Length; ++column) {
-                        df.GetColumn(column).Add(seq[column]);
-                    }
-                }
-            }
-            else {
-                int column = 0;
-                foreach (int[] seq in Combinatorics.Sequences(Symbols, true)) {
-                    df.DefineNewColumn("c" + column, new DataFrameColumn(seq));
-                    ++column;
-                }
-            }
-
-            WriteObject(df);
-        }
-    }
-
-    #endregion
-
     #region Math.Measures
 
     [Cmdlet("Get", "Math.ContraHarmonicMean")]
@@ -991,37 +946,6 @@ namespace Horker.Math
         }
     }
 
-    [Cmdlet("Get", "Math.Sample")]
-    [Alias("math.sample")]
-    public class GetMathSample : ObjectListCmdletBase<object>
-    {
-        [Parameter(Position = 1, Mandatory = true)]
-        public int Size;
-
-        [Parameter(Position = 2, Mandatory = false)]
-        public SwitchParameter Replacement;
-
-        protected override void Process(IReadOnlyList<object> values)
-        {
-            // ref. https://en.wikipedia.org/wiki/Fisher-Yates_shuffle
-
-            if (Replacement)
-            {
-                for (var i = 0; i < Size; ++i)
-                {
-                    var j = Generator.Random.Next(values.Count);
-                    WriteObject(values[j]);
-                }
-            }
-            else
-            {
-                var samples = Vector.Sample(Size, values.Count);
-                for (var i = 0; i < Size; ++i)
-                    WriteObject(values[samples[i]]);
-            }
-        }
-    }
-
     [Cmdlet("Get", "Math.Scale")]
     [Alias("math.scale")]
     public class GetMathScale : AggregateFunctionCmdletBase
@@ -1037,31 +961,6 @@ namespace Horker.Math
             var result = values.Scale(ToMin, ToMax);
 
             WriteObject(result);
-        }
-    }
-
-    [Cmdlet("Get", "Math.Shuffle")]
-    [Alias("math.shuffle")]
-    public class GetMathShuffle : ObjectListCmdletBase<object>
-    {
-        protected override void Process(IReadOnlyList<object> values)
-        {
-            // ref. https://en.wikipedia.org/wiki/Fisher-Yates_shuffle
-
-            int count = values.Count;
-
-            var table = new object[count];
-            for (var i = 0; i < count; ++i) {
-                var j = Generator.Random.Next(i + 1);
-                if (j != i) {
-                    table[i] = table[j];
-                }
-                table[j] = values[i];
-            }
-
-            for (var i = 0; i < count; ++i) {
-                WriteObject(table[i]);
-            }
         }
     }
 
@@ -1383,23 +1282,4 @@ namespace Horker.Math
 
     #endregion
 
-    #region Additional
-
-    [Cmdlet("New", "Math.Split")]
-    [Alias("math.split")]
-    public class NewMathSplit : ObjectListCmdletBase<object>
-    {
-        [Parameter(Position = 1, Mandatory = true)]
-        public double[] Rates;
-
-        protected override void Process(IReadOnlyList<object> values)
-        {
-            var results = ArrayMethods.AdditionalMethods.SplitInternal(values, Rates);
-
-            foreach (var r in results)
-                WriteObject(r);
-        }
-    }
-
-    #endregion
 }

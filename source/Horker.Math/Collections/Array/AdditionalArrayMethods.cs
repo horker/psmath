@@ -9,7 +9,7 @@ namespace Horker.Math.ArrayMethods
 {
     public class AdditionalMethods
     {
-        internal static object[][] SplitInternal(IReadOnlyList<object> values, double[] rates)
+        public static object[][] SplitInternal(IReadOnlyList<object> values, double[] rates)
         {
             var results = new List<object[]>();
 
@@ -44,10 +44,8 @@ namespace Horker.Math.ArrayMethods
             return results.ToArray();
         }
 
-        public static object[][] Split(PSObject values, double[] rates)
+        public static object[][] Split(PSObject values, params double[] rates)
         {
-            var results = new List<object[]>();
-
             var array = Helper.GetObjectArray(values);
 
             return SplitInternal(array, rates);

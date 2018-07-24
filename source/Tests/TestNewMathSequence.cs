@@ -8,7 +8,7 @@ using System.Management.Automation;
 namespace Tests
 {
     [TestClass]
-    public class NewMathSequenceTest
+    public class TestNewMathSequence
     {
         [TestMethod]
         public void TestSequence()

@@ -18,9 +18,9 @@ namespace Horker.Math.PSObjects
         public int Null;
     }
 
-    [Cmdlet("Get", "PSObjects.Information")]
-    [Alias("pso.info")]
-    public class GetPSObjectsInformation : ObjectListCmdletBase<PSObject>
+    [Cmdlet("Get", "PSObject.TypeInformation")]
+    [Alias("pso.typeinfo")]
+    public class GetPSObjectTypeInformation : ObjectListCmdletBase<PSObject>
     {
         [Parameter(Position = 1, Mandatory = false)]
         public SwitchParameter NoTypeInference;

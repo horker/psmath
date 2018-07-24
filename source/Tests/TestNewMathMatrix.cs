@@ -10,7 +10,7 @@ using System.Management.Automation;
 namespace Tests
 {
     [TestClass]
-    public class NewMathMatrixTest
+    public class TestNewMathMatrix
     {
         [TestMethod]
         public void TestCreate()
