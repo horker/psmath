@@ -37,11 +37,13 @@ namespace Horker.Math.ArrayMethods
             return Accord.Math.Vector.Scale(array, fromMin, fromMax, toMin, toMax, null);
         }
 
+        /*
         public static double[] Shuffle(PSObject values)
         {
             var array = Converter.ToDoubleArray(values);
             return Accord.Math.Vector.Shuffled(array);
         }
+        */
 
         public static double[] Sort(PSObject values, bool stable = false, bool asc = true)
         {

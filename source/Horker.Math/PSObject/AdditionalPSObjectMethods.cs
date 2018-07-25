@@ -44,22 +44,10 @@ namespace Horker.Math.PSObjects
     {
         protected override void Process(IReadOnlyList<object> values)
         {
-            // ref. https://en.wikipedia.org/wiki/Fisher-Yates_shuffle
+            var results = ArrayMethods.AdditionalMethods.ShuffleInternal(values);
 
-            int count = values.Count;
-
-            var table = new object[count];
-            for (var i = 0; i < count; ++i) {
-                var j = Generator.Random.Next(i + 1);
-                if (j != i) {
-                    table[i] = table[j];
-                }
-                table[j] = values[i];
-            }
-
-            for (var i = 0; i < count; ++i) {
-                WriteObject(table[i]);
-            }
+            foreach (var r in results)
+                WriteObject(r);
         }
     }
 

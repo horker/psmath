@@ -67,7 +67,7 @@ $METHOD_LIST = @(
       "Quartiles"
       "Skewness"
       "StandardDeviation"
-      "Stdev"
+      "StdDev"
       "StandardError"
       "TruncatedMean"
       "UpperQuartile"
@@ -91,8 +91,7 @@ $METHOD_LIST = @(
     MethodNames = @(
       "Sample"
       "Scale"
-      "Shuffled"
-      "Sorted"
+      "Sort"
     )
   }
 
@@ -133,6 +132,7 @@ $METHOD_LIST = @(
     ClassInfo = [Horker.Math.ArrayMethods.AdditionalMethods]
     MethodNames = @(
       "Split"
+      "Shuffle"
       "DropNa"
       "DropNaN"
     )

@@ -9,6 +9,31 @@ namespace Horker.Math.ArrayMethods
 {
     public class AdditionalMethods
     {
+        public static object[] ShuffleInternal(IReadOnlyList<object> values)
+        {
+            // ref. https://en.wikipedia.org/wiki/Fisher-Yates_shuffle
+
+            int count = values.Count;
+            var result = new object[count];
+
+            for (var i = 0; i < count; ++i) {
+                var j = Generator.Random.Next(i + 1);
+                if (j != i) {
+                    result[i] = result[j];
+                }
+                result[j] = values[i];
+            }
+
+            return result;
+        }
+
+        public static object[] Shuffle(PSObject values)
+        {
+            var array = Helper.GetObjectArray(values);
+
+            return ShuffleInternal(array);
+        }
+
         public static object[][] SplitInternal(IReadOnlyList<object> values, double[] rates)
         {
             var results = new List<object[]>();
