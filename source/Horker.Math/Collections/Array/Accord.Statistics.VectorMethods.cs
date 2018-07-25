@@ -48,7 +48,7 @@ namespace Horker.Math.ArrayMethods
         public static double[] Sort(PSObject values, bool stable = false, bool asc = true)
         {
             var array = Converter.ToDoubleArray(values);
-            return Accord.Math.Vector.Sorted(array);
+            return Accord.Math.Vector.Sorted(array, stable, asc);
         }
 
     }
