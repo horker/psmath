@@ -285,24 +285,24 @@ namespace Horker.Math.ArrayMethods
 
         // Skip: OfType
 
-        public static IOrderedEnumerable<object> OrderBy(PSObject source, Func<object, object> keySelector, IComparer<object> comparer = null)
+        public static object[] OrderBy(PSObject source, Func<object, object> keySelector, IComparer<object> comparer = null)
         {
             var array = Helper.GetObjectArray(source);
 
             if (comparer == null)
-                return array.OrderBy(keySelector);
+                return array.OrderBy(keySelector).ToArray();
 
-            return array.OrderBy(keySelector, comparer);
+            return array.OrderBy(keySelector, comparer).ToArray();
         }
 
-        public static IOrderedEnumerable<object> OrderByDescending(PSObject source, Func<object, object> keySelector, IComparer<object> comparer = null)
+        public static object[] OrderByDescending(PSObject source, Func<object, object> keySelector, IComparer<object> comparer = null)
         {
             var array = Helper.GetObjectArray(source);
 
             if (comparer == null)
-                return array.OrderByDescending(keySelector);
+                return array.OrderByDescending(keySelector).ToArray();
 
-            return array.OrderByDescending(keySelector, comparer);
+            return array.OrderByDescending(keySelector, comparer).ToArray();
         }
 
         // Skip: Range, Repeat
