@@ -34,14 +34,15 @@ namespace Horker.Math.ArrayMethods
             return ShuffleInternal(array);
         }
 
-        public static object[][] SplitInternal(IReadOnlyList<object> values, double[] rates)
+        public static object[][] SplitInternal(IReadOnlyList<object> values, object[] rates)
         {
+            var ra = rates.Select(x => Converter.ToDouble(x));
             var results = new List<object[]>();
 
             int total = values.Count;
 
             int start = 0;
-            foreach (var r in rates)
+            foreach (var r in ra)
             {
                 var size = (int)System.Math.Round(r >= 1 ? r : total * r);
                 if (size > total - start)
@@ -69,11 +70,29 @@ namespace Horker.Math.ArrayMethods
             return results.ToArray();
         }
 
-        public static object[][] Split(PSObject values, params double[] rates)
+        public static object[][] Split(PSObject values, object rate0, object rate1 = null, object rate2 = null, object rate3 = null, object rate4 = null, object rate5 = null, object rate6 = null, object rate7 = null, object rate8 = null, object rate9 = null)
         {
             var array = Helper.GetObjectArray(values);
 
-            return SplitInternal(array, rates);
+            if (rate1 == null)
+                return SplitInternal(array, new object[] { rate0 });
+            if (rate2 == null)
+                return SplitInternal(array, new object[] { rate0, rate1 });
+            if (rate3 == null)
+                return SplitInternal(array, new object[] { rate0, rate1, rate2 });
+            if (rate4 == null)
+                return SplitInternal(array, new object[] { rate0, rate1, rate2, rate3 });
+            if (rate5 == null)
+                return SplitInternal(array, new object[] { rate0, rate1, rate2, rate3, rate4 });
+            if (rate6 == null)
+                return SplitInternal(array, new object[] { rate0, rate1, rate2, rate3, rate4, rate5 });
+            if (rate7 == null)
+                return SplitInternal(array, new object[] { rate0, rate1, rate2, rate3, rate4, rate5, rate6 });
+            if (rate8 == null)
+                return SplitInternal(array, new object[] { rate0, rate1, rate2, rate3, rate4, rate5, rate6, rate7 });
+            if (rate9 == null)
+                return SplitInternal(array, new object[] { rate0, rate1, rate2, rate3, rate4, rate5, rate6, rate7, rate8 });
+            return SplitInternal(array, new object[] { rate0, rate1, rate2, rate3, rate4, rate5, rate6, rate7, rate8, rate9 });
         }
 
         public static object[] SliceInternal(object[] array, object[] ranges)

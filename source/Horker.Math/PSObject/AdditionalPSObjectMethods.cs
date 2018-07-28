@@ -56,7 +56,7 @@ namespace Horker.Math.PSObjects
     public class NewPSObjectSplit : ObjectListCmdletBase<object>
     {
         [Parameter(Position = 1, Mandatory = true)]
-        public double[] Rates;
+        public object[] Rates;
 
         protected override void Process(IReadOnlyList<object> values)
         {
