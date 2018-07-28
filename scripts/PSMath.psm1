@@ -135,6 +135,7 @@ $METHOD_LIST = @(
       "Shuffle"
       "DropNa"
       "DropNaN"
+      "Slice"
     )
   }
 )

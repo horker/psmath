@@ -56,6 +56,35 @@ namespace Horker.Math
             }
         }
 
+        public static int ToInt(object input)
+        {
+            if (input is PSObject)
+                input = (input as PSObject).BaseObject;
+
+            if (input is int)
+                return (int)input;
+
+            if (input is string)
+            {
+                var s = input as string;
+                s = _currencyRe.Replace(s, "");
+                var success = int.TryParse(s, NumberStyles.Any, NumberFormatInfo.InvariantInfo, out int result);
+                if (!success)
+                    throw new OverflowException(string.Format("Failed to convert into int: {0}", s));
+
+                return result;
+            }
+
+            try
+            {
+                return Convert.ToInt32(input);
+            }
+            catch
+            {
+                throw new OverflowException(string.Format("Failed to convert into int: {0}", input));
+            }
+        }
+
         public static double[] ToDoubleArray(object input)
         {
             if (input is PSObject)
@@ -125,7 +154,82 @@ namespace Horker.Math
 
             // Scalar value
 
-            return new double[] { Converter.ToDouble(input) };
+            return new double[] { ToDouble(input) };
+        }
+
+        public static int[] ToIntArray(object input)
+        {
+            if (input is PSObject)
+                input = (input as PSObject).BaseObject;
+
+            if (input is int[])
+                return input as int[];
+
+            if (input is object[])
+                return (input as object[]).Select(x => ToInt(x)).ToArray();
+
+            if (input is IEnumerable<int>)
+                return (input as IEnumerable<int>).ToArray();
+
+            if (input is IEnumerable<object>)
+                return (input as IEnumerable<object>).Select(x => ToInt(x)).ToArray();
+
+            // Other numeric types
+
+            if (input is Double[])
+                return (input as float[]).Select(x => (int)x).ToArray();
+
+            if (input is Single[])
+                return (input as float[]).Select(x => (int)x).ToArray();
+
+            if (input is Int64[])
+                return (input as Int64[]).Select(x => (int)x).ToArray();
+
+            if (input is Int16[])
+                return (input as Int16[]).Select(x => (int)x).ToArray();
+
+            if (input is Byte[])
+                return (input as Byte[]).Select(x => (int)x).ToArray();
+
+            if (input is SByte[])
+                return (input as SByte[]).Select(x => (int)x).ToArray();
+
+            if (input is IEnumerable<Double>)
+                return (input as IEnumerable<float>).Select(x => (int)x).ToArray();
+
+            if (input is IEnumerable<Single>)
+                return (input as IEnumerable<float>).Select(x => (int)x).ToArray();
+
+            if (input is IEnumerable<Int64>)
+                return (input as IEnumerable<float>).Select(x => (int)x).ToArray();
+
+            if (input is IEnumerable<Int32>)
+                return (input as IEnumerable<float>).Select(x => (int)x).ToArray();
+
+            if (input is IEnumerable<Int16>)
+                return (input as IEnumerable<float>).Select(x => (int)x).ToArray();
+
+            if (input is IEnumerable<Byte>)
+                return (input as IEnumerable<float>).Select(x => (int)x).ToArray();
+
+            if (input is IEnumerable<SByte>)
+                return (input as IEnumerable<float>).Select(x => (int)x).ToArray();
+
+            // Non-generic enumerable
+
+            if (input is IEnumerable)
+            {
+                var result = new List<int>();
+
+                foreach (var value in (input as IEnumerable))
+                    result.Add(ToInt(value));
+
+                return result.ToArray();
+            }
+
+            // Scalar value
+
+            return new int[] { ToInt(input) };
         }
 
         public static DateTime? ToDateTime(object input)
@@ -349,9 +453,9 @@ namespace Horker.Math
                 return input as Matrix;
 
             if (columnVector)
-                return Matrix.Create(Converter.ToDoubleArray(input), int.MaxValue, 1);
+                return Matrix.Create(ToDoubleArray(input), int.MaxValue, 1);
             else
-                return Matrix.Create(Converter.ToDoubleArray(input), 1);
+                return Matrix.Create(ToDoubleArray(input), 1);
         }
     }
 }

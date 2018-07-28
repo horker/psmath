@@ -76,6 +76,81 @@ namespace Horker.Math.ArrayMethods
             return SplitInternal(array, rates);
         }
 
+        public static object[] SliceInternal(object[] array, object[] ranges)
+        {
+            // Python style slicing
+            // (the second argument's 0 indicates the last index)
+
+            var length = array.Length;
+
+            var result = new List<object>();
+
+            foreach (var range in ranges)
+            {
+                var r = range;
+                if (r is PSObject)
+                    r = (range as PSObject).BaseObject;
+
+                var indexes = Converter.ToIntArray(r);
+
+                switch (indexes.Length)
+                {
+                    case 1:
+                        // a single value
+                        indexes[0] = indexes[0] < 0 ? length + indexes[0] : indexes[0];
+                        result.Add(array[indexes[0]]);
+                        break;
+
+                    case 2:
+                        // (from, to)
+                        indexes[0] = indexes[0] < 0 ? length + indexes[0] : indexes[0];
+                        indexes[1] = indexes[1] <= 0 ? length + indexes[1] : indexes[1];
+                        result.AddRange(new ArraySegment<object>(array, indexes[0], indexes[1] - indexes[0]));
+                        break;
+
+                    case 3:
+                        // (from, to, step)
+                        if (indexes[2] <= 0)
+                            throw new ArgumentException("Third argument (step) must be more than zero");
+                        indexes[0] = indexes[0] < 0 ? length + indexes[0] : indexes[0];
+                        indexes[1] = indexes[1] <= 0 ? length + indexes[1] : indexes[1];
+                        for (var i = indexes[0]; i < indexes[1]; i += indexes[2])
+                            result.Add(array[i]);
+                        break;
+
+                    default:
+                        throw new ArgumentException("Array which length is more than three is not supported");
+                }
+            }
+
+            return result.ToArray();
+        }
+
+        public static object[] Slice(PSObject values, object range0, object range1 = null, object range2 = null, object range3 = null, object range4 = null, object range5 = null, object range6 = null, object range7 = null, object range8 = null, object range9 = null)
+        {
+            var array = Helper.GetObjectArray(values);
+
+            if (range1 == null)
+                return SliceInternal(array, new object[] { range0 });
+            if (range2 == null)
+                return SliceInternal(array, new object[] { range0, range1 });
+            if (range3 == null)
+                return SliceInternal(array, new object[] { range0, range1, range2 });
+            if (range4 == null)
+                return SliceInternal(array, new object[] { range0, range1, range2, range3 });
+            if (range5 == null)
+                return SliceInternal(array, new object[] { range0, range1, range2, range3, range4 });
+            if (range6 == null)
+                return SliceInternal(array, new object[] { range0, range1, range2, range3, range4, range5 });
+            if (range7 == null)
+                return SliceInternal(array, new object[] { range0, range1, range2, range3, range4, range5, range6 });
+            if (range8 == null)
+                return SliceInternal(array, new object[] { range0, range1, range2, range3, range4, range5, range6, range7 });
+            if (range9 == null)
+                return SliceInternal(array, new object[] { range0, range1, range2, range3, range4, range5, range6, range7, range8 });
+            return SliceInternal(array, new object[] { range0, range1, range2, range3, range4, range5, range6, range7, range8, range9 });
+        }
+
         public static object[] DropNa(PSObject values)
         {
             var array = Helper.GetObjectArray(values);
@@ -100,6 +175,5 @@ namespace Horker.Math.ArrayMethods
             var array = Converter.ToDoubleArray(values);
             return array.RemoveAll(double.NaN);
         }
-
     }
 }
