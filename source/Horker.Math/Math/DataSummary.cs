@@ -8,7 +8,7 @@ namespace Horker.Math
     {
         public string Name;
         public int Count;
-        public int Unique;
+        // public int Unique;
         public double Minimum;
         public double LowerQuantile;
         public double Median;
@@ -22,10 +22,10 @@ namespace Horker.Math
 
             Name = name;
             Count = sorted.Length;
-            Unique = sorted.DistinctCount();
+            // Unique = sorted.DistinctCount(); // too time-consuming
             Minimum = sorted[0];
             LowerQuantile = sorted.Quantile(.25, true);
-            Median = sorted.Median();
+            Median = sorted.Median(true);
             Mean = sorted.Mean();
             UpperQuantile = sorted.Quantile(.75, true);
             Maximum = sorted[sorted.Length - 1];
