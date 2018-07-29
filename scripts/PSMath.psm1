@@ -56,6 +56,7 @@ $METHOD_LIST = @(
       "DropNa"
       "DropNaN"
       "Histogram"
+      "Summary"
     )
   }
 

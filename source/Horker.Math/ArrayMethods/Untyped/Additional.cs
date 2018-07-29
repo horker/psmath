@@ -78,5 +78,11 @@ namespace Horker.Math.ArrayMethods.Untyped
             var array = Converter.ToDoubleArray(values);
             return HistogramInternal(array, binWidth, offset);
         }
+
+        public static DataSummary Summary(PSObject values)
+        {
+            var array = Converter.ToDoubleArray(values);
+            return new DataSummary(array);
+        }
     }
 }
