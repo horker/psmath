@@ -65,9 +65,9 @@
   <ItemGroup>
     <Compile Include="ArrayMethods\Typed\Matrix.cs" />
     <Compile Include="ArrayMethods\Untyped\Matrix.cs" />
-    <Compile Include="ArrayMethods\Untyped\Accord.Statistics.MeasuresMethods.cs" />
-    <Compile Include="ArrayMethods\Untyped\Accord.Statistics.ToolsMethods.cs" />
-    <Compile Include="ArrayMethods\Untyped\Accord.Statistics.VectorMethods.cs" />
+    <Compile Include="ArrayMethods\Untyped\Measures.cs" />
+    <Compile Include="ArrayMethods\Untyped\Tools.cs" />
+    <Compile Include="ArrayMethods\Untyped\Vector.cs" />
     <Compile Include="ArrayMethods\Typed\Additional.cs" />
     <Compile Include="ArrayMethods\ArrayMethodsHelper.cs" />
     <Compile Include="ArrayMethods\Untyped\Additional.cs" />

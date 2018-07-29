@@ -641,32 +641,9 @@ namespace Horker.Math
 
         protected override void Process(double[] values)
         {
-            var min = values.Min();
-            var max = values.Max();
-
-            if (double.IsNaN(BinWidth)) {
-                var binCount = System.Math.Min(100, System.Math.Ceiling(System.Math.Sqrt(values.Length)));
-                BinWidth = (max - min) / binCount;
-            }
-
-            int minBar = (int)System.Math.Floor((min - Offset) / BinWidth);
-            int maxBar = (int)System.Math.Floor((max - Offset) / BinWidth);
-
-            var hist = new int[maxBar - minBar + 1];
-
-            foreach (var value in values) {
-                var bin = (int)System.Math.Floor((value - Offset) / BinWidth) - minBar;
-                ++hist[bin];
-            }
-
-            for (var i = minBar; i <= maxBar; ++i) {
-                var result = new PSObject();
-                result.Properties.Add(new PSNoteProperty("Lower", i * BinWidth + Offset));
-                result.Properties.Add(new PSNoteProperty("Upper", (i + 1) * BinWidth + Offset));
-                result.Properties.Add(new PSNoteProperty("Count", hist[i - minBar]));
-
-                WriteObject(result);
-            }
+            var hist = ArrayMethods.Untyped.Additional.HistogramInternal(values, BinWidth, Offset);
+            foreach (var bin in hist)
+                WriteObject(bin);
         }
     }
 

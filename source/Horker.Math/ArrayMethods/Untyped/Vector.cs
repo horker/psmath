@@ -7,7 +7,7 @@ using Accord.Math.Random;
 
 namespace Horker.Math.ArrayMethods
 {
-    public class VectorMethods
+    public class Vector
     {
         public static object[] Sample(PSObject values, int sampleSize)
         {
@@ -34,7 +34,8 @@ namespace Horker.Math.ArrayMethods
         )
         {
             var array = Converter.ToDoubleArray(values);
-            return Accord.Math.Vector.Scale(array, fromMin, fromMax, toMin, toMax, null);
+            var result = new double[array.Length];
+            return Accord.Math.Vector.Scale(array, fromMin, fromMax, toMin, toMax, result);
         }
 
         /*

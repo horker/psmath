@@ -6,14 +6,14 @@ using Accord.Statistics;
 
 namespace Horker.Math.ArrayMethods
 {
-    public class ToolsMethods
+    public class Tools
     {
         public static double[] Center(
             PSObject values
         )
         {
             var array = Converter.ToDoubleArray(values);
-            return Tools.Center(array, null);
+            return Accord.Statistics.Tools.Center(array, null);
         }
 
         public static double[] Rank(
@@ -24,7 +24,7 @@ namespace Horker.Math.ArrayMethods
         {
             var array = Converter.ToDoubleArray(samples);
             bool hasTies;
-            return Tools.Rank(array, out hasTies, alreadySorted, adjustForTies);
+            return Accord.Statistics.Tools.Rank(array, out hasTies, alreadySorted, adjustForTies);
         }
 
         public static double[] Standardize(
@@ -33,7 +33,7 @@ namespace Horker.Math.ArrayMethods
         )
         {
             var array = Converter.ToDoubleArray(values);
-            return Tools.Standardize(array, inPlace);
+            return Accord.Statistics.Tools.Standardize(array, inPlace);
         }
 
         public static int[] Ties(
@@ -41,7 +41,7 @@ namespace Horker.Math.ArrayMethods
         )
         {
             var array = Converter.ToDoubleArray(ranks);
-            return Tools.Ties(array);
+            return Accord.Statistics.Tools.Ties(array);
         }
     }
 }

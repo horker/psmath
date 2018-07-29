@@ -55,6 +55,7 @@ $METHOD_LIST = @(
     MethodNames = @(
       "DropNa"
       "DropNaN"
+      "Histogram"
     )
   }
 
@@ -69,7 +70,7 @@ $METHOD_LIST = @(
   }
 
   [PSCustomObject]@{
-    ClassInfo = "Horker.Math.ArrayMethods.MeasuresMethods"
+    ClassInfo = "Horker.Math.ArrayMethods.Measures"
     TargetClass = "Object", "Double", "Single", "Int64", "Int32", "Int16", "Byte", "SByte"
     MethodNames = @(
       "ContraHarmonicMean"
@@ -98,7 +99,7 @@ $METHOD_LIST = @(
   }
 
   [PSCustomObject]@{
-    ClassInfo = "Horker.Math.ArrayMethods.ToolsMethods"
+    ClassInfo = "Horker.Math.ArrayMethods.Tools"
     TargetClass = "Object", "Double", "Single", "Int64", "Int32", "Int16", "Byte", "SByte"
     MethodNames = @(
       "Center"
@@ -109,7 +110,7 @@ $METHOD_LIST = @(
   }
 
   [PSCustomObject]@{
-    ClassInfo = "Horker.Math.ArrayMethods.VectorMethods"
+    ClassInfo = "Horker.Math.ArrayMethods.Vector"
     TargetClass = "Object", "Double", "Single", "Int64", "Int32", "Int16", "Byte", "SByte"
     MethodNames = @(
       "Sample"
