@@ -2,7 +2,8 @@ Set-StrictMode -Version Latest
 
 $METHOD_LIST = @(
   [PSCustomObject]@{
-    ClassInfo = [Horker.Math.ArrayMethods.LinqMethods]
+    ClassInfo = "Horker.Math.ArrayMethods.Typed.Linq[{0}]"
+    TargetClass = "Object", "Double", "Single", "Int64", "Int32", "Int16", "Byte", "SByte"
     MethodNames = @(
       "Aggregate"
       "All"
@@ -17,7 +18,7 @@ $METHOD_LIST = @(
       "Except"
       "First"
       "FirstOrDefault"
-      "GroupBy"
+      #"GroupBy"
       "GroupJoin"
       "Intersect"
       "Join"
@@ -49,7 +50,27 @@ $METHOD_LIST = @(
   }
 
   [PSCustomObject]@{
-    ClassInfo = [Horker.Math.ArrayMethods.MeasuresMethods]
+    ClassInfo = "Horker.Math.ArrayMethods.Untyped.Additional"
+    TargetClass = "Object", "Double", "Single", "Int64", "Int32", "Int16", "Byte", "SByte"
+    MethodNames = @(
+      "DropNa"
+      "DropNaN"
+    )
+  }
+
+  [PSCustomObject]@{
+    ClassInfo = "Horker.Math.ArrayMethods.Typed.Additional[{0}]"
+    TargetClass = "Object", "Double", "Single", "Int64", "Int32", "Int16", "Byte", "SByte"
+    MethodNames = @(
+      "Split"
+      "Shuffle"
+      "Slice"
+    )
+  }
+
+  [PSCustomObject]@{
+    ClassInfo = "Horker.Math.ArrayMethods.MeasuresMethods"
+    TargetClass = "Object", "Double", "Single", "Int64", "Int32", "Int16", "Byte", "SByte"
     MethodNames = @(
       "ContraHarmonicMean"
       "Entropy"
@@ -77,7 +98,8 @@ $METHOD_LIST = @(
   }
 
   [PSCustomObject]@{
-    ClassInfo = [Horker.Math.ArrayMethods.ToolsMethods]
+    ClassInfo = "Horker.Math.ArrayMethods.ToolsMethods"
+    TargetClass = "Object", "Double", "Single", "Int64", "Int32", "Int16", "Byte", "SByte"
     MethodNames = @(
       "Center"
       "Rank"
@@ -87,7 +109,8 @@ $METHOD_LIST = @(
   }
 
   [PSCustomObject]@{
-    ClassInfo = [Horker.Math.ArrayMethods.VectorMethods]
+    ClassInfo = "Horker.Math.ArrayMethods.VectorMethods"
+    TargetClass = "Object", "Double", "Single", "Int64", "Int32", "Int16", "Byte", "SByte"
     MethodNames = @(
       "Sample"
       "Scale"
@@ -96,54 +119,54 @@ $METHOD_LIST = @(
   }
 
   [PSCustomObject]@{
-    ClassInfo = [Horker.Math.ArrayMethods.MatrixMethods]
+    ClassInfo = "Horker.Math.ArrayMethods.Typed.Matrix[{0}]"
+    TargetClass = "Object", "Double", "Single", "Int64", "Int32", "Int16", "Byte", "SByte"
     MethodNames = @(
-      "ArgMin"
-      "ArgSort"
-      "Bottom"
-      "Cartesian"
       "Clear"
       "Concatenate"
       "Copy"
-      "Cross"
-      "CumulativeSum"
       "DistinctCount"
       "Expand"
       "Find"
       "First"
       "Get"
-      "HasInfinity"
-      "HasNaN"
       "IsEqual"
       "IsSorted"
+      "Swap"
+    )
+  }
+
+  [PSCustomObject]@{
+    ClassInfo = "Horker.Math.ArrayMethods.Untyped.Matrix"
+    TargetClass = "Object", "Double", "Single", "Int64", "Int32", "Int16", "Byte", "SByte"
+    MethodNames = @(
+      "ArgMin"
+      "ArgSort"
+      "Bottom"
+      "Cartesian"
+      "Cross"
+      "CumulativeSum"
+      "HasInfinity"
+      "HasNaN"
       "Kronecker"
       "Normalize"
       "Null"
       "Outer"
       "Product"
       "Stack"
-      "Swap"
       "Top"
       "Trim"
-    )
-  }
-
-  [PSCustomObject]@{
-    ClassInfo = [Horker.Math.ArrayMethods.AdditionalMethods]
-    MethodNames = @(
-      "Split"
-      "Shuffle"
-      "DropNa"
-      "DropNaN"
-      "Slice"
     )
   }
 )
 
 foreach ($l in $METHOD_LIST) {
-  $ci = $l.ClassInfo
-  foreach ($m in $l.MethodNames) {
-    $mi = $ci.GetMethod($m)
-    Update-TypeData -TypeName System.Array -MemberName $m -MemberType CodeMethod -Value $mi -Force
+  $targets = $l.TargetClass
+  foreach ($t in $targets) {
+    $ci = Invoke-Expression "[$($l.ClassInfo -f $t)]"
+    foreach ($m in $l.MethodNames) {
+      $mi = $ci.GetMethod($m)
+      Update-TypeData -TypeName "$t[]" -MemberName $m -MemberType CodeMethod -Value $mi -Force
+    }
   }
 }

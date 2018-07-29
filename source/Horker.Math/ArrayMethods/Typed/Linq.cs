@@ -3,25 +3,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
 
-namespace Horker.Math.ArrayMethods
+namespace Horker.Math.ArrayMethods.Typed
 {
-    public class LinqMethods
+    public class Linq<T>
     {
-        public static object Aggregate(PSObject source, Func<object, object, object> func)
+        public static T Aggregate(PSObject source, Func<T, T, T> func)
         {
-            var array = Helper.GetObjectArray(source);
+            var array = (T[])source.BaseObject;
             return array.Aggregate(func);
         }
 
-        public static bool All(PSObject source, Func<object, bool> func)
+        public static bool All(PSObject source, Func<T, bool> func)
         {
-            var array = Helper.GetObjectArray(source);
+            var array = (T[])source.BaseObject;
             return array.All(func);
         }
 
-        public static bool Any(PSObject source, Func<object, bool> func = null)
+        public static bool Any(PSObject source, Func<T, bool> func = null)
         {
-            var array = Helper.GetObjectArray(source);
+            var array = (T[])source.BaseObject;
 
             if (func == null)
                 return array.Any();
@@ -29,21 +29,21 @@ namespace Horker.Math.ArrayMethods
             return array.Any(func);
         }
 
-        public static IEnumerable<object> AsEnumerable(PSObject source)
+        public static IEnumerable<T> AsEnumerable(PSObject source)
         {
-            var array = Helper.GetObjectArray(source);
+            var array = (T[])source.BaseObject;
             return array.AsEnumerable();
         }
 
-        public static object[] Concat(PSObject first, object[] second)
+        public static T[] Concat(PSObject first, T[] second)
         {
-            var array = first.BaseObject as object[];
+            var array = first.BaseObject as T[];
             return array.Concat(second).ToArray();
         }
 
-        public static bool Contains(PSObject source, object value, IEqualityComparer<object> comparer = null)
+        public static bool Contains(PSObject source, T value, IEqualityComparer<T> comparer = null)
         {
-            var array = Helper.GetObjectArray(source);
+            var array = (T[])source.BaseObject;
 
             if (comparer == null)
                 return array.Contains(value);
@@ -53,9 +53,9 @@ namespace Horker.Math.ArrayMethods
 
         /*
         // Conflict with Count property
-        public static int Count(PSObject source, Func<object, bool> predicate = null)
+        public static int Count(PSObject source, Func<T, bool> predicate = null)
         {
-            var array = Helper.GetObjectArray(source);
+            var array = (T[])source.BaseObject;
 
             if (predicate == null)
                 return array.Count();
@@ -64,15 +64,15 @@ namespace Horker.Math.ArrayMethods
         }
         */
 
-        public static object[] DefaultIfEmpty(PSObject source, object defaultValue = null)
+        public static T[] DefaultIfEmpty(PSObject source, T defaultValue = default(T))
         {
-            var array = Helper.GetObjectArray(source);
+            var array = (T[])source.BaseObject;
             return array.DefaultIfEmpty(defaultValue).ToArray();
         }
 
-        public static object[] Distinct(PSObject source, IEqualityComparer<object> comparer = null)
+        public static T[] Distinct(PSObject source, IEqualityComparer<T> comparer = null)
         {
-            var array = Helper.GetObjectArray(source);
+            var array = (T[])source.BaseObject;
 
             if (comparer == null)
                 return array.Distinct().ToArray();
@@ -80,23 +80,23 @@ namespace Horker.Math.ArrayMethods
             return array.Distinct(comparer).ToArray();
         }
 
-        public static object ElementAt(PSObject source, int index)
+        public static T ElementAt(PSObject source, int index)
         {
-            var array = Helper.GetObjectArray(source);
+            var array = (T[])source.BaseObject;
             return array.ElementAt(index);
         }
 
-        public static object ElementAtOrDefault(PSObject source, int index)
+        public static T ElementAtOrDefault(PSObject source, int index)
         {
-            var array = Helper.GetObjectArray(source);
+            var array = (T[])source.BaseObject;
             return array.ElementAtOrDefault(index);
         }
 
         // Skip: Empty
 
-        public static object[] Except(PSObject first, object[] second, IEqualityComparer<object> comparer = null)
+        public static T[] Except(PSObject first, T[] second, IEqualityComparer<T> comparer = null)
         {
-            var array = first.BaseObject as object[];
+            var array = first.BaseObject as T[];
 
             if (comparer == null)
                 return array.Except(second).ToArray();
@@ -104,9 +104,9 @@ namespace Horker.Math.ArrayMethods
             return array.Except(second, comparer).ToArray();
         }
 
-        public static object First(PSObject source, Func<object, bool> predicate = null)
+        public static T First(PSObject source, Func<T, bool> predicate = null)
         {
-            var array = Helper.GetObjectArray(source);
+            var array = (T[])source.BaseObject;
 
             if (predicate == null)
                 return array.First();
@@ -114,9 +114,9 @@ namespace Horker.Math.ArrayMethods
             return array.First(predicate);
         }
 
-        public static object FirstOrDefault(PSObject source, Func<object, bool> predicate = null)
+        public static T FirstOrDefault(PSObject source, Func<T, bool> predicate = null)
         {
-            var array = Helper.GetObjectArray(source);
+            var array = (T[])source.BaseObject;
 
             if (predicate == null)
                 return array.First();
@@ -124,16 +124,18 @@ namespace Horker.Math.ArrayMethods
             return array.FirstOrDefault(predicate);
         }
 
-        public static object[] GroupBy(
+        /*
+        TODO
+        public static T[] GroupBy(
             PSObject source,
-            Func<object, object> keySelector,
-            Func<object, object> elementSelector = null,
-            Func<object, IEnumerable<object>, object> resultSelector = null,
-            IEqualityComparer<object> comparer = null
+            Func<T, T> keySelector,
+            Func<T, T> elementSelector = null,
+            Func<T, IEnumerable<T>, T> resultSelector = null,
+            IEqualityComparer<T> comparer = null
         )
         {
-            var array = Helper.GetObjectArray(source);
-            IEnumerable<object> result;
+            var array = (T[])source.BaseObject;
+            IEnumerable<T> result;
 
             if (comparer == null)
             {
@@ -188,17 +190,18 @@ namespace Horker.Math.ArrayMethods
 
             return result.ToArray();
         }
+        */
 
-        public static object[] GroupJoin(
+        public static T[] GroupJoin(
             PSObject outer,
-            object[] inner,
-            Func<object, object> outerKeySelector,
-            Func<object, object> innerKeySelector,
-            Func<object, IEnumerable<object>, object> resultSelector,
-            IEqualityComparer<object> comparer = null
+            T[] inner,
+            Func<T, T> outerKeySelector,
+            Func<T, T> innerKeySelector,
+            Func<T, IEnumerable<T>, T> resultSelector,
+            IEqualityComparer<T> comparer = null
         )
         {
-            var array = outer.BaseObject as object[];
+            var array = outer.BaseObject as T[];
 
             if (comparer == null)
                 return array.GroupJoin(inner, outerKeySelector, innerKeySelector, resultSelector).ToArray();
@@ -206,9 +209,9 @@ namespace Horker.Math.ArrayMethods
             return array.GroupJoin(inner, outerKeySelector, innerKeySelector, resultSelector, comparer).ToArray();
         }
 
-        public static object[] Intersect(PSObject first, object[] second, IEqualityComparer<object> comparer = null)
+        public static T[] Intersect(PSObject first, T[] second, IEqualityComparer<T> comparer = null)
         {
-            var array = first.BaseObject as object[];
+            var array = first.BaseObject as T[];
 
             if (comparer == null)
                 return array.Intersect(second).ToArray();
@@ -216,16 +219,16 @@ namespace Horker.Math.ArrayMethods
             return array.Intersect(second, comparer).ToArray();
         }
 
-        public static object[] Join(
+        public static T[] Join(
             PSObject outer,
-            object[] inner,
-            Func<object, object> outerKeySelector,
-            Func<object, object> innerKeySelector,
-            Func<object, object, object> resultSelector,
-            IEqualityComparer<object> comparer = null
+            T[] inner,
+            Func<T, T> outerKeySelector,
+            Func<T, T> innerKeySelector,
+            Func<T, T, T> resultSelector,
+            IEqualityComparer<T> comparer = null
         )
         {
-            var array = outer.BaseObject as object[];
+            var array = outer.BaseObject as T[];
 
             if (comparer == null)
                 return array.Join(inner, outerKeySelector, innerKeySelector, resultSelector).ToArray();
@@ -233,9 +236,9 @@ namespace Horker.Math.ArrayMethods
             return array.Join(inner, outerKeySelector, innerKeySelector, resultSelector, comparer).ToArray();
         }
 
-        public static object Last(PSObject source, Func<object, bool> predicate = null)
+        public static T Last(PSObject source, Func<T, bool> predicate = null)
         {
-            var array = Helper.GetObjectArray(source);
+            var array = (T[])source.BaseObject;
 
             if (predicate == null)
                 return array.Last();
@@ -243,9 +246,9 @@ namespace Horker.Math.ArrayMethods
             return array.Last(predicate);
         }
 
-        public static object LastOrDefault(PSObject source, Func<object, bool> predicate = null)
+        public static T LastOrDefault(PSObject source, Func<T, bool> predicate = null)
         {
-            var array = Helper.GetObjectArray(source);
+            var array = (T[])source.BaseObject;
 
             if (predicate == null)
                 return array.LastOrDefault();
@@ -253,9 +256,9 @@ namespace Horker.Math.ArrayMethods
             return array.LastOrDefault(predicate);
         }
 
-        public static long LongCount(PSObject source, Func<object, bool> predicate = null)
+        public static long LongCount(PSObject source, Func<T, bool> predicate = null)
         {
-            var array = Helper.GetObjectArray(source);
+            var array = (T[])source.BaseObject;
 
             if (predicate == null)
                 return array.LongCount();
@@ -265,7 +268,7 @@ namespace Horker.Math.ArrayMethods
 
         public static double Max(PSObject source, Func<double, int> selector = null)
         {
-            var array = Helper.GetObjectArray(source);
+            var array = (T[])source.BaseObject;
 
             if (selector == null)
                 return array.Select(x => Converter.ToDouble(x)).Max();
@@ -275,7 +278,7 @@ namespace Horker.Math.ArrayMethods
 
         public static double Min(PSObject source, Func<double, int> selector = null)
         {
-            var array = Helper.GetObjectArray(source);
+            var array = (T[])source.BaseObject;
 
             if (selector == null)
                 return array.Select(x => Converter.ToDouble(x)).Min();
@@ -285,9 +288,9 @@ namespace Horker.Math.ArrayMethods
 
         // Skip: OfType
 
-        public static object[] OrderBy(PSObject source, Func<object, object> keySelector, IComparer<object> comparer = null)
+        public static T[] OrderBy(PSObject source, Func<T, T> keySelector, IComparer<T> comparer = null)
         {
-            var array = Helper.GetObjectArray(source);
+            var array = (T[])source.BaseObject;
 
             if (comparer == null)
                 return array.OrderBy(keySelector).ToArray();
@@ -295,9 +298,9 @@ namespace Horker.Math.ArrayMethods
             return array.OrderBy(keySelector, comparer).ToArray();
         }
 
-        public static object[] OrderByDescending(PSObject source, Func<object, object> keySelector, IComparer<object> comparer = null)
+        public static T[] OrderByDescending(PSObject source, Func<T, T> keySelector, IComparer<T> comparer = null)
         {
-            var array = Helper.GetObjectArray(source);
+            var array = (T[])source.BaseObject;
 
             if (comparer == null)
                 return array.OrderByDescending(keySelector).ToArray();
@@ -307,25 +310,25 @@ namespace Horker.Math.ArrayMethods
 
         // Skip: Range, Repeat
 
-        public static object[] Reverse(PSObject source)
+        public static T[] Reverse(PSObject source)
         {
-            var array = Helper.GetObjectArray(source);
+            var array = (T[])source.BaseObject;
             return array.Reverse().ToArray();
         }
 
-        public static object[] Select(PSObject source, Func<object, int, object> selector)
+        public static T[] Select(PSObject source, Func<T, int, T> selector)
         {
-            var array = Helper.GetObjectArray(source);
+            var array = (T[])source.BaseObject;
             return array.Select(selector).ToArray();
         }
 
-        public static object[] SelectMany(
+        public static T[] SelectMany(
             PSObject source,
-            Func<object, int, object[]> collectionSelector,
-            Func<object, object, object> resultSelector = null
+            Func<T, int, T[]> collectionSelector,
+            Func<T, T, T> resultSelector = null
         )
         {
-            var array = Helper.GetObjectArray(source);
+            var array = (T[])source.BaseObject;
 
             if (resultSelector == null)
                 return array.SelectMany(collectionSelector).ToArray();
@@ -337,9 +340,9 @@ namespace Horker.Math.ArrayMethods
         // ToDictionary
         // ToLookup
 
-        public static bool SequenceEqual(PSObject first, object[] second, IEqualityComparer<object> comparer = null)
+        public static bool SequenceEqual(PSObject first, T[] second, IEqualityComparer<T> comparer = null)
         {
-            var array = first.BaseObject as object[];
+            var array = first.BaseObject as T[];
 
             if (comparer == null)
                 return array.SequenceEqual(second);
@@ -347,9 +350,9 @@ namespace Horker.Math.ArrayMethods
             return array.SequenceEqual(second, comparer);
         }
 
-        public static object Single(PSObject source, Func<object, bool> predicate = null)
+        public static T Single(PSObject source, Func<T, bool> predicate = null)
         {
-            var array = Helper.GetObjectArray(source);
+            var array = (T[])source.BaseObject;
 
             if (predicate == null)
                 return array.Single();
@@ -357,9 +360,9 @@ namespace Horker.Math.ArrayMethods
             return array.Single(predicate);
         }
 
-        public static object SingleOrDefault(PSObject source, Func<object, bool> predicate = null)
+        public static T SingleOrDefault(PSObject source, Func<T, bool> predicate = null)
         {
-            var array = Helper.GetObjectArray(source);
+            var array = (T[])source.BaseObject;
 
             if (predicate == null)
                 return array.SingleOrDefault();
@@ -367,15 +370,15 @@ namespace Horker.Math.ArrayMethods
             return array.SingleOrDefault(predicate);
         }
 
-        public static object[] Skip(PSObject source, int count)
+        public static T[] Skip(PSObject source, int count)
         {
-            var array = Helper.GetObjectArray(source);
+            var array = (T[])source.BaseObject;
             return array.Skip(count).ToArray();
         }
 
-        public static object[] SkipWhile(PSObject source, Func<object, int, bool> predicate)
+        public static T[] SkipWhile(PSObject source, Func<T, int, bool> predicate)
         {
-            var array = Helper.GetObjectArray(source);
+            var array = (T[])source.BaseObject;
             return array.SkipWhile(predicate).ToArray();
         }
 
@@ -389,29 +392,29 @@ namespace Horker.Math.ArrayMethods
             return array.Sum(selector);
         }
 
-        public static object[] Take(PSObject source, int count)
+        public static T[] Take(PSObject source, int count)
         {
-            var array = Helper.GetObjectArray(source);
+            var array = (T[])source.BaseObject;
             return array.Take(count).ToArray();
         }
 
-        public static object[] TakeWhile(PSObject source, Func<object, int, bool> predicate)
+        public static T[] TakeWhile(PSObject source, Func<T, int, bool> predicate)
         {
-            var array = Helper.GetObjectArray(source);
+            var array = (T[])source.BaseObject;
             return array.TakeWhile(predicate).ToArray();
         }
 
         // Skip: ThenBy
         // Skip: ThenByDescending
 
-        public static Dictionary<object, object> ToDictionary(
+        public static Dictionary<T, T> ToDictionary(
             PSObject source,
-            Func<object, object> keySelector,
-            Func<object, object> elementSelector = null,
-            IEqualityComparer<object> comparer = null
+            Func<T, T> keySelector,
+            Func<T, T> elementSelector = null,
+            IEqualityComparer<T> comparer = null
         )
         {
-            var array = Helper.GetObjectArray(source);
+            var array = (T[])source.BaseObject;
 
             if (comparer == null)
             {
@@ -437,20 +440,20 @@ namespace Horker.Math.ArrayMethods
             }
         }
 
-        public static List<object> ToList(PSObject source)
+        public static List<T> ToList(PSObject source)
         {
-            var array = Helper.GetObjectArray(source);
+            var array = (T[])source.BaseObject;
             return array.ToList();
         }
 
-        public static ILookup<object, object> ToLookup(
+        public static ILookup<T, T> ToLookup(
             PSObject source,
-            Func<object, object> keySelector,
-            Func<object, object> elementSelector,
-            IEqualityComparer<object> comparer = null
+            Func<T, T> keySelector,
+            Func<T, T> elementSelector,
+            IEqualityComparer<T> comparer = null
         )
         {
-            var array = Helper.GetObjectArray(source);
+            var array = (T[])source.BaseObject;
 
             if (comparer == null)
                 return array.ToLookup(keySelector, elementSelector);
@@ -458,9 +461,9 @@ namespace Horker.Math.ArrayMethods
             return array.ToLookup(keySelector, elementSelector, comparer);
         }
 
-        public static object[] Union(PSObject first, object[] second, IEqualityComparer<object> comparer = null)
+        public static T[] Union(PSObject first, T[] second, IEqualityComparer<T> comparer = null)
         {
-            var array = first.BaseObject as object[];
+            var array = first.BaseObject as T[];
 
             if (comparer == null)
                 return array.Union(second).ToArray();
@@ -468,15 +471,15 @@ namespace Horker.Math.ArrayMethods
             return array.Union(second, comparer).ToArray();
         }
 
-        public static object[] Where(PSObject source, Func<object, int, bool> predicate)
+        public static T[] Where(PSObject source, Func<T, int, bool> predicate)
         {
-            var array = Helper.GetObjectArray(source);
+            var array = (T[])source.BaseObject;
             return array.Where(predicate).ToArray();
         }
 
-        public static object[] Zip(PSObject first, object[] second, Func<object, object, object> resultSelector)
+        public static T[] Zip(PSObject first, T[] second, Func<T, T, T> resultSelector)
         {
-            var array = first.BaseObject as object[];
+            var array = first.BaseObject as T[];
             return array.Zip(second, resultSelector).ToArray();
         }
     }

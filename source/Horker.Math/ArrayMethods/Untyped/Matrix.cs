@@ -5,9 +5,9 @@ using System.Management.Automation;
 using Accord.Math;
 using Accord.Math.Random;
 
-namespace Horker.Math.ArrayMethods
+namespace Horker.Math.ArrayMethods.Untyped
 {
-    public class MatrixMethods
+    public class Matrix
     {
         public static int ArgMin(
             PSObject values
@@ -34,41 +34,14 @@ namespace Horker.Math.ArrayMethods
             return Accord.Math.Matrix.Bottom(array, count);
         }
 
-        public static Matrix Cartesian(
+        public static Horker.Math.Matrix Cartesian(
             PSObject sequence1,
             PSObject sequence2
         )
         {
             var s1 = Converter.ToDoubleArray(sequence1);
             var s2 = Converter.ToDoubleArray(sequence2);
-            return Matrix.Create(Accord.Math.Matrix.Cartesian(s1, s2));
-        }
-
-        public static void Clear(
-            PSObject values
-        )
-        {
-            var array = values.BaseObject as object[];
-            Accord.Math.Matrix.Clear(array);
-        }
-
-        public static double[] Concatenate(
-            PSObject a,
-            params double[] b
-        )
-        {
-            var array = Converter.ToDoubleArray(a);
-            return Accord.Math.Matrix.Concatenate(b);
-        }
-
-        public static object[] Copy(
-            PSObject vector
-        )
-        {
-            var array = vector.BaseObject as object[];
-            var result = new object[array.Length];
-            Array.Copy(array, result, array.Length);
-            return result;
+            return Horker.Math.Matrix.Create(Accord.Math.Matrix.Cartesian(s1, s2));
         }
 
         public static double[] Cross(
@@ -100,52 +73,6 @@ namespace Horker.Math.ArrayMethods
         }
         */
 
-        public static int DistinctCount(
-            PSObject values
-        )
-        {
-            var array = Converter.ToDoubleArray(values);
-            return Accord.Math.Matrix.DistinctCount(array);
-        }
-
-        public static double[] Expand(
-            PSObject vector,
-            int[] count
-        )
-        {
-            var array = Converter.ToDoubleArray(vector);
-            return Accord.Math.Matrix.Expand(array, count);
-        }
-
-        public static int[] Find(
-            PSObject data,
-            Func<double, bool> func,
-            bool firstOnly = false
-        )
-        {
-            var array = Converter.ToDoubleArray(data);
-            return Accord.Math.Matrix.Find(array, func, firstOnly);
-        }
-
-        public static double[] First(
-            PSObject values,
-            int count
-        )
-        {
-            var array = Converter.ToDoubleArray(values);
-            return Accord.Math.Matrix.First(array, count);
-        }
-
-        public static double[] Get(
-            PSObject source,
-            int startRow,
-            int endRow
-        )
-        {
-            var array = Converter.ToDoubleArray(source);
-            return Accord.Math.Matrix.Get(array, startRow, endRow);
-        }
-
         public static bool HasInfinity(
             PSObject matrix
         )
@@ -162,24 +89,6 @@ namespace Horker.Math.ArrayMethods
             var array = Converter.ToDoubleArray(matrix);
             return Accord.Math.Matrix.HasNaN(array);
         }
-
-        public static bool IsEqual(
-            PSObject a,
-            PSObject b
-        )
-        {
-            return Accord.Math.Matrix.IsEqual(a, b);;
-        }
-
-        public static bool IsSorted(
-            PSObject values,
-            Accord.Math.Comparers.ComparerDirection direction = Accord.Math.Comparers.ComparerDirection.Ascending
-        )
-        {
-            var array = Converter.ToDoubleArray(values);
-            return Accord.Math.Matrix.IsSorted(array, direction);
-        }
-
 
         public static double[] Kronecker(
             PSObject a,
@@ -217,14 +126,14 @@ namespace Horker.Math.ArrayMethods
             return Accord.Math.Matrix.Null(array);
         }
 
-        public static Matrix Outer(
+        public static Horker.Math.Matrix Outer(
             PSObject a,
             PSObject b
         )
         {
             var a1 = Converter.ToDoubleArray(a);
             var a2 = Converter.ToDoubleArray(b);
-            return new Matrix(Accord.Math.Matrix.Outer(a1, a2), true);
+            return new Horker.Math.Matrix(Accord.Math.Matrix.Outer(a1, a2), true);
         }
 
         public static double Product(
@@ -246,14 +155,14 @@ namespace Horker.Math.ArrayMethods
         }
         */
 
-        public static Matrix Stack(
+        public static Horker.Math.Matrix Stack(
             PSObject a,
             PSObject b
         )
         {
             var a1 = Converter.ToDoubleArray(a);
             var a2 = Converter.ToDoubleArray(b);
-            return Accord.Math.Matrix.Stack(a1, a2);
+            return new Horker.Math.Matrix(Accord.Math.Matrix.Stack(a1, a2), true);
         }
 
         /*
@@ -267,16 +176,6 @@ namespace Horker.Math.ArrayMethods
             return Accord.Math.Matrix.Separate(array, labels, groups);
         }
         */
-
-        public static void Swap(
-            PSObject values,
-            int a,
-            int b
-        )
-        {
-            var array = Converter.ToDoubleArray(values);
-            Accord.Math.Matrix.Swap(array, a, b);
-        }
 
         public static int[] Top(
             PSObject values,

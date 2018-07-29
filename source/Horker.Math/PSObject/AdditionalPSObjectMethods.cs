@@ -44,7 +44,7 @@ namespace Horker.Math.PSObjects
     {
         protected override void Process(IReadOnlyList<object> values)
         {
-            var results = ArrayMethods.AdditionalMethods.ShuffleInternal(values);
+            var results = ArrayMethods.Typed.Additional<object>.ShuffleInternal(values);
 
             foreach (var r in results)
                 WriteObject(r);
@@ -60,7 +60,7 @@ namespace Horker.Math.PSObjects
 
         protected override void Process(IReadOnlyList<object> values)
         {
-            var results = ArrayMethods.AdditionalMethods.SplitInternal(values, Rates);
+            var results = ArrayMethods.Typed.Additional<object>.SplitInternal(values, Rates);
 
             foreach (var r in results)
                 WriteObject(r);

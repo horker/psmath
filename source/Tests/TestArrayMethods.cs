@@ -11,7 +11,7 @@ namespace Tests
         {
             var array = new object[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
-            var s = Horker.Math.ArrayMethods.AdditionalMethods.SplitInternal(array, new object[] { .6, 2 });
+            var s = Horker.Math.ArrayMethods.Typed.Additional<object>.SplitInternal(array, new object[] { .6, 2 });
 
             Assert.AreEqual(3, s.Length);
 
@@ -29,7 +29,7 @@ namespace Tests
         {
             var array = new object[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
-            var s = Horker.Math.ArrayMethods.AdditionalMethods.SliceInternal(array, new object[] { 1, 5, 9 });
+            var s = Horker.Math.ArrayMethods.Typed.Additional<object>.SliceInternal(array, new object[] { 1, 5, 9 });
 
             Assert.AreEqual(3, s.Length);
 
@@ -41,7 +41,7 @@ namespace Tests
         {
             var array = new object[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
-            var s = Horker.Math.ArrayMethods.AdditionalMethods.SliceInternal(array, new object[] { 1, new int []{ 5, 7 }, 9 });
+            var s = Horker.Math.ArrayMethods.Typed.Additional<object>.SliceInternal(array, new object[] { 1, new int []{ 5, 7 }, 9 });
 
             Assert.AreEqual(4, s.Length);
 

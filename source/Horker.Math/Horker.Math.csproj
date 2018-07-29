@@ -63,16 +63,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Collections\Array\Accord.Statistics.MatrixMethods.cs" />
-    <Compile Include="Collections\Array\Accord.Statistics.MeasuresMethods.cs" />
-    <Compile Include="Collections\Array\Accord.Statistics.ToolsMethods.cs" />
-    <Compile Include="Collections\Array\Accord.Statistics.VectorMethods.cs" />
-    <Compile Include="Collections\Array\AdditionalArrayMethods.cs" />
-    <Compile Include="Collections\Array\ArrayMethodsHelper.cs" />
+    <Compile Include="ArrayMethods\Typed\Matrix.cs" />
+    <Compile Include="ArrayMethods\Untyped\Matrix.cs" />
+    <Compile Include="ArrayMethods\Untyped\Accord.Statistics.MeasuresMethods.cs" />
+    <Compile Include="ArrayMethods\Untyped\Accord.Statistics.ToolsMethods.cs" />
+    <Compile Include="ArrayMethods\Untyped\Accord.Statistics.VectorMethods.cs" />
+    <Compile Include="ArrayMethods\Typed\Additional.cs" />
+    <Compile Include="ArrayMethods\ArrayMethodsHelper.cs" />
+    <Compile Include="ArrayMethods\Untyped\Additional.cs" />
     <Compile Include="Collections\DataFrame\DataFrameColumn.cs" />
     <Compile Include="Collections\Slice\Get-Math.Slice.cs" />
     <Compile Include="Collections\Matrix\New-Math.Matrix.cs" />
-    <Compile Include="Collections\Array\System.LinqMethods.cs" />
+    <Compile Include="ArrayMethods\Typed\Linq.cs" />
     <Compile Include="Conversions\Converter.cs" />
     <Compile Include="Collections\DataFrame\DataFrame.cs" />
     <Compile Include="Collections\DataFrame\DataFrameGroup.cs" />
@@ -93,7 +95,7 @@
     <Compile Include="Statistics\KalmanFilter2D.cs" />
     <Compile Include="Statistics\Regressions\InvokeGeneralizedLinearRegression.cs" />
     <Compile Include="Statistics\Regressions\InvokeLinearRegression.cs" />
-    <Compile Include="Collections\Sequence\SequenceCmdlets.cs" />
+    <Compile Include="Sequence\SequenceCmdlets.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Collections\DataFrame\KeyComparers.cs" />
     <Compile Include="Statistics\Regressions\InvokeLogisticRegression.cs" />
