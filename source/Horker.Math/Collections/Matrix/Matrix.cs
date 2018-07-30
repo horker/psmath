@@ -927,9 +927,12 @@ namespace Horker.Math
             return _values.Null();
         }
 
-        public Matrix OneHot()
+        public Matrix OneHot(int? columns = null)
         {
-            return Accord.Math.Matrix.OneHot<double>(EnsureSequence(_values).Apply(x => (int)x));
+            if (columns.HasValue)
+                return Accord.Math.Matrix.OneHot<double>(EnsureSequence(_values).Apply(x => (int)x), columns.Value);
+            else
+                return Accord.Math.Matrix.OneHot<double>(EnsureSequence(_values).Apply(x => (int)x));
         }
 
         public Matrix Outer(Matrix b)
