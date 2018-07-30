@@ -412,7 +412,7 @@ namespace Horker.Math
             return builder.ToString();
         }
 
-        public double[] ToFlatArray()
+        public double[] ToFlatArray(bool transpose = false)
         {
             if (Rows == 1)
                 return GetRow(0);
@@ -421,9 +421,18 @@ namespace Horker.Math
                 return GetColumn(0);
 
             var result = new double[Rows * Columns];
-            for (var column = 0; column < Columns; ++column)
-                for (var row = 0; row < Rows; ++row)
-                    result[row + Rows * column] = this[row, column];
+            if (transpose)
+            {
+                for (var column = 0; column < Columns; ++column)
+                    for (var row = 0; row < Rows; ++row)
+                        result[Columns * row + column] = this[row, column];
+            }
+            else
+            {
+                for (var column = 0; column < Columns; ++column)
+                    for (var row = 0; row < Rows; ++row)
+                        result[row + Rows * column] = this[row, column];
+            }
 
             return result;
         }
