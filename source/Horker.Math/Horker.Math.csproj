@@ -81,11 +81,15 @@
     <Compile Include="Collections\Matrix\Matrix.cs" />
     <Compile Include="Conversions\ConversionCmdlets.cs" />
     <Compile Include="Math\DataSummary.cs" />
+    <Compile Include="PSObject\ConvertFrom-PSObject.BinaryFormat.cs" />
+    <Compile Include="PSObject\ConvertTo-PSObject.BinaryFormat.cs" />
+    <Compile Include="PSObject\Import-PSObject.BinaryFormat.cs" />
     <Compile Include="PSObject\New-PSObject.TruthTable.cs" />
     <Compile Include="PSObject\Get-PSObject.TypeInformation.cs" />
     <Compile Include="PSObject\AdditionalPSObjectMethods.cs" />
     <Compile Include="PSObject\Get-PSObject.Summary.cs" />
     <Compile Include="PSObject\New-PSObject.OneHot.cs" />
+    <Compile Include="PSObject\Export-PSObject.BinaryFormat.cs" />
     <Compile Include="PSObject\ObjectListCmdletBase.cs" />
     <Compile Include="Statistics\Distributions\Distributions.cs" />
     <Compile Include="Statistics\Analyses\InvokeDescriptiveAnalysis.cs" />
