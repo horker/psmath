@@ -9,6 +9,14 @@ namespace Horker.Math.ArrayMethods.Untyped
 {
     public class Matrix
     {
+        public static int ArgMax(
+            PSObject values
+        )
+        {
+            var array = Converter.ToDoubleArray(values);
+            return Accord.Math.Matrix.ArgMax(array);
+        }
+
         public static int ArgMin(
             PSObject values
         )
