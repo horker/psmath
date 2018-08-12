@@ -160,6 +160,110 @@ $METHOD_LIST = @(
       "Trim"
     )
   }
+
+  [PSCustomObject]@{
+    ClassInfo = "Horker.Math.ArrayMethods.Typed.ElementwiseObject"
+    TargetClass = "Object"
+    MethodNames = @(
+      "ElementAdd"
+      "ElementSubtract"
+      "ElementMultiply"
+      "ElementDivide"
+      "ElementReminder"
+      "ElementNegate"
+    )
+  }
+
+  [PSCustomObject]@{
+    ClassInfo = "Horker.Math.ArrayMethods.Typed.ElementwiseDouble"
+    TargetClass = "Double"
+    MethodNames = @(
+      "ElementAdd"
+      "ElementSubtract"
+      "ElementMultiply"
+      "ElementDivide"
+      "ElementReminder"
+      "ElementNegate"
+    )
+  }
+
+  [PSCustomObject]@{
+    ClassInfo = "Horker.Math.ArrayMethods.Typed.ElementwiseSingle"
+    TargetClass = "Single"
+    MethodNames = @(
+      "ElementAdd"
+      "ElementSubtract"
+      "ElementMultiply"
+      "ElementDivide"
+      "ElementReminder"
+      "ElementNegate"
+    )
+  }
+
+  [PSCustomObject]@{
+    ClassInfo = "Horker.Math.ArrayMethods.Typed.ElementwiseInt64"
+    TargetClass = "Int64"
+    MethodNames = @(
+      "ElementAdd"
+      "ElementSubtract"
+      "ElementMultiply"
+      "ElementDivide"
+      "ElementReminder"
+      "ElementNegate"
+    )
+  }
+
+  [PSCustomObject]@{
+    ClassInfo = "Horker.Math.ArrayMethods.Typed.ElementwiseInt32"
+    TargetClass = "Int32"
+    MethodNames = @(
+      "ElementAdd"
+      "ElementSubtract"
+      "ElementMultiply"
+      "ElementDivide"
+      "ElementReminder"
+      "ElementNegate"
+    )
+  }
+
+  [PSCustomObject]@{
+    ClassInfo = "Horker.Math.ArrayMethods.Typed.ElementwiseInt16"
+    TargetClass = "Int16"
+    MethodNames = @(
+      "ElementAdd"
+      "ElementSubtract"
+      "ElementMultiply"
+      "ElementDivide"
+      "ElementReminder"
+      "ElementNegate"
+    )
+  }
+
+  [PSCustomObject]@{
+    ClassInfo = "Horker.Math.ArrayMethods.Typed.ElementwiseByte"
+    TargetClass = "Byte"
+    MethodNames = @(
+      "ElementAdd"
+      "ElementSubtract"
+      "ElementMultiply"
+      "ElementDivide"
+      "ElementReminder"
+      "ElementNegate"
+    )
+  }
+
+  [PSCustomObject]@{
+    ClassInfo = "Horker.Math.ArrayMethods.Typed.ElementwiseSByte"
+    TargetClass = "SByte"
+    MethodNames = @(
+      "ElementAdd"
+      "ElementSubtract"
+      "ElementMultiply"
+      "ElementDivide"
+      "ElementReminder"
+      "ElementNegate"
+    )
+  }
 )
 
 foreach ($l in $METHOD_LIST) {

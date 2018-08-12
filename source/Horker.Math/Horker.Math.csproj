@@ -63,6 +63,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ArrayMethods\Typed\Elementwise.cs" />
     <Compile Include="ArrayMethods\Typed\Matrix.cs" />
     <Compile Include="ArrayMethods\Untyped\Matrix.cs" />
     <Compile Include="ArrayMethods\Untyped\Measures.cs" />
