@@ -1259,4 +1259,23 @@ namespace Horker.Math
 
     #endregion
 
+    #region Accord.Math.Vector
+
+    [Cmdlet("Get", "Math.Sample")]
+    [Alias("math.sample")]
+    public class GetMathSample : PSCmdlet
+    {
+        [Parameter(Position = 0, Mandatory = true)]
+        public int SampleSize;
+
+        [Parameter(Position = 1, Mandatory = true)]
+        public int PopulationSize;
+
+        protected override void EndProcessing()
+        {
+            WriteObject(Vector.Sample(SampleSize, PopulationSize));
+        }
+    }
+
+    #endregion
 }
