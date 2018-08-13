@@ -67,6 +67,7 @@ $METHOD_LIST = @(
       "Split"
       "Shuffle"
       "Slice"
+      "Combine"
     )
   }
 
