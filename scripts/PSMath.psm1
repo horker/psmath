@@ -267,6 +267,17 @@ $METHOD_LIST = @(
   }
 )
 
+# Methods for two-dimentional arrays
+$METHOD_LIST_2D = @(
+  [PSCustomObject]@{
+    ClassInfo = "Horker.Math.ArrayMethods.Typed.Additional[{0}]"
+    TargetClass = "Object", "Double", "Single", "Int64", "Int32", "Int16", "Byte", "SByte"
+    MethodNames = @(
+      "Combine2"
+    )
+  }
+)
+
 foreach ($l in $METHOD_LIST) {
   $targets = $l.TargetClass
   foreach ($t in $targets) {
@@ -274,6 +285,18 @@ foreach ($l in $METHOD_LIST) {
     foreach ($m in $l.MethodNames) {
       $mi = $ci.GetMethod($m)
       Update-TypeData -TypeName "$t[]" -MemberName $m -MemberType CodeMethod -Value $mi -Force
+    }
+  }
+}
+
+foreach ($l in $METHOD_LIST_2D) {
+  $targets = $l.TargetClass
+  foreach ($t in $targets) {
+    $ci = Invoke-Expression "[$($l.ClassInfo -f $t)]"
+    foreach ($m in $l.MethodNames) {
+      $mi = $ci.GetMethod($m)
+      $name = $m -replace "\d+$", "" # Remove trailing digits
+      Update-TypeData -TypeName "$t[][]" -MemberName $name -MemberType CodeMethod -Value $mi -Force
     }
   }
 }

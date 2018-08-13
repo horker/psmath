@@ -210,5 +210,12 @@ namespace Horker.Math.ArrayMethods.Typed
                 return CombineInternal(new T[][] { array, array0, array1, array2, array3, array4, array5, array6, array7, array8 });
             return CombineInternal(new T[][] { array, array0, array1, array2, array3, array4, array5, array6, array7, array8, array9 });
         }
+
+        public static T[] Combine2(PSObject values)
+        {
+            var array = (T[][])values.BaseObject;
+
+            return CombineInternal(array);
+        }
     }
 }
