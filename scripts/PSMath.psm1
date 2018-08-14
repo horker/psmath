@@ -67,7 +67,7 @@ $METHOD_LIST = @(
       "Split"
       "Shuffle"
       "Slice"
-      "Combine"
+      "Concatenate"
     )
   }
 
@@ -274,7 +274,7 @@ $METHOD_LIST_2D = @(
     ClassInfo = "Horker.Math.ArrayMethods.Typed.Additional[{0}]"
     TargetClass = "Object", "Double", "Single", "Int64", "Int32", "Int16", "Byte", "SByte"
     MethodNames = @(
-      "Combine2"
+      "Concatenate2"
     )
   }
 )

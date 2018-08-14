@@ -170,52 +170,36 @@ namespace Horker.Math.ArrayMethods.Typed
             return SliceInternal(array, new object[] { range0, range1, range2, range3, range4, range5, range6, range7, range8, range9 });
         }
 
-        public static T[] CombineInternal(T[][] arrays)
-        {
-            var total = arrays.Sum(x => x.Length);
-
-            var result = new T[total];
-
-            int index = 0;
-            foreach (var array in arrays)
-            {
-                array.CopyTo(result, index);
-                index += array.Length;
-            }
-
-            return result;
-        }
-
-        public static T[] Combine(PSObject values, T[] array0, T[] array1 = null, T[] array2 = null, T[] array3 = null, T[] array4 = null, T[] array5 = null, T[] array6 = null, T[] array7 = null, T[] array8 = null, T[] array9 = null)
+        public static T[] Concatenate(PSObject values, T[] array0, T[] array1 = null, T[] array2 = null, T[] array3 = null, T[] array4 = null, T[] array5 = null, T[] array6 = null, T[] array7 = null, T[] array8 = null, T[] array9 = null)
         {
             var array = (T[])values.BaseObject;
 
             if (array1 == null)
-                return CombineInternal(new T[][] { array, array0 });
+                return Accord.Math.Matrix.Concatenate(new T[][] { array, array0 });
             if (array2 == null)
-                return CombineInternal(new T[][] { array, array0, array1 });
+                return Accord.Math.Matrix.Concatenate(new T[][] { array, array0, array1 });
             if (array3 == null)
-                return CombineInternal(new T[][] { array, array0, array1, array2 });
+                return Accord.Math.Matrix.Concatenate(new T[][] { array, array0, array1, array2 });
             if (array4 == null)
-                return CombineInternal(new T[][] { array, array0, array1, array2, array3 });
+                return Accord.Math.Matrix.Concatenate(new T[][] { array, array0, array1, array2, array3 });
             if (array5 == null)
-                return CombineInternal(new T[][] { array, array0, array1, array2, array3, array4 });
+                return Accord.Math.Matrix.Concatenate(new T[][] { array, array0, array1, array2, array3, array4 });
             if (array6 == null)
-                return CombineInternal(new T[][] { array, array0, array1, array2, array3, array4, array5 });
+                return Accord.Math.Matrix.Concatenate(new T[][] { array, array0, array1, array2, array3, array4, array5 });
             if (array7 == null)
-                return CombineInternal(new T[][] { array, array0, array1, array2, array3, array4, array5, array6 });
+                return Accord.Math.Matrix.Concatenate(new T[][] { array, array0, array1, array2, array3, array4, array5, array6 });
             if (array8 == null)
-                return CombineInternal(new T[][] { array, array0, array1, array2, array3, array4, array5, array6, array7 });
+                return Accord.Math.Matrix.Concatenate(new T[][] { array, array0, array1, array2, array3, array4, array5, array6, array7 });
             if (array9 == null)
-                return CombineInternal(new T[][] { array, array0, array1, array2, array3, array4, array5, array6, array7, array8 });
-            return CombineInternal(new T[][] { array, array0, array1, array2, array3, array4, array5, array6, array7, array8, array9 });
+                return Accord.Math.Matrix.Concatenate(new T[][] { array, array0, array1, array2, array3, array4, array5, array6, array7, array8 });
+            return Accord.Math.Matrix.Concatenate(new T[][] { array, array0, array1, array2, array3, array4, array5, array6, array7, array8, array9 });
         }
 
-        public static T[] Combine2(PSObject values)
+        public static T[] Concatenate2(PSObject values)
         {
             var array = (T[][])values.BaseObject;
 
-            return CombineInternal(array);
+            return Accord.Math.Matrix.Concatenate(array);
         }
     }
 }
