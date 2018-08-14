@@ -135,6 +135,7 @@ $METHOD_LIST = @(
       "Get"
       "IsEqual"
       "IsSorted"
+      "OneHot"
       "Swap"
     )
   }

@@ -99,6 +99,16 @@ namespace Horker.Math.ArrayMethods.Typed
             return Accord.Math.Matrix.IsSorted(array, direction);
         }
 
+        public static Matrix OneHot(PSObject values, int? columns = null)
+        {
+            var array = (T[])values.BaseObject;
+
+            if (columns.HasValue)
+                return Accord.Math.Matrix.OneHot<double>(array.Apply(x => Convert.ToInt32(x)), columns.Value);
+            else
+                return Accord.Math.Matrix.OneHot<double>(array.Apply(x => Convert.ToInt32(x)));
+        }
+
         public static void Swap(
             PSObject values,
             int a,
