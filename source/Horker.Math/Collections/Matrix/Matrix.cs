@@ -1196,7 +1196,7 @@ namespace Horker.Math
             return new CholeskyWrapper(new CholeskyDecomposition(_values, robust, false, type));
         }
 
-        public GramSchmidtOrthogonalizationWrapper gramSchmidtOrthogonalizationWrapper(bool modified = true)
+        public GramSchmidtOrthogonalizationWrapper GramSchmidtOrthogonalization(bool modified = true)
         {
             return new GramSchmidtOrthogonalizationWrapper(new GramSchmidtOrthogonalization(_values, modified));
         }
