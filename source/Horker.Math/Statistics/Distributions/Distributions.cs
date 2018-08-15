@@ -314,7 +314,7 @@ namespace Horker.Math
     }
 
     [Cmdlet("New", "LognormalDistribution")]
-    [Alias("st.lognorm")]
+    [Alias("st.lognormal")]
     public class NewLognormalDistribution : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = false)]
@@ -350,7 +350,7 @@ namespace Horker.Math
     }
 
     [Cmdlet("New", "NormalDistribution")]
-    [Alias("st.norm")]
+    [Alias("st.normal")]
     public class NewNormalDistribution : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = false)]
@@ -399,7 +399,7 @@ namespace Horker.Math
     }
 
     [Cmdlet("New", "UniformContinuousDistribution")]
-    [Alias("st.unif")]
+    [Alias("st.uniform")]
     public class NewUniformContinuousDistribution : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = false)]
@@ -417,7 +417,7 @@ namespace Horker.Math
     }
 
     [Cmdlet("New", "UniformDiscreteDistribution")]
-    [Alias("st.unifd")]
+    [Alias("st.uniformd")]
     public class NewUniformDiscreteDistribution : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = false)]
