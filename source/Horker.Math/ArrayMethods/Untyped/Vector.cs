@@ -29,13 +29,17 @@ namespace Horker.Math.ArrayMethods
            PSObject values,
            double fromMin,
            double fromMax,
-           double toMin,
-           double toMax
+           double? toMin = null,
+           double? toMax = null
         )
         {
             var array = Converter.ToDoubleArray(values);
             var result = new double[array.Length];
-            return Accord.Math.Vector.Scale(array, fromMin, fromMax, toMin, toMax, result);
+
+            if (toMin.HasValue && toMax.HasValue)
+                return Accord.Math.Vector.Scale(array, fromMin, fromMax, toMin.Value, toMax.Value, result);
+            else
+                return Accord.Math.Vector.Scale(array, fromMin, fromMax, result);
         }
 
         /*
