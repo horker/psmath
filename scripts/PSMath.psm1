@@ -53,6 +53,7 @@ $METHOD_LIST = @(
     ClassInfo = "Horker.Math.ArrayMethods.Untyped.Additional"
     TargetClass = "Object", "Double", "Single", "Int64", "Int32", "Int16", "Byte", "SByte"
     MethodNames = @(
+      "Clip"
       "DropNa"
       "DropNaN"
       "Histogram"
@@ -126,7 +127,6 @@ $METHOD_LIST = @(
     TargetClass = "Object", "Double", "Single", "Int64", "Int32", "Int16", "Byte", "SByte"
     MethodNames = @(
       "Clear"
-      "Concatenate"
       "Copy"
       "DistinctCount"
       "Expand"

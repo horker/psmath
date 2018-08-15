@@ -17,6 +17,7 @@ namespace Horker.Math.ArrayMethods.Typed
             Accord.Math.Matrix.Clear(array);
         }
 
+        /*
         public static T[] Concatenate(
             PSObject a,
             T[] b
@@ -25,6 +26,7 @@ namespace Horker.Math.ArrayMethods.Typed
             var array = (T[])a.BaseObject;
             return Accord.Math.Matrix.Concatenate(b);
         }
+        */
 
         public static T[] Copy(
             PSObject vector

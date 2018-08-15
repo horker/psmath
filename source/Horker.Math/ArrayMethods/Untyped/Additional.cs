@@ -16,6 +16,16 @@ namespace Horker.Math.ArrayMethods.Untyped
 
     public class Additional
     {
+        public static double[] Clip(PSObject values, double min, double? max = null)
+        {
+            var array = Converter.ToDoubleArray(values);
+
+            if (max.HasValue)
+                return array.Select(x => x < min ? min : (x > max.Value ? max.Value : x)).ToArray();
+            else
+                return array.Select(x => x > min ? min : x).ToArray();
+        }
+
         public static object[] DropNa(PSObject values)
         {
             var array = Helper.GetObjectArray(values);
