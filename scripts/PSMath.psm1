@@ -144,6 +144,7 @@ $METHOD_LIST = @(
     ClassInfo = "Horker.Math.ArrayMethods.Untyped.Matrix"
     TargetClass = "Object", "Double", "Single", "Int64", "Int32", "Int16", "Byte", "SByte"
     MethodNames = @(
+      "ArgMax"
       "ArgMin"
       "ArgSort"
       "Bottom"
