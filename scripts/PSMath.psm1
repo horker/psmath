@@ -1,6 +1,6 @@
 Set-StrictMode -Version Latest
 
-$METHOD_LIST = @(
+$METHOD_LIST_1D = @(
   [PSCustomObject]@{
     ClassInfo = "Horker.Math.ArrayMethods.Typed.Linq[{0}]"
     TargetClass = "Object", "Double", "Single", "Int64", "Int32", "Int16", "Byte", "SByte"
@@ -280,7 +280,18 @@ $METHOD_LIST_2D = @(
   }
 )
 
-foreach ($l in $METHOD_LIST) {
+  # Methods for System.Data.DataTable
+$METHOD_LIST = @(
+  [PSCustomObject]@{
+    ClassInfo = "Horker.Math.DataTablePSMethods"
+    TargetClass = "System.Data.DataTable"
+    MethodNames = @(
+      "ExpandToOneHot"
+    )
+  }
+)
+
+foreach ($l in $METHOD_LIST_1D) {
   $targets = $l.TargetClass
   foreach ($t in $targets) {
     $ci = Invoke-Expression "[$($l.ClassInfo -f $t)]"
@@ -299,6 +310,17 @@ foreach ($l in $METHOD_LIST_2D) {
       $mi = $ci.GetMethod($m)
       $name = $m -replace "\d+$", "" # Remove trailing digits
       Update-TypeData -TypeName "$t[][]" -MemberName $name -MemberType CodeMethod -Value $mi -Force
+    }
+  }
+}
+
+foreach ($l in $METHOD_LIST) {
+  $targets = $l.TargetClass
+  foreach ($t in $targets) {
+    $ci = Invoke-Expression "[$($l.ClassInfo -f $t)]"
+    foreach ($m in $l.MethodNames) {
+      $mi = $ci.GetMethod($m)
+      Update-TypeData -TypeName "$t" -MemberName $m -MemberType CodeMethod -Value $mi -Force
     }
   }
 }

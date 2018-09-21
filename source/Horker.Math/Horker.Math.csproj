@@ -73,6 +73,8 @@
     <Compile Include="ArrayMethods\ArrayMethodsHelper.cs" />
     <Compile Include="ArrayMethods\Untyped\Additional.cs" />
     <Compile Include="Collections\DataFrame\DataFrameColumn.cs" />
+    <Compile Include="Collections\DataTable\DataTableExtensionMethods.cs" />
+    <Compile Include="Collections\DataTable\DataTablePSMethods.cs" />
     <Compile Include="Collections\Slice\Get-Math.Slice.cs" />
     <Compile Include="Collections\Matrix\New-Math.Matrix.cs" />
     <Compile Include="ArrayMethods\Typed\Linq.cs" />
