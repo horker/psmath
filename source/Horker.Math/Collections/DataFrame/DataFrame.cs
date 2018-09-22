@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Management.Automation;
 using System.Text;
@@ -147,6 +148,31 @@ namespace Horker.Math
 
             return df;
         }
+
+        public static DataFrame FromDataTable(DataTable table)
+        {
+            var df = new DataFrame();
+            var rowCount = table.Rows.Count;
+
+            foreach (DataColumn column in table.Columns)
+            {
+                var name = column.ColumnName;
+                df.DefineNewColumn(name, DataFrameColumnFactory.Create(column.DataType, df, rowCount, false));
+            }
+
+            var columns = new DataFrameColumnInternal[df.ColumnCount];
+            for (var i = 0; i < columns.Length; ++i)
+                columns[i] = df.GetColumn(i);
+
+            foreach (DataRow row in table.Rows)
+            {
+                for (var i = 0; i < columns.Length; ++i)
+                    columns[i].AddObject(row[i]);
+            }
+
+            return df;
+        }
+
 /*
         public DataFrame Clone()
         {
