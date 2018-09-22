@@ -287,6 +287,7 @@ $METHOD_LIST = @(
     TargetClass = "System.Data.DataTable"
     MethodNames = @(
       "ExpandToOneHot"
+      "GetColumn"
     )
   }
 )
