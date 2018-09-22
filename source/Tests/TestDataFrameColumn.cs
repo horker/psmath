@@ -13,32 +13,33 @@ namespace Tests
     public class TestDataFrameColumn
     {
         [TestMethod]
-        public void TestCodify()
+        public void TestToDummyValues()
         {
-            var v = new DataFrameColumn {
+            var v = new DataFrameColumn<string>(null, new string[] {
                 "a",
                 "b",
                 "a",
                 "B",
                 "C"
-            };
+            });
 
             DataFrame df = v.ToDummyValues("Code ");
 
             Assert.AreEqual(5, df.Count);
 
-            Assert.AreEqual(0, df["Code b"][0]);
-            Assert.AreEqual(1, df["Code b"][1]);
-            Assert.AreEqual(0, df["Code b"][2]);
-            Assert.AreEqual(1, df["Code b"][3]);
-            Assert.AreEqual(0, df["Code b"][4]);
+            Assert.AreEqual(0, df["Code b"].GetObject(0));
+            Assert.AreEqual(1, df["Code b"].GetObject(1));
+            Assert.AreEqual(0, df["Code b"].GetObject(2));
+            Assert.AreEqual(1, df["Code b"].GetObject(3));
+            Assert.AreEqual(0, df["Code b"].GetObject(4));
 
-            Assert.AreEqual(0, df["Code c"][0]);
-            Assert.AreEqual(0, df["Code c"][1]);
-            Assert.AreEqual(0, df["Code c"][2]);
-            Assert.AreEqual(0, df["Code c"][3]);
-            Assert.AreEqual(1, df["Code c"][4]);
+            Assert.AreEqual(0, df["Code c"].GetObject(0));
+            Assert.AreEqual(0, df["Code c"].GetObject(1));
+            Assert.AreEqual(0, df["Code c"].GetObject(2));
+            Assert.AreEqual(0, df["Code c"].GetObject(3));
+            Assert.AreEqual(1, df["Code c"].GetObject(4));
         }
+
 /*
         [TestMethod]
         public void TestOuter()

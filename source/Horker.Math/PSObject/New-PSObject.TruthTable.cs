@@ -22,20 +22,20 @@ namespace Horker.Math.PSObjects
                 foreach (int[] seq in Combinatorics.Sequences(Symbols, true)) {
                     if (first) {
                         for (var column = 0; column < seq.Length; ++column) {
-                            df.DefineNewColumn("c" + column, new DataFrameColumn());
+                            df.AddColumn<int>("c" + column);
                         }
                         first = false;
                     }
 
                     for (var column = 0; column < seq.Length; ++column) {
-                        df.GetColumn(column).Add(seq[column]);
+                        df.GetColumn(column).SetObject(column, seq[column]);
                     }
                 }
             }
             else {
                 int column = 0;
                 foreach (int[] seq in Combinatorics.Sequences(Symbols, true)) {
-                    df.DefineNewColumn("c" + column, new DataFrameColumn(seq));
+                    df.DefineNewColumn("c" + column, new DataFrameColumn<int>(df, seq));
                     ++column;
                 }
             }

@@ -49,5 +49,32 @@ namespace Tests
             }
         }
 
+        [TestMethod]
+        public void TestExpandToOneHot()
+        {
+            var df = new DataFrame();
+            var column = new DataFrameColumn<int>(null, new int[] { 1, 2, 3 });
+            df.DefineNewColumn("a", column);
+
+            df.ExpandToOneHot("a", 4);
+
+            Assert.AreEqual(3, df.RowCount);
+            Assert.AreEqual(4, df.ColumnCount);
+
+            Assert.AreEqual(0, df["a_0"].GetObject(0));
+            Assert.AreEqual(1, df["a_1"].GetObject(0));
+            Assert.AreEqual(0, df["a_2"].GetObject(0));
+            Assert.AreEqual(0, df["a_3"].GetObject(0));
+
+            Assert.AreEqual(0, df["a_0"].GetObject(1));
+            Assert.AreEqual(0, df["a_1"].GetObject(1));
+            Assert.AreEqual(1, df["a_2"].GetObject(1));
+            Assert.AreEqual(0, df["a_3"].GetObject(1));
+
+            Assert.AreEqual(0, df["a_0"].GetObject(2));
+            Assert.AreEqual(0, df["a_1"].GetObject(2));
+            Assert.AreEqual(0, df["a_2"].GetObject(2));
+            Assert.AreEqual(1, df["a_3"].GetObject(2));
+        }
     }
 }

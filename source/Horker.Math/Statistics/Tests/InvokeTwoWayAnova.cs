@@ -42,6 +42,7 @@ namespace Horker.Math
 
         protected override void EndProcessing()
         {
+            /*
             var level1 = _data[Level1Name].ToDummyValues(Level1Name, CodificationType.Multilevel);
             var level2 = _data[Level2Name].ToDummyValues(Level2Name, CodificationType.Multilevel);
             var test = new TwoWayAnova(
@@ -51,6 +52,7 @@ namespace Horker.Math
                 Model);
 
             WriteObject(test.Table);
+            */
         }
     }
 }

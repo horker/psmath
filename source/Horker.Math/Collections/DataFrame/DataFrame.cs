@@ -1,26 +1,18 @@
 ﻿using System;
-using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
+using System.Linq;
 using System.Management.Automation;
-using Accord.Math;
-using Accord.Math.Decompositions;
 using System.Text;
+using Accord.Math;
 using Accord.Math.Random;
 
 namespace Horker.Math
 {
-    public enum Direction
-    {
-        Horizontal,
-        Vertical
-    }
-
     public class DataFrame : IEnumerable<PSObject>
     {
         private List<string> _names;
-        private Dictionary<string, DataFrameColumn> _columns;
+        private Dictionary<string, DataFrameColumnInternal> _columns;
         private PSObject _link;
 
         #region Constructors
@@ -28,14 +20,15 @@ namespace Horker.Math
         public DataFrame()
         {
             _names = new List<string>();
-            _columns = new Dictionary<string, DataFrameColumn>(new StringKeyComparer());
+            _columns = new Dictionary<string, DataFrameColumnInternal>(new StringKeyComparer());
             _link = new PSObject(this);
         }
 
         public DataFrame(IEnumerable<PSObject> objects)
             : this()
         {
-            foreach (var obj in objects) {
+            foreach (var obj in objects)
+            {
                 AddRow(obj);
             }
         }
@@ -51,27 +44,34 @@ namespace Horker.Math
             int rowCount = jagged.Length;
 
             int columnCount = 0;
-            foreach (var j in jagged) {
-                if (columnCount < j.Length) {
+            foreach (var j in jagged)
+            {
+                if (columnCount < j.Length)
+                {
                     columnCount = j.Length;
                 }
             }
 
-            var data = new DataFrameColumn[columnCount];
-            for (var column = 0; column < columnCount; ++column) {
-                data[column] = new DataFrameColumn(rowCount);
-            }
+            var data = new DataFrameColumn<T>[columnCount];
 
-            for (var row = 0; row < rowCount; ++row) {
-                for (var column = 0; column < jagged[row].Length; ++column) {
+            for (var column = 0; column < columnCount; ++column)
+                data[column] = new DataFrameColumn<T>(df, rowCount, false);
+
+            for (var row = 0; row < rowCount; ++row)
+            {
+                for (var column = 0; column < jagged[row].Length; ++column)
+                {
                     data[column].Add(jagged[row][column]);
                 }
-                for (var column = jagged[row].Length; column < columnCount; ++column) {
-                    data[column].Add(null);
+
+                for (var column = jagged[row].Length; column < columnCount; ++column)
+                {
+                    data[column].Add(default(T));
                 }
             }
 
-            for (var column = 0; column < columnCount; ++column) {
+            for (var column = 0; column < columnCount; ++column)
+            {
                 df.DefineNewColumn("c" + column, data[column]);
             }
 
@@ -82,49 +82,50 @@ namespace Horker.Math
         {
             var df = new DataFrame();
 
-            if (columnCount == int.MaxValue) {
-                if (rowCount == int.MaxValue) {
+            if (columnCount == int.MaxValue)
+            {
+                if (rowCount == int.MaxValue)
+                {
                     columnCount = 1;
                     rowCount = array.Length;
                 }
-                else {
+                else
+                {
                     columnCount = array.Length / rowCount;
-                    if (columnCount == 0 || array.Length % rowCount != 0) {
+                    if (columnCount == 0 || array.Length % rowCount != 0)
                         ++columnCount;
-                    }
                 }
             }
-            else {
-                if (rowCount == int.MaxValue) {
+            else
+            {
+                if (rowCount == int.MaxValue)
+                {
                     rowCount = array.Length / columnCount;
-                    if (rowCount == 0 || array.Length % columnCount != 0) {
+                    if (rowCount == 0 || array.Length % columnCount != 0)
                         ++rowCount;
-                    }
                 }
             }
 
-            var data = new DataFrameColumn[columnCount];
-            for (int column = 0; column < columnCount; ++column) {
-                data[column] = new DataFrameColumn(rowCount);
-            }
+            var data = new DataFrameColumn<T>[columnCount];
+            for (int column = 0; column < columnCount; ++column)
+                data[column] = new DataFrameColumn<T>(df, rowCount, false);
 
-            for (int column = 0; column < columnCount; ++column) {
+            for (int column = 0; column < columnCount; ++column)
+            {
                 var v = data[column];
-                for (int row = 0; row < rowCount; ++row) {
+                for (int row = 0; row < rowCount; ++row)
+                {
                     int index;
-                    if (transpose) {
+                    if (transpose)
                         index = (row * columnCount + column) % array.Length;
-                    }
-                    else {
+                    else
                         index = (column * rowCount + row) % array.Length;
-                    }
                     v.Add(array[index]);
                 }
             }
 
-            for (var column = 0; column < columnCount; ++column) {
+            for (var column = 0; column < columnCount; ++column)
                 df.DefineNewColumn("c" + column, data[column]);
-            }
 
             return df;
         }
@@ -136,28 +137,29 @@ namespace Horker.Math
             int rowCount = matrix.GetLength(0);
             int columnCount = matrix.GetLength(1);
 
-            for (var column = 0; column < columnCount; ++column) {
-                var v = new DataFrameColumn(rowCount);
-                for (var row = 0; row < rowCount; ++row) {
+            for (var column = 0; column < columnCount; ++column)
+            {
+                var v = new DataFrameColumn<T>(df, rowCount, false);
+                for (var row = 0; row < rowCount; ++row)
                     v.Add(matrix[row, column]);
-                }
                 df.DefineNewColumn("c" + column, v);
             }
 
             return df;
         }
-
+/*
         public DataFrame Clone()
         {
             var df = new DataFrame();
 
-            for (var i = 0; i < ColumnCount; ++i) {
-                df.DefineNewColumn(ColumnNames[i], new DataFrameColumn(GetColumn(i)));
+            for (var i = 0; i < ColumnCount; ++i)
+            {
+                df.DefineNewColumn(ColumnNames[i], new DataFrameColumnBase<>(GetColumn(i)));
             }
 
             return df;
         }
-
+*/
         #endregion
 
         #region Properties
@@ -171,9 +173,9 @@ namespace Horker.Math
         {
             get
             {
-                if (_columns.Count == 0) {
+                if (_columns.Count == 0)
                     return 0;
-                }
+
                 return _columns[_names[0]].Count;
             }
         }
@@ -191,10 +193,7 @@ namespace Horker.Math
 
         public List<String> ColumnNames => _names;
 
-        public DataFrameColumn this[string name] {
-            get => GetColumn(name);
-            set => SetColumn(name, value);
-        }
+        public DataFrameColumnInternal this[string name] => GetColumn(name);
 
         public PSObject this[int index]
         {
@@ -206,21 +205,21 @@ namespace Horker.Math
         {
             get
             {
-                if (row == null) {
+                if (row == null)
                     return GetColumn(column.Value);
-                }
-                if (column == null) {
+
+                if (column == null)
                     return GetRow(row.Value);
-                }
-                return GetColumn(column.Value)[row.Value];
+
+                return GetColumn(column.Value).GetObject(row.Value);
             }
 
             set
             {
-                if (row == null || column == null) {
-                    throw new ArgumentException("row and column should not be null");
-                }
-                GetColumn(column.Value)[row.Value] = value;
+                if (row == null || column == null)
+                    throw new ArgumentException("Row and column should not be null");
+
+                GetColumn(column.Value).SetObject(row.Value, value);
             }
         }
 
@@ -228,18 +227,18 @@ namespace Horker.Math
         {
             get
             {
-                if (row == null) {
+                if (row == null)
                     return GetColumn(column);
-                }
-                return GetColumn(column)[row.Value];
+
+                return GetColumn(column).GetObject(row.Value);
             }
 
             set
             {
-                if (row == null) {
-                    throw new ArgumentException("row should not be null");
-                }
-                GetColumn(column)[row.Value] = value;
+                if (row == null)
+                    throw new ArgumentException("Row should not be null");
+
+                GetColumn(column).SetObject(row.Value, value);
             }
         }
 
@@ -258,15 +257,9 @@ namespace Horker.Math
                 _index = -1;
             }
 
-            public PSObject Current
-            {
-                get { return _dataFrame.GetRow(_index); }
-            }
+            public PSObject Current => _dataFrame.GetRow(_index);
 
-            object IEnumerator.Current
-            {
-                get { return _dataFrame.GetRow(_index);  }
-            }
+            object IEnumerator.Current => _dataFrame.GetRow(_index);
 
             public void Dispose()
             {
@@ -297,21 +290,40 @@ namespace Horker.Math
 
         #endregion
 
+        #region Information
+
+        public DataFrameColumnInfo[] GetColumnInfo()
+        {
+            return _names.Select(name =>
+                new DataFrameColumnInfo()
+                {
+                    Name = name,
+                    DataType = DataFrameColumnFactory.GetDataFrameType(_columns[name].DataType)
+                }).ToArray();
+        }
+
+        public int GetOrdinalOf(string name)
+        {
+            return _names.IndexOf(name);
+        }
+
+        #endregion
+
         #region Conversions
 
         public double[][] ToDoubleJaggedArray()
         {
-            var data = new double[this.Count][];
-            for (var i = 0; i < data.Length; ++i) {
+            var data = new double[Count][];
+            for (var i = 0; i < data.Length; ++i)
                 data[i] = new double[_names.Count];
-            }
 
             var columnCount = 0;
-            foreach (var entry in _columns) {
+            foreach (var entry in _columns)
+            {
                 var column = entry.Value;
-                for (var rowCount = 0; rowCount < column.Count; ++rowCount) {
-                    data[rowCount][columnCount] = Convert.ToDouble(column[rowCount]);
-                }
+                for (var rowCount = 0; rowCount < column.Count; ++rowCount)
+                    data[rowCount][columnCount] = Convert.ToDouble(column.GetObject(rowCount));
+
                 ++columnCount;
             }
 
@@ -321,11 +333,11 @@ namespace Horker.Math
         public double[,] ToDoubleMatrix()
         {
             var data = new double[RowCount, ColumnCount];
-            for (var column = 0; column < ColumnCount; ++column) {
+            for (var column = 0; column < ColumnCount; ++column)
+            {
                 var v = GetColumn(column);
-                for (var row = 0; row < RowCount; ++row) {
-                    data[row, column] = Converter.ToDouble(v[row]);
-                }
+                for (var row = 0; row < RowCount; ++row)
+                    data[row, column] = Converter.ToDouble(v.GetObject(row));
             }
 
             return data;
@@ -334,37 +346,35 @@ namespace Horker.Math
         public int[,] ToIntMatrix()
         {
             var data = new int[this.Count, _names.Count];
-            for (var column = 0; column < _names.Count; ++column) {
+            for (var column = 0; column < _names.Count; ++column)
+            {
                 var v = GetColumn(column);
-                for (var row = 0; row < this.Count; ++row) {
-                    data[row, column] = Convert.ToInt32(v[row]);
-                }
+                for (var row = 0; row < Count; ++row)
+                    data[row, column] = Convert.ToInt32(v.GetObject(row));
             }
 
             return data;
         }
 
-        public double[] ToDoubleArray(Direction direction = Direction.Horizontal)
+        public double[] ToDoubleArray(bool transpose = false)
         {
             var data = new double[RowCount * ColumnCount];
-            if (direction == Direction.Horizontal) {
+            if (!transpose)
+            {
                 for (var column = 0; column < ColumnCount; ++column)
                 {
                     var v = GetColumn(column);
                     for (var row = 0; row < RowCount; ++row)
-                    {
-                        data[row * ColumnCount + column] = Converter.ToDouble(v[row]);
-                    }
+                        data[row * ColumnCount + column] = Converter.ToDouble(v.GetObject(row));
                 }
             }
-            else {
+            else
+            {
                 for (var column = 0; column < ColumnCount; ++column)
                 {
                     var v = GetColumn(column);
                     for (var row = 0; row < RowCount; ++row)
-                    {
-                        data[row  + column * RowCount] = Converter.ToDouble(v[row]);
-                    }
+                        data[row + column * RowCount] = Converter.ToDouble(v.GetObject(row));
                 }
             }
 
@@ -375,17 +385,21 @@ namespace Horker.Math
 
         #region Inplace conversions
 
-        public void ColumnToDummyValues(string columnName, CodificationType codificationType = CodificationType.OneHotDropFirst)
+        public void ExpandToOneHot(string columnName, int total, bool dropFirst = false, bool preserve = false)
         {
-            var baseName = columnName;
-            if (codificationType != CodificationType.Multilevel) {
-                baseName += "_";
+            var column = GetColumn(columnName);
+            var ordinal = GetOrdinalOf(columnName);
+
+            var expanded = column.ToOneHot(total, dropFirst);
+
+            for (var i = 0; i < expanded.Count; ++i)
+            {
+                var name = columnName + "_" + i;
+                DefineNewColumn(name, expanded[i]);
+                MoveColumn(name, ordinal + i);
             }
 
-            var column = this[columnName];
             RemoveColumn(columnName);
-
-            column.ToDummyValues(this, baseName, codificationType);
         }
 
         #endregion
@@ -399,20 +413,16 @@ namespace Horker.Math
             return _columns.ContainsKey(name);
         }
 
-        public void Add(string name, object value)
-        {
-            _columns[name].Add(value);
-        }
-
         public PSObject GetRow(int index)
         {
             var obj = new PSObject();
-            foreach (var name in _names) {
+            foreach (var name in _names)
+            {
                 var column = _columns[name];
                 object value = null;
-                if (index < column.Count) {
-                    value = column[index];
-                }
+                if (index < column.Count)
+                    value = column.GetObject(index);
+
                 var prop = new PSNoteProperty(name, value);
                 obj.Properties.Add(prop);
             }
@@ -420,20 +430,21 @@ namespace Horker.Math
             return obj;
         }
 
-        public DataFrameColumn GetColumn(string name)
+        public DataFrameColumnInternal GetColumn(string name)
         {
-            if (name.ToLower() == "__line__") {
+            if (name.ToLower() == "__line__")
+            {
                 var count = this.Count;
-                var column = new DataFrameColumn(Count);
-                for (var i = 0; i < count; ++i) {
+                var column = new DataFrameColumn<Int32>(this, Count, false);
+                for (var i = 0; i < count; ++i)
                     column.Add(i);
-                }
+
                 return column;
             }
             return _columns[name];
         }
 
-        public DataFrameColumn GetColumn(int index)
+        public DataFrameColumnInternal GetColumn(int index)
         {
             return _columns[_names[index]];
         }
@@ -447,97 +458,77 @@ namespace Horker.Math
         {
             var names = new HashSet<string>(new StringKeyComparer());
 
-            var count = this.Count;
-            foreach (var p in obj.Properties) {
+            var lastCount = this.Count;
+            foreach (var p in obj.Properties)
+            {
                 names.Add(p.Name);
-                if (_columns.ContainsKey(p.Name)) {
-                    _columns[p.Name].Add(p.Value);
-                }
-                else {
-                    var l = new DataFrameColumn();
-
-                    for (var i = 0; i < count; ++i) {
-                        l.Add(null);
-                    }
-
-                    l.Add(p.Value);
-
-                    DefineNewColumn(p.Name, l);
+                if (_columns.ContainsKey(p.Name))
+                    _columns[p.Name].AddObject(p.Value);
+                else
+                {
+                    var column = DataFrameColumnFactory.CreateFromTypeName(p.TypeNameOfValue, this, lastCount, true);
+                    column.AddObject(p.Value);
+                    DefineNewColumn(p.Name, column);
                 }
             }
 
-            foreach (var entry in _columns) {
-                if (!names.Contains(entry.Key)) {
-                    _columns[entry.Key].Add(null);
-                }
+            foreach (var entry in _columns)
+            {
+                if (!names.Contains(entry.Key))
+                    _columns[entry.Key].AddObject(null);
             }
         }
 
-        public void SetColumn<T>(string name, IEnumerable<T> values)
+        public void DefineNewColumn(string name, DataFrameColumnInternal column)
         {
-            if (!_columns.ContainsKey(name)) {
-                AddColumn(name, values);
-            }
-            else {
-                _columns[name].AddRange(values);
-            }
-        }
+            if (_columns.ContainsKey(name))
+                throw new ArgumentException("Column already exists");
 
-        public void SetColumn<T>(string name, T[] values)
-        {
-            if (!_columns.ContainsKey(name)) {
-                AddColumn(name, values);
-            }
-            else {
-                _columns[name].AddRange(values);
-            }
-        }
+            if (_columns.Count > 0 && column.Count != Count)
+                throw new ArgumentException("Data length mismatch");
 
-        public void DefineNewColumn(string name, DataFrameColumn data)
-        {
-            if (_columns.ContainsKey(name)) {
-                throw new RuntimeException("Column already exists");
-            }
-
+            column.Owner = this;
             _names.Add(name);
-            _columns[name] = data;
-            _link.Properties.Add(new PSNoteProperty(name, data));
+            _columns[name] = column;
+            _link.Properties.Add(new PSNoteProperty(name, column));
         }
 
-        public void AddColumn<T>(string name, IEnumerable<T> values)
+        public void AddColumn<T>(string name)
         {
-            DefineNewColumn(name, DataFrameColumn.Create(values));
+            DefineNewColumn(name, new DataFrameColumn<T>(this, Count, false));
+        }
+
+        public void AddColumn(string name, DataFrameType dataType)
+        {
+            DefineNewColumn(name, DataFrameColumnFactory.Create(dataType, this, Count, true));
+        }
+
+        public void AddColumn<T>(string name, ICollection<T> values)
+        {
+            DefineNewColumn(name, new DataFrameColumn<T>(this, values));
         }
 
         public void AddColumn<T>(string name, T[] values)
         {
-            DefineNewColumn(name, DataFrameColumn.Create(values));
+            DefineNewColumn(name, new DataFrameColumn<T>(this, values));
         }
 
         public void InsertColumn<T>(int index, string name, IEnumerable<T> values)
         {
-            DefineNewColumn(name, DataFrameColumn.Create(values));
+            DefineNewColumn(name, new DataFrameColumn<T>(this, values));
             MoveColumn(name, index);
         }
 
         public void InsertColumn<T>(string before, string name, T[] values)
         {
-            DefineNewColumn(name, DataFrameColumn.Create(values));
+            DefineNewColumn(name, new DataFrameColumn<T>(this, values));
             MoveColumn(name, before);
-        }
-
-        public void Aggregate(DataFrame df)
-        {
-            for (var i = 0; i < df.ColumnCount; ++i) {
-                DefineNewColumn(df.ColumnNames[i], new DataFrameColumn(df.GetColumn(i)));
-            }
         }
 
         public void RemoveColumn(string name)
         {
-            if (!_names.Contains(name)) {
-                throw new RuntimeException("No such a column");
-            }
+            if (!_names.Contains(name))
+                throw new ArgumentException("No such a column");
 
             _columns.Remove(name);
             _names.Remove(name);
@@ -547,8 +538,9 @@ namespace Horker.Math
         public void RenameColumn(string name, string newName)
         {
             var index = _names.FindIndex((x) => StringKeyComparer.Compare(x, name));
-            if (index == -1) {
-                throw new RuntimeException("No such a column");
+            if (index == -1)
+            {
+                throw new ArgumentException("No such a column");
             }
 
             _names[index] = newName;
@@ -569,7 +561,8 @@ namespace Horker.Math
         public void MoveColumn(string name, string location)
         {
             var index = _names.FindIndex((x) => StringKeyComparer.Compare(x, location));
-            if (index == -1) {
+            if (index == -1)
+            {
                 throw new RuntimeException("No such a column");
             }
 
@@ -579,27 +572,19 @@ namespace Horker.Math
         private void UpdateLinkedObject()
         {
             var names = new List<string>();
-            foreach (var p in _link.Properties) {
+            foreach (var p in _link.Properties)
+            {
                 names.Add(p.Name);
             }
 
-            foreach (var n in names) {
+            foreach (var n in names)
+            {
                 _link.Properties.Remove(n);
             }
 
-            foreach (var n in _names) {
+            foreach (var n in _names)
+            {
                 _link.Properties.Add(new PSNoteProperty(n, _columns[n]));
-            }
-        }
-
-        public void FillShortColumns()
-        {
-            var maxCount = _columns.Values.Max(x => x.Count);
-
-            foreach (var column in _columns.Values) {
-                while (column.Count < maxCount) {
-                    column.Add(null);
-                }
             }
         }
 
@@ -608,45 +593,38 @@ namespace Horker.Math
             _names.Clear();
             _columns.Clear();
         }
-
+/*
         public void Shuffle()
         {
             // ref. https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
 
             int count = this.Count;
-            for (var i = 0; i < count - 1; i++) {
+            for (var i = 0; i < count - 1; i++)
+            {
                 var j = Generator.Random.Next(i, count);
-                foreach (var column in _columns.Values) {
+                foreach (var column in _columns.Values)
+                {
                     var temp = column[i];
                     column[i] = column[j];
                     column[j] = temp;
                 }
             }
         }
-
-        public void Append(DataFrame other)
-        {
-            if (ColumnCount != other.ColumnCount) {
-                throw new ArgumentException("Column sizes mismatch");
-            }
-
-            for (var i = 0; i < ColumnCount; ++i) {
-                GetColumn(i).AddRange(other.GetColumn(i));
-            }
-        }
-
+*/
         #endregion
 
         #region Elementwise operations
-
+/*
         public DataFrame Apply(Func<object, object> f)
         {
             var df = new DataFrame();
 
-            for (var column = 0; column < ColumnCount; ++column) {
+            for (var column = 0; column < ColumnCount; ++column)
+            {
                 var v = GetColumn(column);
                 var newVec = new DataFrameColumn(v.Count);
-                for (var row = 0; row < RowCount; ++row) {
+                for (var row = 0; row < RowCount; ++row)
+                {
                     newVec.Add(f.Invoke(v[row]));
                 }
                 df.DefineNewColumn(ColumnNames[column], newVec);
@@ -659,10 +637,12 @@ namespace Horker.Math
         {
             var df = new DataFrame();
 
-            for (var column = 0; column < ColumnCount; ++column) {
+            for (var column = 0; column < ColumnCount; ++column)
+            {
                 var v = GetColumn(column);
                 var newVec = new DataFrameColumn(v.Count);
-                for (var row = 0; row < RowCount; ++row) {
+                for (var row = 0; row < RowCount; ++row)
+                {
                     newVec.Add(f.Invoke(v[row], arg1));
                 }
                 df.DefineNewColumn(ColumnNames[column], newVec);
@@ -675,10 +655,12 @@ namespace Horker.Math
         {
             var df = new DataFrame();
 
-            for (var column = 0; column < ColumnCount; ++column) {
+            for (var column = 0; column < ColumnCount; ++column)
+            {
                 var v = GetColumn(column);
                 var newVec = new DataFrameColumn(v.Count);
-                for (var row = 0; row < RowCount; ++row) {
+                for (var row = 0; row < RowCount; ++row)
+                {
                     var va = new List<PSVariable>() { new PSVariable("_") };
                     va[0].Value = v[row];
                     newVec.Add(f.InvokeWithContext(null, va, null).Last());
@@ -691,9 +673,11 @@ namespace Horker.Math
 
         public void ApplyInPlace(Func<object, object> f)
         {
-            for (var column = 0; column < ColumnCount; ++column) {
+            for (var column = 0; column < ColumnCount; ++column)
+            {
                 var v = GetColumn(column);
-                for (var row = 0; row < RowCount; ++row) {
+                for (var row = 0; row < RowCount; ++row)
+                {
                     v[row] = f.Invoke(v[row]);
                 }
             }
@@ -701,9 +685,11 @@ namespace Horker.Math
 
         public void ApplyInPlace(Func<object, object, object> f, object arg1)
         {
-            for (var column = 0; column < ColumnCount; ++column) {
+            for (var column = 0; column < ColumnCount; ++column)
+            {
                 var v = GetColumn(column);
-                for (var row = 0; row < RowCount; ++row) {
+                for (var row = 0; row < RowCount; ++row)
+                {
                     v[row] = f.Invoke(v[row], arg1);
                 }
             }
@@ -711,9 +697,11 @@ namespace Horker.Math
 
         public void ApplyInPlace(ScriptBlock f)
         {
-            for (var column = 0; column < ColumnCount; ++column) {
+            for (var column = 0; column < ColumnCount; ++column)
+            {
                 var v = GetColumn(column);
-                for (var row = 0; row < RowCount; ++row) {
+                for (var row = 0; row < RowCount; ++row)
+                {
                     var va = new List<PSVariable>() { new PSVariable("_") };
                     va[0].Value = v[row];
                     v[row] = f.InvokeWithContext(null, va, null).Last();
@@ -723,17 +711,20 @@ namespace Horker.Math
 
         public DataFrame Apply(DataFrame b, Func<object, object, object> f)
         {
-            if (ColumnCount > b.ColumnCount || RowCount > b.RowCount) {
+            if (ColumnCount > b.ColumnCount || RowCount > b.RowCount)
+            {
                 throw new RuntimeException("Data sizes are not the same");
             }
 
             var df = new DataFrame();
 
-            for (var column = 0; column < ColumnCount; ++column) {
+            for (var column = 0; column < ColumnCount; ++column)
+            {
                 var v = GetColumn(column);
                 var v2 = b.GetColumn(column);
                 var newVec = new DataFrameColumn(v.Count);
-                for (var row = 0; row < RowCount; ++row) {
+                for (var row = 0; row < RowCount; ++row)
+                {
                     newVec.Add(f.Invoke(v[row], v2[row]));
                 }
                 df.DefineNewColumn(ColumnNames[column], newVec);
@@ -744,17 +735,20 @@ namespace Horker.Math
 
         public DataFrame Apply(DataFrame b, ScriptBlock f)
         {
-            if (ColumnCount > b.ColumnCount || RowCount > b.RowCount) {
+            if (ColumnCount > b.ColumnCount || RowCount > b.RowCount)
+            {
                 throw new RuntimeException("Data sizes are not the same");
             }
 
             var df = new DataFrame();
 
-            for (var column = 0; column < ColumnCount; ++column) {
+            for (var column = 0; column < ColumnCount; ++column)
+            {
                 var v = GetColumn(column);
                 var v2 = b.GetColumn(column);
                 var newVec = new DataFrameColumn(v.Count);
-                for (var row = 0; row < RowCount; ++row) {
+                for (var row = 0; row < RowCount; ++row)
+                {
                     var va = new List<PSVariable>() { new PSVariable("a"), new PSVariable("b") };
                     va[0].Value = v[row];
                     va[1].Value = v2[row];
@@ -765,7 +759,7 @@ namespace Horker.Math
 
             return df;
         }
-
+*/
         #endregion
 
         #region Aggregation methods
@@ -773,9 +767,11 @@ namespace Horker.Math
         public DataFrameGroup GroupBy(string columnName)
         {
             var result = new DataFrameGroup();
-            foreach (var row in this) {
+            foreach (var row in this)
+            {
                 var group = row.Properties[columnName].Value;
-                if (!result.Contains(group)) {
+                if (!result.Contains(group))
+                {
                     result[group] = new DataFrame();
                 }
                 ((DataFrame)result[group]).AddRow(row);
@@ -787,9 +783,11 @@ namespace Horker.Math
         public DataFrameGroup GroupBy(params object[] columnNames)
         {
             var result = new DataFrameGroup();
-            foreach (var row in this) {
+            foreach (var row in this)
+            {
                 var builder = new StringBuilder();
-                for (var i = 0; i < columnNames.Length - 1; ++i) {
+                for (var i = 0; i < columnNames.Length - 1; ++i)
+                {
                     builder.Append(row.Properties[columnNames[i].ToString()].Value.ToString());
                     builder.Append(",");
                 }
@@ -797,7 +795,8 @@ namespace Horker.Math
 
                 var group = builder.ToString();
 
-                if (!result.Contains(group)) {
+                if (!result.Contains(group))
+                {
                     result[group] = new DataFrame();
                 }
                 ((DataFrame)result[group]).AddRow(row);

@@ -2,14 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Management.Automation;
-using System.Text.RegularExpressions;
-using Accord;
 using Accord.Math;
-using Accord.Statistics;
-using Accord.Math.Random;
-using Accord.Statistics.Moving;
-using System.Diagnostics;
 
 namespace Horker.Math
 {
@@ -21,387 +14,212 @@ namespace Horker.Math
         Boolean
     }
 
-    public class DataFrameColumn : List<object>
+    public class DataFrameColumn<T> : DataFrameColumnInternal, IEnumerable<T>
     {
-        private WeakReference _arrayCache;
+        private DataFrame _owner;
+        private List<T> _data;
 
-        #region Constructors
+        #region Properties
 
-        public DataFrameColumn()
-            : base()
+        public override int Count => _data.Count;
+
+        public override DataFrame Owner
         {
+            get { return _owner; }
+            internal set { _owner = value; }
         }
 
-        public DataFrameColumn(int capacity)
-            : base(capacity)
+        public T this[int index]
         {
+            get => _data[index];
+            set => _data[index] = value;
         }
 
-        public DataFrameColumn(DataFrameColumn v)
-            : base(v)
+        public override Type DataType => typeof(T);
+
+        #endregion
+
+        #region Override methods
+
+        public override object GetObject(int index) => _data[index];
+
+        internal override void AddObject(object value) => _data.Add((T)value);
+
+        internal override void SetObject(int index, object value) { _data[index] = (T)value; }
+
+        #endregion
+
+        #region IEnumerable<T>
+
+        public IEnumerator<T> GetEnumerator()
         {
+            return _data.GetEnumerator();
         }
 
-        public DataFrameColumn(IEnumerable data)
-            : base()
+        IEnumerator IEnumerable.GetEnumerator()
         {
-            foreach (var d in data) {
-                Add(d);
-            }
+            return _data.GetEnumerator();
+            throw new NotImplementedException();
         }
 
         #endregion
 
-        #region Factory methods
+        #region Constructors
 
-        public static DataFrameColumn Create<T>(IEnumerable<T> data)
+        public DataFrameColumn(DataFrame owner)
         {
-            var result = new DataFrameColumn(data.Count());
-            foreach (var d in data) {
-                result.Add(d);
-            }
-            return result;
+            _owner = owner;
+            _data = new List<T>();
         }
 
-        public static DataFrameColumn Create<T>(T[] data)
+        public DataFrameColumn(DataFrame owner, int capacity, bool fill)
         {
-            var result = new DataFrameColumn(data.Count());
-            foreach (var d in data) {
-                result.Add(d);
+            _owner = owner;
+            _data = new List<T>(capacity);
+
+            if (fill)
+            {
+                for (var i = 0; i < capacity; ++i)
+                    _data.Add(default(T));
             }
-            return result;
         }
 
-        public static DataFrameColumn GetDoubleRange(double a, double b, double step = 1.0, bool inclusive = true)
+        public DataFrameColumn(DataFrame owner, IEnumerable<T> data)
         {
-            var result = new DataFrameColumn();
+            _owner = owner;
+            _data = new List<T>();
 
-            if (inclusive) {
-                if (a <= b) {
-                    if (step <= 0.0) {
-                        throw new RuntimeException("Range definition inconsistent");
-                    }
-                    for (var i = a; i <= b; i += step) {
-                        result.Add(i);
-                    }
-                }
-                else {
-                    if (step >= 0.0) {
-                        throw new RuntimeException("Range definition inconsistent");
-                    }
-                    for (var i = a; i >= b; i += step) {
-                        result.Add(i);
-                    }
-                }
-            }
-            else {
-                if (a <= b) {
-                    if (step <= 0.0) {
-                        throw new RuntimeException("Range definition inconsistent");
-                    }
-                    for (var i = a; i < b; i += step) {
-                        result.Add(i);
-                    }
-                }
-                else {
-                    if (step >= 0.0) {
-                        throw new RuntimeException("Range definition inconsistent");
-                    }
-                    for (var i = a; i > b; i += step) {
-                        result.Add(i);
-                    }
-                }
-            }
-
-            return result;
+            foreach (var d in data)
+                _data.Add(d);
         }
 
-        public static DataFrameColumn GetDoubleInterval(double a, double b, int n, bool inclusive = true)
+        #endregion
+
+        #region Manipulators
+
+        internal void Add(T element)
         {
-            if (a >= b || n <= 0) {
-                throw new RuntimeException("Range definition inconsistent");
-            }
-
-            var result = new DataFrameColumn(n);
-
-            Double step;
-
-            if (inclusive) {
-                step = (b - a) / (n - 1);
-                for (var i = 0; i < n; ++i) {
-                    result.Add(a + step * i);
-                }
-            }
-            else {
-                step = (b - a) / n;
-                for (var i = 0; i < n; ++i) {
-                    result.Add(a + step * i);
-                }
-            }
-
-            return result;
-        }
-
-        public static DataFrameColumn WithValue(double value, int size)
-        {
-            var result = new DataFrameColumn(size);
-
-            for (int i = 0; i < size; ++i) {
-                result.Add(value);
-            }
-
-            return result;
-        }
-
-        public static DataFrameColumn Zero(int size)
-        {
-            return WithValue(0, size);
-        }
-
-        private void InvalidateCache()
-        {
-            _arrayCache.Target = null;
+            _data.Add(element);
         }
 
         #endregion
 
         #region Conversions
 
-        public double[] ToDoubleArray()
+        public override double[] ToDoubleArray()
         {
-            if (_arrayCache != null) {
-                if (_arrayCache.IsAlive && _arrayCache.Target != null) {
-                    return (double[])_arrayCache.Target;
-                }
-            }
-            else {
-                _arrayCache = new WeakReference(null);
-            }
-
             var result = new double[Count];
 
-            for (var i = 0; i < Count; ++i) {
+            for (var i = 0; i < Count; ++i)
                 result[i] = Converter.ToDouble(this[i]);
-            }
-
-            _arrayCache.Target = result;
 
             return result;
         }
 
-        public void ToDoubleArray(double[] dest)
+        public void ToDoubleArray(double[] dest, int offset = 0)
         {
-            for (var i = 0; i < Count; ++i) {
-                dest[i] = Converter.ToDouble(this[i]);
-            }
+            if (dest.Length + offset < Count)
+                throw new ArgumentException("Destination array doesn't have enough size");
+
+            for (var i = 0; i < Count; ++i)
+                dest[i + offset] = Converter.ToDouble(this[i]);
         }
 
         public int[] ToIntArray()
         {
             var result = new int[Count];
 
-            for (var i = 0; i < Count; ++i) {
+            for (var i = 0; i < Count; ++i)
                 result[i] = Convert.ToInt32(this[i]);
+
+            return result;
+        }
+
+        internal override IList<DataFrameColumnInternal> ToOneHot(int total, bool dropFirst = false)
+        {
+            var result = new List<DataFrameColumnInternal>();
+
+            for (var i = dropFirst ? 1 : 0; i < total; ++i)
+            {
+                var column = new DataFrameColumn<Int32>(null, Count, false);
+                for (var j = 0; j < Count; ++j)
+                    column.Add(Converter.ToInt(this[j]) == i ? 1 : 0);
+
+                result.Add(column);
             }
 
             return result;
         }
 
-        public DataFrame ToDummyValues(DataFrame dataFrame, string baseName, CodificationType codificationType = CodificationType.OneHotDropFirst)
+        public override DataFrame ToDummyValues(string baseName, CodificationType codificationType = CodificationType.OneHot)
         {
+            var df = new DataFrame();
+
             HashSet<object> set = new HashSet<object>(new ObjectKeyComparer());
-            foreach (var e in this) {
+            foreach (var e in _data)
+            {
                 set.Add(e);
             }
 
             var factors = new List<object>();
-            foreach (var e in set) {
+            foreach (var e in set)
+            {
                 factors.Add(e);
             }
             factors.Sort();
 
             var comparer = new ObjectKeyComparer();
-            if (codificationType == CodificationType.Multilevel) {
+            if (codificationType == CodificationType.Multilevel)
+            {
                 var values = new List<object>(Count);
-                foreach (var e in this) {
+                foreach (var e in _data)
+                {
                     var index = factors.FindIndex((x) => comparer.Equals(x, e));
                     values.Add(index);
                 }
-                dataFrame.AddColumn(baseName, values);
+                df.AddColumn(baseName, values);
             }
-            else {
+            else
+            {
                 bool excludeFirst = codificationType == CodificationType.OneHotDropFirst;
                 bool asBoolean = codificationType == CodificationType.Boolean;
 
                 var values = new List<object>[factors.Count - (excludeFirst ? 1 : 0)];
-                for (var i = 0; i < values.Length; ++i) {
+                for (var i = 0; i < values.Length; ++i)
+                {
                     values[i] = new List<object>(Count);
                 }
 
-                foreach (var e in this) {
+                foreach (var e in _data)
+                {
                     var index = factors.FindIndex((x) => comparer.Equals(x, e));
-                    if (excludeFirst) {
+                    if (excludeFirst)
+                    {
                         --index;
                     }
-                    for (var i = 0; i < values.Length; ++i) {
-                        if (asBoolean) {
+                    for (var i = 0; i < values.Length; ++i)
+                    {
+                        if (asBoolean)
+                        {
                             values[i].Add(i == index);
                         }
-                        else {
+                        else
+                        {
                             values[i].Add(i == index ? 1 : 0);
                         }
                     }
                 }
 
-                for (var i = 0; i < values.Length; ++i) {
+                for (var i = 0; i < values.Length; ++i)
+                {
                     var name = baseName + factors[i + (excludeFirst ? 1 : 0)].ToString();
-                    dataFrame.AddColumn(name, values[i]);
+                    df.AddColumn(name, values[i]);
                 }
             }
 
-            return dataFrame;
-        }
-
-        public DataFrame ToDummyValues(string baseName, CodificationType codificationType = CodificationType.OneHotDropFirst)
-        {
-            var dataFrame = new DataFrame();
-            return ToDummyValues(dataFrame, baseName, codificationType);
-        }
-
-        #endregion
-
-        #region Inplace convertions
-
-        public void AsDouble()
-        {
-            for (var i = 0; i < this.Count; ++i) {
-                this[i] = Converter.ToDouble(this[i]);
-            }
-        }
-
-        public void AsBoolean()
-        {
-            for (var i = 0; i < this.Count; ++i) {
-                this[i] = Convert.ToBoolean(this[i]);
-            }
-        }
-
-        public void AsString()
-        {
-            for (var i = 0; i < this.Count; ++i) {
-                this[i] = Convert.ToString(this[i]);
-            }
-        }
-
-        public void AsDateTime()
-        {
-            for (var i = 0; i < this.Count; ++i) {
-                this[i] = Converter.ToDateTime(this[i]);
-            }
-        }
-
-        public void AsDateTime(string format)
-        {
-            for (var i = 0; i < this.Count; ++i) {
-                this[i] = Converter.ToDateTime(this[i], format);
-            }
-        }
-
-        public void AsDateTimeFromUnixTime()
-        {
-            for (var i = 0; i < this.Count; ++i) {
-                var sec = Converter.ToDouble(this[i]);
-                this[i] = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(sec);
-            }
-        }
-
-        public void AsDateTimeOffset()
-        {
-            for (var i = 0; i < this.Count; ++i) {
-                this[i] = Converter.ToDateTimeOffset(this[i]);
-            }
-        }
-
-        public void AsDateTimeOffset(string format)
-        {
-            for (var i = 0; i < this.Count; ++i) {
-                this[i] = Converter.ToDateTimeOffset(this[i], format);
-            }
-        }
-
-        public void AsDateTimeOffsetFromUnixTime()
-        {
-            var epoch = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
-            for (var i = 0; i < this.Count; ++i) {
-                var sec = Converter.ToDouble(this[i]);
-                this[i] = epoch.AddSeconds(sec);
-            }
-        }
-
-        public void AsUnixTime()
-        {
-            var epoch = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
-            for (var i = 0; i < this.Count; ++i) {
-                var d = Converter.ToDateTimeOffset(this[i]);
-                if (d == null) {
-                    continue;
-                }
-
-                this[i] = ((DateTimeOffset)d - epoch).TotalSeconds;
-            }
-        }
-
-        #endregion
-
-        #region Data manupilations
-
-        public void AddRange<T>(IEnumerable<T> data)
-        {
-            foreach (var d in data) {
-                Add(d);
-            }
-        }
-
-        public void AddRange<T>(T[] data)
-        {
-            foreach (var d in data) {
-                Add(d);
-            }
-        }
-
-        public void Replace<T>(IEnumerable<T> data)
-        {
-            Clear();
-            foreach (var d in data) {
-                Add(d);
-            }
-        }
-
-        public void Replace<T>(T[] data)
-        {
-            Clear();
-            foreach (var d in data) {
-                Add(d);
-            }
-        }
-
-        public void Replace(string pattern, string replacement)
-        {
-            var re = new Regex(pattern);
-
-            for (var i = 0; i < this.Count; ++i) {
-                this[i] = re.Replace(this[i].ToString(), replacement);
-            }
-        }
-
-        public void Replace(Regex re, string replacement)
-        {
-            for (var i = 0; i < this.Count; ++i) {
-                this[i] = re.Replace(this[i].ToString(), replacement);
-            }
+            return df;
         }
 
         #endregion
     }
-
 }
