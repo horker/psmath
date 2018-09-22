@@ -9,6 +9,13 @@ namespace Horker.Math
 {
     public static class DataTableExtensionMethods
     {
+        public static IEnumerable<object> GetColumn(this DataTable table, string columnName)
+        {
+            var column = table.Columns[columnName];
+            foreach (DataRow row in table.Rows)
+                yield return row[column];
+        }
+
         public static void ExpandToOneHot(this DataTable table, string columnName, int total = -1, bool preserve = false, string columnNameTemplate = "{0}_{1}")
         {
             var index = table.Columns.IndexOf(columnName);
@@ -29,15 +36,13 @@ namespace Horker.Math
             {
                 var column = new DataColumn(string.Format(columnNameTemplate, columnName, i));
                 column.DataType = dataType;
+                column.DefaultValue = 0;
                 table.Columns.Add(column);
                 column.SetOrdinal(index + 1 + i);
             }
 
             foreach (DataRow row in table.Rows)
-            {
-                for (var i = 0; i < total; ++i)
-                    row[index + 1 + i] = i == Convert.ToInt32(row[index]) ? 1 : 0;
-            }
+                row[index + 1 + Convert.ToInt32(row[index])] = 1;
 
             if (!preserve)
                 table.Columns.RemoveAt(index);
