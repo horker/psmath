@@ -113,7 +113,6 @@
     <Compile Include="Collections\DataFrame\KeyComparers.cs" />
     <Compile Include="Statistics\Regressions\InvokeLogisticRegression.cs" />
     <Compile Include="Statistics\Regressions\InvokeStepwiseLogisticRegression.cs" />
-    <Compile Include="Statistics\Regressions\Expression.cs" />
     <Compile Include="Statistics\Tests\InvokeBinomialTest.cs" />
     <Compile Include="Statistics\Tests\InvokeChiSquareTest.cs" />
     <Compile Include="Statistics\Tests\InvokeFisherExactTest.cs" />
