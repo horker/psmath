@@ -8,7 +8,7 @@ namespace Horker.Math
 {
     public class DataFrameColumnFactory
     {
-        public static DataFrameColumnInternal Create(DataFrameType type, DataFrame owner)
+        public static DataFrameColumnBase Create(DataFrameType type, DataFrame owner)
         {
             switch (type)
             {
@@ -27,36 +27,36 @@ namespace Horker.Math
             throw new ArgumentException("Unknown DataFrameType");
         }
 
-        public static DataFrameColumnInternal Create(DataFrameType type, DataFrame owner, int capacity, bool fill)
+        public static DataFrameColumnBase Create(DataFrameType type, DataFrame owner, int capacity, int fillSize)
         {
             switch (type)
             {
-                case DataFrameType.Object: return new DataFrameColumn<Object>(owner, capacity, fill);
-                case DataFrameType.Double: return new DataFrameColumn<Double>(owner, capacity, fill);
-                case DataFrameType.Single: return new DataFrameColumn<Single>(owner, capacity, fill);
-                case DataFrameType.Int64: return new DataFrameColumn<Int64>(owner, capacity, fill);
-                case DataFrameType.Int32: return new DataFrameColumn<Int32>(owner, capacity, fill);
-                case DataFrameType.Int16: return new DataFrameColumn<Int16>(owner, capacity, fill);
-                case DataFrameType.Byte: return new DataFrameColumn<Byte>(owner, capacity, fill);
-                case DataFrameType.SByte: return new DataFrameColumn<SByte>(owner, capacity, fill);
-                case DataFrameType.String: return new DataFrameColumn<String>(owner, capacity, fill);
-                case DataFrameType.Boolean: return new DataFrameColumn<Boolean>(owner, capacity, fill);
+                case DataFrameType.Object: return new DataFrameColumn<Object>(owner, capacity, fillSize);
+                case DataFrameType.Double: return new DataFrameColumn<Double>(owner, capacity, fillSize);
+                case DataFrameType.Single: return new DataFrameColumn<Single>(owner, capacity, fillSize);
+                case DataFrameType.Int64: return new DataFrameColumn<Int64>(owner, capacity, fillSize);
+                case DataFrameType.Int32: return new DataFrameColumn<Int32>(owner, capacity, fillSize);
+                case DataFrameType.Int16: return new DataFrameColumn<Int16>(owner, capacity, fillSize);
+                case DataFrameType.Byte: return new DataFrameColumn<Byte>(owner, capacity, fillSize);
+                case DataFrameType.SByte: return new DataFrameColumn<SByte>(owner, capacity, fillSize);
+                case DataFrameType.String: return new DataFrameColumn<String>(owner, capacity, fillSize);
+                case DataFrameType.Boolean: return new DataFrameColumn<Boolean>(owner, capacity, fillSize);
             }
 
             throw new ArgumentException("Unknown DataFrameType");
         }
 
-        public static DataFrameColumnInternal Create(Type type, DataFrame owner)
+        public static DataFrameColumnBase Create(Type type, DataFrame owner)
         {
-            return Create(GetDataFrameType(type), owner);
+            return Create(DataFrameTypeHelper.GetDataFrameType(type), owner);
         }
 
-        public static DataFrameColumnInternal Create(Type type, DataFrame owner, int capacity, bool fill)
+        public static DataFrameColumnBase Create(Type type, DataFrame owner, int capacity, int fillSize)
         {
-            return Create(GetDataFrameType(type), owner, capacity, fill);
+            return Create(DataFrameTypeHelper.GetDataFrameType(type), owner, capacity, fillSize);
         }
 
-        public static DataFrameColumnInternal CreateFromTypeName(string typeName, DataFrame owner)
+        public static DataFrameColumnBase CreateFromTypeName(string typeName, DataFrame owner)
         {
             if (typeName == "System.Object")
                 return new DataFrameColumn<Object>(owner);
@@ -82,46 +82,49 @@ namespace Horker.Math
             return new DataFrameColumn<object>(owner);
         }
 
-        public static DataFrameColumnInternal CreateFromTypeName(string typeName, DataFrame owner, int capacity, bool fill)
+        public static DataFrameColumnBase CreateFromTypeName(string typeName, DataFrame owner, int capacity, int fillSize)
         {
             if (typeName == "System.Object")
-                return new DataFrameColumn<Object>(owner, capacity, fill);
+                return new DataFrameColumn<Object>(owner, capacity, fillSize);
             if (typeName == "System.Double")
-                return new DataFrameColumn<Double>(owner, capacity, fill);
+                return new DataFrameColumn<Double>(owner, capacity, fillSize);
             if (typeName == "System.Single")
-                return new DataFrameColumn<Single>(owner, capacity, fill);
+                return new DataFrameColumn<Single>(owner, capacity, fillSize);
             if (typeName == "System.Int64")
-                return new DataFrameColumn<Int64>(owner, capacity, fill);
+                return new DataFrameColumn<Int64>(owner, capacity, fillSize);
             if (typeName == "System.Int32")
-                return new DataFrameColumn<Int32>(owner, capacity, fill);
+                return new DataFrameColumn<Int32>(owner, capacity, fillSize);
             if (typeName == "System.Int16")
-                return new DataFrameColumn<Int16>(owner, capacity, fill);
+                return new DataFrameColumn<Int16>(owner, capacity, fillSize);
             if (typeName == "System.Byte")
-                return new DataFrameColumn<Byte>(owner, capacity, fill);
+                return new DataFrameColumn<Byte>(owner, capacity, fillSize);
             if (typeName == "System.SByte")
-                return new DataFrameColumn<SByte>(owner, capacity, fill);
+                return new DataFrameColumn<SByte>(owner, capacity, fillSize);
             if (typeName == "System.String")
-                return new DataFrameColumn<String>(owner, capacity, fill);
+                return new DataFrameColumn<String>(owner, capacity, fillSize);
             if (typeName == "System.Boolean")
-                return new DataFrameColumn<Boolean>(owner, capacity, fill);
+                return new DataFrameColumn<Boolean>(owner, capacity, fillSize);
 
-            return new DataFrameColumn<object>(owner, capacity, fill);
+            return new DataFrameColumn<object>(owner, capacity, fillSize);
         }
 
-        public static DataFrameType GetDataFrameType(Type type)
+        public static DataFrameColumnBase Clone(DataFrameColumnBase source)
         {
-            if (type == typeof(Object)) return DataFrameType.Object;
-            if (type == typeof(Double)) return DataFrameType.Double;
-            if (type == typeof(Single)) return DataFrameType.Single;
-            if (type == typeof(Int64)) return DataFrameType.Int64;
-            if (type == typeof(Int32)) return DataFrameType.Int32;
-            if (type == typeof(Int16)) return DataFrameType.Int16;
-            if (type == typeof(Byte)) return DataFrameType.Byte;
-            if (type == typeof(SByte)) return DataFrameType.SByte;
-            if (type == typeof(Boolean)) return DataFrameType.Boolean;
-            if (type == typeof(String)) return DataFrameType.String;
+            switch (DataFrameTypeHelper.GetDataFrameType(source.DataType))
+            {
+                case DataFrameType.Object: return new DataFrameColumn<Object>((DataFrameColumn<Object>)(source));
+                case DataFrameType.Double: return new DataFrameColumn<Double>((DataFrameColumn<Double>)(source));
+                case DataFrameType.Single: return new DataFrameColumn<Single>((DataFrameColumn<Single>)(source));
+                case DataFrameType.Int64: return new DataFrameColumn<Int64>((DataFrameColumn<Int64>)(source));
+                case DataFrameType.Int32: return new DataFrameColumn<Int32>((DataFrameColumn<Int32>)(source));
+                case DataFrameType.Int16: return new DataFrameColumn<Int16>((DataFrameColumn<Int16>)(source));
+                case DataFrameType.Byte: return new DataFrameColumn<Byte>((DataFrameColumn<Byte>)(source));
+                case DataFrameType.SByte: return new DataFrameColumn<SByte>((DataFrameColumn<SByte>)(source));
+                case DataFrameType.String: return new DataFrameColumn<String>((DataFrameColumn<String>)(source));
+                case DataFrameType.Boolean: return new DataFrameColumn<Boolean>((DataFrameColumn<Boolean>)(source));
+            }
 
-            throw new ArgumentException("Invalid type");
+            throw new ArgumentException("Unknown DataFrameType");
         }
     }
 }

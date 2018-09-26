@@ -14,12 +14,14 @@ namespace Horker.Math
         Boolean
     }
 
-    public class DataFrameColumn<T> : DataFrameColumnInternal, IEnumerable<T>
+    public class DataFrameColumn<T> : DataFrameColumnBase, IEnumerable<T>
     {
         private DataFrame _owner;
         private List<T> _data;
 
         #region Properties
+
+        public override Type DataType => typeof(T);
 
         public override int Count => _data.Count;
 
@@ -35,17 +37,38 @@ namespace Horker.Math
             set => _data[index] = value;
         }
 
-        public override Type DataType => typeof(T);
-
         #endregion
 
         #region Override methods
 
-        public override object GetObject(int index) => _data[index];
+        internal override object[] ToObjectArray()
+        {
+            return this.Select(x => (object)x).ToArray();
+        }
+
+        internal override object GetObject(int index) => _data[index];
 
         internal override void AddObject(object value) => _data.Add((T)value);
 
         internal override void SetObject(int index, object value) { _data[index] = (T)value; }
+
+        internal override void AddColumn(DataFrameColumnBase column)
+        {
+            if (column.DataType == DataType)
+                _data.AddRange(((DataFrameColumn<T>)column)._data);
+            else
+            {
+                var count = column.Count;
+                for (var i = 0; i < count; ++i)
+                    _data.Add((T)column.GetObject(i));
+            }
+        }
+
+        internal override void AddDefaultValues(int count)
+        {
+            for (var i = 0; i < count; ++i)
+                _data.Add(default(T));
+        }
 
         #endregion
 
@@ -72,16 +95,13 @@ namespace Horker.Math
             _data = new List<T>();
         }
 
-        public DataFrameColumn(DataFrame owner, int capacity, bool fill)
+        public DataFrameColumn(DataFrame owner, int capacity, int fillSize)
         {
             _owner = owner;
             _data = new List<T>(capacity);
 
-            if (fill)
-            {
-                for (var i = 0; i < capacity; ++i)
-                    _data.Add(default(T));
-            }
+            for (var i = 0; i < fillSize; ++i)
+                _data.Add(default(T));
         }
 
         public DataFrameColumn(DataFrame owner, IEnumerable<T> data)
@@ -91,6 +111,12 @@ namespace Horker.Math
 
             foreach (var d in data)
                 _data.Add(d);
+        }
+
+        public DataFrameColumn(DataFrameColumn<T> source)
+        {
+            _owner = source._owner;
+            _data = new List<T>(source._data);
         }
 
         #endregion
@@ -106,7 +132,7 @@ namespace Horker.Math
 
         #region Conversions
 
-        public override double[] ToDoubleArray()
+        internal override double[] ToDoubleArray()
         {
             var result = new double[Count];
 
@@ -116,7 +142,7 @@ namespace Horker.Math
             return result;
         }
 
-        public void ToDoubleArray(double[] dest, int offset = 0)
+        internal void ToDoubleArray(double[] dest, int offset = 0)
         {
             if (dest.Length + offset < Count)
                 throw new ArgumentException("Destination array doesn't have enough size");
@@ -135,13 +161,13 @@ namespace Horker.Math
             return result;
         }
 
-        internal override IList<DataFrameColumnInternal> ToOneHot(int total, bool dropFirst = false)
+        internal override IList<DataFrameColumnBase> ToOneHot(int total, bool dropFirst = false)
         {
-            var result = new List<DataFrameColumnInternal>();
+            var result = new List<DataFrameColumnBase>();
 
             for (var i = dropFirst ? 1 : 0; i < total; ++i)
             {
-                var column = new DataFrameColumn<Int32>(null, Count, false);
+                var column = new DataFrameColumn<Int32>(null, Count, 0);
                 for (var j = 0; j < Count; ++j)
                     column.Add(Converter.ToInt(this[j]) == i ? 1 : 0);
 

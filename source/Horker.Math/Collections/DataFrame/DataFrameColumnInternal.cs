@@ -3,22 +3,33 @@ using System.Collections.Generic;
 
 namespace Horker.Math
 {
-    public abstract class DataFrameColumnInternal
+    public abstract class DataFrameColumnBase
     {
+        // Common properties
+
+        public abstract Type DataType { get; } 
+
         public abstract int Count { get; }
 
         public abstract DataFrame Owner { get; internal set; }
 
-        public abstract Type DataType { get; } 
+        // Internal object methods
 
-        public abstract double[] ToDoubleArray();
+        internal abstract object[] ToObjectArray();
+        internal abstract double[] ToDoubleArray();
 
-        internal abstract IList<DataFrameColumnInternal> ToOneHot(int total, bool dropFirst = false);
-        public abstract DataFrame ToDummyValues(string baseName, CodificationType codificationType = CodificationType.OneHot);
+        internal abstract IList<DataFrameColumnBase> ToOneHot(int total, bool dropFirst = false);
 
-        public abstract object GetObject(int index);
+        internal abstract object GetObject(int index);
 
         internal abstract void AddObject(object value);
         internal abstract void SetObject(int index, object value);
+
+        internal abstract void AddColumn(DataFrameColumnBase column);
+        internal abstract void AddDefaultValues(int count);
+
+        // Public methods
+
+        public abstract DataFrame ToDummyValues(string baseName, CodificationType codificationType = CodificationType.OneHot);
     }
 }

@@ -5,9 +5,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Tests")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("MouseComputer PC")]
+[assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Tests")]
-[assembly: AssemblyCopyright("Copyright © MouseComputer PC 2018")]
+[assembly: AssemblyCopyright("Copyright (c) horker")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
