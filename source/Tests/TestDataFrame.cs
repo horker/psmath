@@ -87,7 +87,7 @@ namespace Tests
 
             var result = df.Widen(4, "x", "y");
 
-            CollectionAssert.AreEqual(new string[] { "x0", "y0", "x1", "y1", "x2", "y2", "x3", "y3" }, result.ColumnNames);
+            CollectionAssert.AreEqual(new string[] { "x_0", "y_0", "x_1", "y_1", "x_2", "y_2", "x_3", "y_3" }, result.ColumnNames);
 
             Assert.AreEqual(1, result.GetColumn(0).Count);
             Assert.AreEqual(1, result.GetColumn(1).Count);
@@ -98,14 +98,14 @@ namespace Tests
             Assert.AreEqual(1, result.GetColumn(6).Count);
             Assert.AreEqual(1, result.GetColumn(7).Count);
 
-            Assert.AreEqual(1, result["x0", 0]);
-            Assert.AreEqual("a", result["y0", 0]);
-            Assert.AreEqual(2, result["x1", 0]);
-            Assert.AreEqual("b", result["y1", 0]);
-            Assert.AreEqual(3, result["x2", 0]);
-            Assert.AreEqual("c", result["y2", 0]);
-            Assert.AreEqual(0, result["x3", 0]);
-            Assert.AreEqual(null, result["y3", 0]);
+            Assert.AreEqual(1, result["x_0", 0]);
+            Assert.AreEqual("a", result["y_0", 0]);
+            Assert.AreEqual(2, result["x_1", 0]);
+            Assert.AreEqual("b", result["y_1", 0]);
+            Assert.AreEqual(3, result["x_2", 0]);
+            Assert.AreEqual("c", result["y_2", 0]);
+            Assert.AreEqual(0, result["x_3", 0]);
+            Assert.AreEqual(null, result["y_3", 0]);
         }
 
         [TestMethod]
