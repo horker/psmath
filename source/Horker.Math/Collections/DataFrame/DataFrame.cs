@@ -477,6 +477,12 @@ namespace Horker.Math
             }
         }
 
+        public void AddRowsWithDefaultValues(int rowCount)
+        {
+            foreach (var row in _columns.Values)
+                row.AddDefaultValues(rowCount);
+        }
+
         public void DefineNewColumn(string name, DataFrameColumnBase column)
         {
             if (_columns.ContainsKey(name))
