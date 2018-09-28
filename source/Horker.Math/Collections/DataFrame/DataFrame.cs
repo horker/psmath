@@ -656,24 +656,24 @@ namespace Horker.Math
             return df;
         }
 
-        public DataFrame Widen(string keyColumnName, params string[] columnNames)
+        public DataFrame Widen(string keyColumnName, int minDataCount, params string[] columnNames)
         {
             var g = GroupBy(keyColumnName);
 
-            int maxDataCount = 0;
-            foreach (DictionaryEntry entry in g)
-            {
-                var count = ((DataFrame)entry.Value).RowCount;
-                if (count > maxDataCount)
-                    maxDataCount = count;
-            }
+            if (minDataCount == -1)
+                foreach (DictionaryEntry entry in g)
+                {
+                    var count = ((DataFrame)entry.Value).RowCount;
+                    if (count > minDataCount)
+                        minDataCount = count;
+                }
 
             var keyColumnType = GetColumn(keyColumnName).DataType;
 
             var dfs = new List<DataFrame>(g.Count);
             foreach (DictionaryEntry entry in g)
             {
-                var df = ((DataFrame)entry.Value).Widen(maxDataCount, columnNames);
+                var df = ((DataFrame)entry.Value).Widen(minDataCount, columnNames);
                 var column = DataFrameColumnFactory.Create(keyColumnType, null, 1, 0);
                 column.AddObject(entry.Key);
                 df.InsertColumn(0, keyColumnName, column);
