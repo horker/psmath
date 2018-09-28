@@ -85,7 +85,7 @@ namespace Tests
             df.AddColumn("x", new int[] { 1, 2, 3 });
             df.AddColumn("y", new string[] { "a", "b", "c" });
 
-            var result = df.Widen(4, "x", "y");
+            var result = df.Widen(4, 5, new string[] { "x", "y" });
 
             CollectionAssert.AreEqual(new string[] { "x_0", "y_0", "x_1", "y_1", "x_2", "y_2", "x_3", "y_3" }, result.ColumnNames);
 

@@ -626,12 +626,17 @@ namespace Horker.Math
                 RemoveColumn(columnName);
         }
 
-        public DataFrame Widen(int minDataCount, params string[] columnNames)
+        public DataFrame Widen(int minDataCount, int maxDataCount, string[] columnNames)
         {
             var df = new DataFrame();
 
+            var count = RowCount;
+
+            if (maxDataCount != -1 && count > maxDataCount)
+                count = maxDataCount;
+
             var i = 0;
-            for (; i < RowCount; ++i)
+            for (; i < count; ++i)
             {
                 foreach (var name in columnNames)
                 {
@@ -656,7 +661,12 @@ namespace Horker.Math
             return df;
         }
 
-        public DataFrame Widen(string keyColumnName, int minDataCount, params string[] columnNames)
+        public DataFrame Widen(int minDataCount, int maxDataCount, object[] columnNames)
+        {
+            return Widen(minDataCount, maxDataCount, columnNames.Select(x => x.ToString()).ToArray());
+        }
+
+        public DataFrame Widen(string keyColumnName, int minDataCount, int maxDataCount, string[] columnNames)
         {
             var g = GroupBy(keyColumnName);
 
@@ -673,7 +683,7 @@ namespace Horker.Math
             var dfs = new List<DataFrame>(g.Count);
             foreach (DictionaryEntry entry in g)
             {
-                var df = ((DataFrame)entry.Value).Widen(minDataCount, columnNames);
+                var df = ((DataFrame)entry.Value).Widen(minDataCount, maxDataCount, columnNames);
                 var column = DataFrameColumnFactory.Create(keyColumnType, null, 1, 0);
                 column.AddObject(entry.Key);
                 df.InsertColumn(0, keyColumnName, column);
@@ -681,6 +691,11 @@ namespace Horker.Math
             }
 
             return Concatenate(dfs.ToArray());
+        }
+
+        public DataFrame Widen(string keyColumnName, int minDataCount, int maxDataCount, object[] columnNames)
+        {
+            return Widen(keyColumnName, minDataCount, maxDataCount, columnNames.Select(x => x.ToString()).ToArray());
         }
 
         public static DataFrame Concatenate(params DataFrame[] dfs)
