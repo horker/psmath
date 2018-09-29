@@ -141,6 +141,16 @@ namespace Horker.Math
             return result;
         }
 
+        internal override string[] ToStringArray()
+        {
+            var result = new string[Count];
+
+            for (var i = 0; i < Count; ++i)
+                result[i] = Convert.ToString(this[i]);
+
+            return result;
+        }
+
         internal void ToDoubleArray(double[] dest, int offset = 0)
         {
             if (dest.Length + offset < Count)

@@ -776,6 +776,65 @@ namespace Horker.Math
             }
         }
 
+        public DataFrame Pivot(string verticalPivotName, string horizontalPivotName, string[] valueColumnNames)
+        {
+            var verticalPivot = GetColumn(verticalPivotName);
+            var horizontalPivot = GetColumn(horizontalPivotName);
+
+            var valueColumns = new DataFrameColumnBase[valueColumnNames.Length];
+
+            for (var i = 0; i < valueColumnNames.Length; ++i)
+                valueColumns[i] = GetColumn(valueColumnNames[i]);
+
+            var verticalKeys = verticalPivot.ToStringArray().Distinct();
+            var horizontalKeys = horizontalPivot.ToStringArray().Distinct();
+
+            // Intialize rowMap
+
+            var rowMap = new Dictionary<string, int>();
+            for (var i = 0; i < verticalKeys.Length; ++i)
+                rowMap.Add(verticalKeys[i], i);
+
+            // Initialize columnMap and a result DataFrame.
+
+            var columnMap = new Dictionary<Tuple<string, string>, DataFrameColumnBase>();
+
+            var rowCount = verticalKeys.Length;
+            var df = new DataFrame();
+            df.AddColumn(verticalPivotName, verticalKeys);
+
+            for (var i = 0; i < horizontalKeys.Length; ++i)
+            {
+                for (var j = 0; j < valueColumnNames.Length; ++j)
+                {
+                    var key = new Tuple<string, string>(horizontalKeys[i], valueColumnNames[j]);
+                    var value = DataFrameColumnFactory.Create(valueColumns[j].DataType, null, rowCount, rowCount);
+
+                    columnMap.Add(key, value);
+                    df.DefineNewColumn(horizontalKeys[i] + "_" + valueColumnNames[j], value);
+                }
+            }
+
+            // Place values
+            // TODO: multiple values for a single cell
+
+            for (var i = 0; i < RowCount; ++i)
+            {
+                var r = verticalPivot.GetObject(i).ToString();
+                var c = horizontalPivot.GetObject(i).ToString();
+
+                var rowIndex = rowMap[r];
+
+                for (var j = 0; j < valueColumnNames.Length; ++j)
+                {
+                    var column = columnMap[new Tuple<string, string>(c, valueColumnNames[j])];
+                    column.SetObject(rowIndex, valueColumns[j].GetObject(i));
+                }
+            }
+
+            return df;
+        }
+
         #endregion
 
         #region Elementwise operations

@@ -157,5 +157,25 @@ namespace Tests
             CollectionAssert.AreEqual(new object[] { "3" }, g["3"].GetColumn("x").ToObjectArray());
             CollectionAssert.AreEqual(new object[] { "c" }, g["3"].GetColumn("y").ToObjectArray());
         }
+
+        [TestMethod]
+        public void TestPivot()
+        {
+            var df = new DataFrame();
+
+            df.AddColumn("x", new string[] { "a", "b", "a", "b", "c" });
+            df.AddColumn("y", new int[] { 10, 10, 20, 20, 20 });
+            df.AddColumn("v1", new double[] { 1, 2, 3, 4, 5 });
+            df.AddColumn("v2", new string[] { "foo", "bar", "baz", "qux", "quux" });
+
+            var p = df.Pivot("x", "y", new string[] { "v1", "v2" });
+
+            CollectionAssert.AreEqual(new string[] { "x", "10_v1", "10_v2", "20_v1", "20_v2" }, p.ColumnNames);
+            Assert.AreEqual(3, p.RowCount);
+
+            CollectionAssert.AreEqual(new object[] { "a", "b", "c" }, p["x"].ToObjectArray());
+            CollectionAssert.AreEqual(new object[] { 1.0, 2.0, 0.0 }, p["10_v1"].ToObjectArray());
+            CollectionAssert.AreEqual(new object[] { "baz", "qux", "quux" }, p["20_v2"].ToObjectArray());
+        }
     }
 }

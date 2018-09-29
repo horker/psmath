@@ -18,6 +18,7 @@ namespace Horker.Math
 
         internal abstract object[] ToObjectArray();
         internal abstract double[] ToDoubleArray();
+        internal abstract string[] ToStringArray();
 
         internal abstract IList<DataFrameColumnBase> ToOneHot(int total, bool dropFirst = false);
 
