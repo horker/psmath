@@ -74,15 +74,14 @@ namespace Horker.Math
 
         #region IEnumerable<T>
 
-        public IEnumerator<T> GetEnumerator()
+        IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
             return _data.GetEnumerator();
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
+        public override IEnumerator GetEnumerator()
         {
             return _data.GetEnumerator();
-            throw new NotImplementedException();
         }
 
         #endregion

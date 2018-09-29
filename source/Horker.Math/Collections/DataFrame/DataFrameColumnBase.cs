@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Horker.Math
 {
-    public abstract class DataFrameColumnBase
+    public abstract class DataFrameColumnBase : IEnumerable
     {
         // Common properties
 
@@ -29,6 +30,8 @@ namespace Horker.Math
         internal abstract void AddDefaultValues(int count);
 
         // Public methods
+
+        public abstract IEnumerator GetEnumerator();
 
         public abstract DataFrame ToDummyValues(string baseName, CodificationType codificationType = CodificationType.OneHot);
     }
