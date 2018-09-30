@@ -223,44 +223,6 @@ namespace Horker.Math
 
         public DataFrameColumnBase this[int index] => GetColumn(index);
 
-        public object this[string column, int row = -1]
-        {
-            get
-            {
-                if (row == -1)
-                    return GetColumn(column);
-
-                return GetColumn(column).GetObject(row);
-            }
-
-            set
-            {
-                if (row == -1)
-                    throw new ArgumentException("Row should not be null");
-
-                GetColumn(column).SetObject(row, value);
-            }
-        }
-
-        public object this[int column, int row = -1]
-        {
-            get
-            {
-                if (row == -1)
-                    return GetColumn(column);
-
-                return GetColumn(column).GetObject(row);
-            }
-
-            set
-            {
-                if (row == -1)
-                    throw new ArgumentException("Row should not be null");
-
-                GetColumn(column).SetObject(row, value);
-            }
-        }
-
         #endregion
 
         #region  Enumerator<PSObject>

@@ -98,14 +98,14 @@ namespace Tests
             Assert.AreEqual(1, result.GetColumn(6).Count);
             Assert.AreEqual(1, result.GetColumn(7).Count);
 
-            Assert.AreEqual(1, result["x_0", 0]);
-            Assert.AreEqual("a", result["y_0", 0]);
-            Assert.AreEqual(2, result["x_1", 0]);
-            Assert.AreEqual("b", result["y_1", 0]);
-            Assert.AreEqual(3, result["x_2", 0]);
-            Assert.AreEqual("c", result["y_2", 0]);
-            Assert.AreEqual(0, result["x_3", 0]);
-            Assert.AreEqual(null, result["y_3", 0]);
+            Assert.AreEqual(1, result["x_0"].GetObject(0));
+            Assert.AreEqual("a", result["y_0"].GetObject(0));
+            Assert.AreEqual(2, result["x_1"].GetObject(0));
+            Assert.AreEqual("b", result["y_1"].GetObject(0));
+            Assert.AreEqual(3, result["x_2"].GetObject(0));
+            Assert.AreEqual("c", result["y_2"].GetObject(0));
+            Assert.AreEqual(0, result["x_3"].GetObject(0));
+            Assert.AreEqual(null, result["y_3"].GetObject(0));
         }
 
         [TestMethod]
