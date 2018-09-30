@@ -5,6 +5,7 @@ namespace Horker.Math
     public enum DataFrameType
     {
         Object,
+        Decimal,
         Double,
         Single,
         Float = Single,
@@ -23,6 +24,7 @@ namespace Horker.Math
         public static DataFrameType GetDataFrameType(Type type)
         {
             if (type == typeof(Object)) return DataFrameType.Object;
+            if (type == typeof(Decimal)) return DataFrameType.Decimal;
             if (type == typeof(Double)) return DataFrameType.Double;
             if (type == typeof(Single)) return DataFrameType.Single;
             if (type == typeof(Int64)) return DataFrameType.Int64;
@@ -33,7 +35,7 @@ namespace Horker.Math
             if (type == typeof(String)) return DataFrameType.String;
             if (type == typeof(Boolean)) return DataFrameType.Boolean;
 
-            throw new ArgumentException("Invalid type");
+            throw new ArgumentException("Unsupported type for DataFrame: " + type.FullName);
         }
     }
 }

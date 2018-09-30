@@ -13,6 +13,7 @@ namespace Horker.Math
             switch (type)
             {
                 case DataFrameType.Object: return new DataFrameColumn<Object>(owner);
+                case DataFrameType.Decimal: return new DataFrameColumn<Decimal>(owner);
                 case DataFrameType.Double: return new DataFrameColumn<Double>(owner);
                 case DataFrameType.Single: return new DataFrameColumn<Single>(owner);
                 case DataFrameType.Int64: return new DataFrameColumn<Int64>(owner);
@@ -32,6 +33,7 @@ namespace Horker.Math
             switch (type)
             {
                 case DataFrameType.Object: return new DataFrameColumn<Object>(owner, capacity, fillSize);
+                case DataFrameType.Decimal: return new DataFrameColumn<Decimal>(owner, capacity, fillSize);
                 case DataFrameType.Double: return new DataFrameColumn<Double>(owner, capacity, fillSize);
                 case DataFrameType.Single: return new DataFrameColumn<Single>(owner, capacity, fillSize);
                 case DataFrameType.Int64: return new DataFrameColumn<Int64>(owner, capacity, fillSize);
@@ -60,6 +62,8 @@ namespace Horker.Math
         {
             if (typeName == "System.Object")
                 return new DataFrameColumn<Object>(owner);
+            if (typeName == "System.Decimal")
+                return new DataFrameColumn<Decimal>(owner);
             if (typeName == "System.Double")
                 return new DataFrameColumn<Double>(owner);
             if (typeName == "System.Single")
@@ -86,6 +90,8 @@ namespace Horker.Math
         {
             if (typeName == "System.Object")
                 return new DataFrameColumn<Object>(owner, capacity, fillSize);
+            if (typeName == "System.Decimal")
+                return new DataFrameColumn<Decimal>(owner, capacity, fillSize);
             if (typeName == "System.Double")
                 return new DataFrameColumn<Double>(owner, capacity, fillSize);
             if (typeName == "System.Single")
@@ -113,6 +119,7 @@ namespace Horker.Math
             switch (DataFrameTypeHelper.GetDataFrameType(source.DataType))
             {
                 case DataFrameType.Object: return new DataFrameColumn<Object>((DataFrameColumn<Object>)(source));
+                case DataFrameType.Decimal: return new DataFrameColumn<Decimal>((DataFrameColumn<Decimal>)(source));
                 case DataFrameType.Double: return new DataFrameColumn<Double>((DataFrameColumn<Double>)(source));
                 case DataFrameType.Single: return new DataFrameColumn<Single>((DataFrameColumn<Single>)(source));
                 case DataFrameType.Int64: return new DataFrameColumn<Int64>((DataFrameColumn<Int64>)(source));
