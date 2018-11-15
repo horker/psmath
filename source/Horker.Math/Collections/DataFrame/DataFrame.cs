@@ -390,6 +390,18 @@ namespace Horker.Math
             return obj;
         }
 
+        public DataFrame GetRows(int index, int count)
+        {
+            var df = new DataFrame();
+            foreach (var name in _names)
+            {
+                var newColumn = _columns[name].Subset(index, count);
+                df.DefineNewColumn(name, newColumn);
+            }
+
+            return df;
+        }
+
         public DataFrameColumnBase GetColumn(string name)
         {
             if (name.ToLower() == "__line__")
@@ -407,6 +419,15 @@ namespace Horker.Math
         public DataFrameColumnBase GetColumn(int index)
         {
             return _columns[_names[index]];
+        }
+
+        public DataFrame GetColumns(params string[] names)
+        {
+            var df = new DataFrame();
+            foreach (var n in names)
+                df.DefineNewColumn(n, _columns[n]);
+
+            return df;
         }
 
         public void SetRow(PSObject obj)

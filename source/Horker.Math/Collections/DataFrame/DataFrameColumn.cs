@@ -48,6 +48,11 @@ namespace Horker.Math
 
         internal override object GetObject(int index) => _data[index];
 
+        internal override DataFrameColumnBase Subset(int index, int count)
+        {
+            return new DataFrameColumn<T>(_owner, _data, index, count);
+        }
+
         internal override void AddObject(object value) => _data.Add((T)value);
 
         internal override void SetObject(int index, object value) { _data[index] = (T)value; }
@@ -116,6 +121,14 @@ namespace Horker.Math
         {
             _owner = source._owner;
             _data = new List<T>(source._data);
+        }
+
+        public DataFrameColumn(DataFrame owner, IList<T> source, int index, int count)
+        {
+            _owner = owner;
+            _data = new List<T>(count);
+            for (var i = 0; i < count; ++i)
+                _data.Add(source[index + i]);
         }
 
         #endregion

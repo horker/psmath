@@ -23,6 +23,7 @@ namespace Horker.Math
         internal abstract IList<DataFrameColumnBase> ToOneHot(int total, bool dropFirst = false);
 
         internal abstract object GetObject(int index);
+        internal abstract DataFrameColumnBase Subset(int index, int count);
 
         internal abstract void AddObject(object value);
         internal abstract void SetObject(int index, object value);
